@@ -2,6 +2,24 @@
 #include <Arduino.h>
 #endif
 
+// #define BDD_UNITY_MAX_MODULE 5
+// #define BDD_UNITY_MAX_DESCRIBE 7
+// #define BDD_UNITY_MAX_POP 4
+// #define BDD_UNITY_MAX_TEST 2
+// #define BDD_UNITY_MAX_IT 1
+// #define BDD_UNITY_MAX_ASYNC_IT 1
+// #define BDD_UNITY_MAX_CALLBACK 1
+// #define BDD_UNITY_MAX_ASYNC_CALLBACK 0
+// #define BDD_UNITY_MAX_STACKED_CALLBACK 0
+// #define BDD_UNITY_MAX_STACKED_ASYNC_CALLBACK 0
+// #define BDD_UNITY_MAX_SETUP 1
+// #define BDD_UNITY_MAX_DEPTH 4
+// #define BDD_UNITY_MAX_BEFORE_EACH 0
+// #define BDD_UNITY_MAX_ASYNC_BEFORE_EACH 0
+// #define BDD_UNITY_MAX_AFTER_EACH 0
+// #define BDD_UNITY_MAX_ASYNC_AFTER_EACH 0
+// #define BDD_UNITY_MAX_LOOP 1
+
 #include <unity.h>
 #include <BddUnity.hpp>
 
@@ -33,6 +51,7 @@ void loop() {
     runner.loop();
     if (runner.isFinished()) {
       BddUnity::Usage::printUsage(memory, runner);
+      BddUnity::Usage::printUsageDefines(memory, runner);
       status = UNITY_END();
       running = false;
     }
