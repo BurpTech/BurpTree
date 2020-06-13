@@ -15,9 +15,7 @@ namespace CppRedux {
 
       using f_alloc = std::function<const State * (void * address)>;
 
-    protected:
-
-      const State * _update(const State * previous, const State & next) const {
+      const State * update(const State * previous, const State & next) const {
         auto address = previous == state1 ? state2 : state1;
         if (previous) {
           State * ret = new(address) State(previous, next);

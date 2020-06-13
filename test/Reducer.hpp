@@ -17,7 +17,7 @@ namespace CppReduxTest {
       public:
 
         const State * init(const State * previous, const State & initialState) const override {
-          return _update(previous, initialState);
+          return update(previous, initialState);
         }
 
         const State * reduce(const State * previous, const Action & action) const override {
@@ -25,7 +25,7 @@ namespace CppReduxTest {
             case ActionType::ACTION:
               {
                 State state(action.payload<Payload>()->data);
-                return _update(previous, state);
+                return update(previous, state);
               }
             default:
               return previous;

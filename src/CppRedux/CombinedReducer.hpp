@@ -16,13 +16,13 @@ namespace CppRedux {
 
       const CombinedState * init(const CombinedState * previous, const CombinedState & initialState) const override {
         return _map.init(previous, initialState, [&](const CombinedState & state) {
-          return Reducer<CombinedState, Action>::_update(previous, state);
+          return Reducer<CombinedState, Action>::update(previous, state);
         });
       }
 
       const CombinedState * reduce(const CombinedState * previous, const Action & action) const override {
         return _map.reduce(previous, action, [&](const CombinedState & state) {
-          return Reducer<CombinedState, Action>::_update(previous, state);
+          return Reducer<CombinedState, Action>::update(previous, state);
         });
       }
 
