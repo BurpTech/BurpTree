@@ -19,10 +19,10 @@ namespace CppReduxTest {
 
       public:
 
-        const CombinedReducer::State * first;
-        const CombinedReducer::State * second;
+        const CombinedReducer::State & first;
+        const CombinedReducer::State & second;
 
-        CombinedState(const CombinedState * previous, const CombinedReducer::State * first, const CombinedReducer::State * second) :
+        CombinedState(const CombinedState * previous, const CombinedReducer::State & first, const CombinedReducer::State & second) :
           CppRedux::State(previous),
           first(first),
           second(second)
@@ -32,7 +32,7 @@ namespace CppReduxTest {
           CombinedState(previous, next.first, next.second)
         {}
 
-        CombinedState(const CombinedReducer::State * first, const CombinedReducer::State * second) :
+        CombinedState(const CombinedReducer::State & first, const CombinedReducer::State & second) :
           CombinedState(nullptr, first, second)
         {}
 
@@ -49,16 +49,16 @@ namespace CppReduxTest {
 
         const CombinedState * init(const CombinedState * previous, const CombinedState & initialState, f_update update) const override {
           const CombinedState state(
-            _firstReducer.init(previous ? previous->first : nullptr, *(initialState.first)),
-            _secondReducer.init(previous ? previous->second : nullptr, *(initialState.second))
+            *(_firstReducer.init(previous ? &(previous->first) : nullptr, initialState.first)),
+            *(_secondReducer.init(previous ? &(previous->second) : nullptr, initialState.second))
           );
           return update(state);
         }
 
         const CombinedState * reduce(const CombinedState * previous, const Action & action, f_update update) const override {
           const CombinedState state(
-            _firstReducer.reduce(previous ? previous->first : nullptr, action),
-            _secondReducer.reduce(previous ? previous->second : nullptr, action)
+            *(_firstReducer.reduce(previous ? &(previous->first) : nullptr, action)),
+            *(_secondReducer.reduce(previous ? &(previous->second) : nullptr, action))
           );
           return update(state);
         }

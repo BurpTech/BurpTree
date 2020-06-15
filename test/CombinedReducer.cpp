@@ -21,32 +21,32 @@ namespace CppReduxTest {
             describe.before([]() {
                 const State initialFirst("first");
                 const State initialSecond("second");
-                const CombinedState initialState(&initialFirst, &initialSecond);
+                const CombinedState initialState(initialFirst, initialSecond);
                 state = combinedReducer.init(nullptr, initialState);
             });
 
             describe.it("should initialise a combined state", []() {
-                TEST_ASSERT_EQUAL(0, state->reduxSequence);
-                TEST_ASSERT_EQUAL(0, state->first->reduxSequence);
-                TEST_ASSERT_EQUAL(0, state->second->reduxSequence);
-                TEST_ASSERT_EQUAL_STRING("first", state->first->data);
-                TEST_ASSERT_EQUAL_STRING("second", state->second->data);
+                TEST_ASSERT_EQUAL(0, state->cppReduxSequence);
+                TEST_ASSERT_EQUAL(0, state->first.cppReduxSequence);
+                TEST_ASSERT_EQUAL(0, state->second.cppReduxSequence);
+                TEST_ASSERT_EQUAL_STRING("first", state->first.data);
+                TEST_ASSERT_EQUAL_STRING("second", state->second.data);
             });
 
             describe.describe("and init again", [](Describe & describe) {
                 describe.before([]() {
                     const State initialFirst("first");
                     const State initialSecond("second");
-                    const CombinedState initialState(&initialFirst, &initialSecond);
+                    const CombinedState initialState(initialFirst, initialSecond);
                     state = combinedReducer.init(state, initialState);
                 });
 
                 describe.it("should initialise a new combined state", []() {
-                    TEST_ASSERT_EQUAL(1, state->reduxSequence);
-                    TEST_ASSERT_EQUAL(1, state->first->reduxSequence);
-                    TEST_ASSERT_EQUAL(1, state->second->reduxSequence);
-                    TEST_ASSERT_EQUAL_STRING("first", state->first->data);
-                    TEST_ASSERT_EQUAL_STRING("second", state->second->data);
+                    TEST_ASSERT_EQUAL(1, state->cppReduxSequence);
+                    TEST_ASSERT_EQUAL(1, state->first.cppReduxSequence);
+                    TEST_ASSERT_EQUAL(1, state->second.cppReduxSequence);
+                    TEST_ASSERT_EQUAL_STRING("first", state->first.data);
+                    TEST_ASSERT_EQUAL_STRING("second", state->second.data);
                 });
 
                 describe.describe("then reduce", [](Describe & describe) {
@@ -55,11 +55,11 @@ namespace CppReduxTest {
                     });
 
                     describe.it("should create a new combined state", []() {
-                        TEST_ASSERT_EQUAL(2, state->reduxSequence);
-                        TEST_ASSERT_EQUAL(2, state->first->reduxSequence);
-                        TEST_ASSERT_EQUAL(2, state->second->reduxSequence);
-                        TEST_ASSERT_EQUAL_STRING("hello", state->first->data);
-                        TEST_ASSERT_EQUAL_STRING("hello", state->second->data);
+                        TEST_ASSERT_EQUAL(2, state->cppReduxSequence);
+                        TEST_ASSERT_EQUAL(2, state->first.cppReduxSequence);
+                        TEST_ASSERT_EQUAL(2, state->second.cppReduxSequence);
+                        TEST_ASSERT_EQUAL_STRING("hello", state->first.data);
+                        TEST_ASSERT_EQUAL_STRING("hello", state->second.data);
                     });
                 });
             });

@@ -3,7 +3,7 @@
 namespace CppRedux {
 
   State::State(const State * state) :
-    reduxSequence(state ? state->reduxSequence + 1 : 0)
+    cppReduxSequence(state ? state->cppReduxSequence + 1 : 0)
   {}
 
 }

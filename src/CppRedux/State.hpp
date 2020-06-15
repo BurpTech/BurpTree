@@ -6,7 +6,7 @@ namespace CppRedux {
 
     public:
 
-      const unsigned long reduxSequence;
+      const unsigned long cppReduxSequence;
 
       State(const State * state);
 

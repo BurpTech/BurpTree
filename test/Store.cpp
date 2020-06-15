@@ -41,7 +41,7 @@ namespace CppReduxTest {
 
             describe.it("should initialise the state", []() {
                 const State * state = store.getState();
-                TEST_ASSERT_EQUAL(0, state->reduxSequence);
+                TEST_ASSERT_EQUAL(0, state->cppReduxSequence);
                 TEST_ASSERT_EQUAL_STRING("initial", state->data);
             });
 
@@ -50,7 +50,7 @@ namespace CppReduxTest {
                 subscriber.callbackOnce([&]() {
                     async.it("should update the state and notify", []() {
                         const State * state = store.getState();
-                        TEST_ASSERT_EQUAL(1, state->reduxSequence);
+                        TEST_ASSERT_EQUAL(1, state->cppReduxSequence);
                         TEST_ASSERT_EQUAL_STRING("hello", store.getState()->data);
                     });
                     done();
