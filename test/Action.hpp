@@ -12,7 +12,7 @@ namespace CppReduxTest {
     using Action = CppRedux::Action<ActionType>;
 
     struct Payload {
-      const char * data;
+      int data;
     };
 
     extern Module tests;

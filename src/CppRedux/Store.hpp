@@ -17,14 +17,23 @@ namespace CppRedux {
 
     public:
 
-      Store(const Reducer<State, Action> & reducer) :
+      Store() :
         _state(nullptr),
         _lastState(nullptr),
-        _reducer(reducer),
+        _reducer(nullptr),
         _subscriber(nullptr),
         _reducing(false),
         _notifying(false)
       {}
+
+      void setReducer(const Reducer<State, Action> * reducer, const State * initialState) {
+        _reducer = reducer;
+        _state = initialState;
+        // prevent notification from init as subscribers
+        // should be added afterwards anyway and they should
+        // also be init'd if required to read the state
+        _lastState = _state;
+      }
 
       void setSubscriber(Subscriber * subscriber) {
         _subscriber = subscriber;
@@ -44,19 +53,12 @@ namespace CppRedux {
         }
       }
 
-      void init(const State & initialState) {
-        // Passing the state to _reducer->init 
-        // allows us to reinitialize the reducer
-        // without leaking memory as the state
-        // will not be nullptr if init is called
-        // twice
-        _reducing = true;
-        _state = _reducer.init(_state, initialState);
+      void init(const State * initialState) {
+        _state = initialState;
         // prevent notification from init as subscribers
         // should be added afterwards anyway and they should
         // also be init'd if required to read the state
         _lastState = _state;
-        _reducing = false;
       }
 
       Error dispatch(const Action & action) {
@@ -70,9 +72,11 @@ namespace CppRedux {
           // report warning so that users can detect when it happens
           ret = Error::dispatchDuringNotificationWarning;
         }
-        _reducing = true;
-        _state = _reducer.reduce(_state, action);
-        _reducing = false;
+        if (_reducer) {
+          _reducing = true;
+          _state = _reducer->reduce(_state, action);
+          _reducing = false;
+        }
         return ret;
       }
 
@@ -84,7 +88,7 @@ namespace CppRedux {
 
       const State * _state;
       const State * _lastState;
-      const Reducer<State, Action> & _reducer;
+      const Reducer<State, Action> * _reducer;
       Subscriber * _subscriber;
       bool _reducing;
       bool _notifying;

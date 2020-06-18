@@ -5,7 +5,7 @@ namespace CppReduxTest {
   namespace Action {
 
     const Payload payload = {
-      "hello"
+      1234
     };
     const Action action(ActionType::ACTION, &payload);
 
@@ -19,7 +19,7 @@ namespace CppReduxTest {
 
         describe.describe("payload()", [](Describe & describe) {
             describe.it("should return the payload", []() {
-                TEST_ASSERT_EQUAL_STRING("hello", action.payload<Payload>()->data);
+                TEST_ASSERT_EQUAL(1234, action.payload<Payload>()->data);
             });
         });
 
