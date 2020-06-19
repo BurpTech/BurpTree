@@ -53,14 +53,6 @@ namespace CppRedux {
         }
       }
 
-      void init(const State * initialState) {
-        _state = initialState;
-        // prevent notification from init as subscribers
-        // should be added afterwards anyway and they should
-        // also be init'd if required to read the state
-        _lastState = _state;
-      }
-
       Error dispatch(const Action & action) {
         if (_reducing) {
           // prevent dispatch during reduce and report error
