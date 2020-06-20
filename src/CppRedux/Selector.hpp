@@ -1,16 +1,16 @@
 #pragma once
 
 #include <functional>
+#include "Subscriber.hpp"
 
 namespace CppRedux {
 
   template <class Store, class InputState, class ReturnState>
-  class Selector {
+  class Selector : public Subscriber {
     
     public:
 
       using f_select = std::function<const ReturnState * (const InputState * inputState)>;
-      using f_onChange = std::function<void(const ReturnState * returnState)>;
 
       Selector(const Store & store, f_select select) :
         _store(store),
@@ -18,15 +18,21 @@ namespace CppRedux {
         _state(nullptr)
       {}
 
-      void check(f_onChange onChange) {
+      void notify() override {
         const ReturnState * state = _select(_store.getState());
         if (state != _state) {
           _state = state;
-          onChange(_state);
+          if (_subscriber) {
+            _subscriber->notify();
+          }
         }
       }
 
-      const ReturnState * get() const {
+      void setSubscriber(Subscriber * subscriber) {
+        _subscriber = subscriber;
+      }
+
+      const ReturnState * getState() const {
         return _state;
       }
 
@@ -39,6 +45,7 @@ namespace CppRedux {
       const Store & _store;
       f_select _select;
       const ReturnState * _state;
+      Subscriber * _subscriber;
 
   };
 

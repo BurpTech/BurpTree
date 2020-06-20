@@ -1,16 +1,15 @@
 #include <unity.h>
+#include <functional>
+#include "../src/CppRedux/Selector.hpp"
+#include "../src/CppRedux/Subscriber.hpp"
 #include "Selector.hpp"
 
 namespace CppReduxTest {
   namespace Selector {
 
-    class Child {
-      public:
-        const int data;
-        Child(const int data) :
-          data(data)
-        {}
-    };
+    using namespace CppRedux;
+
+    class Child {};
 
     class Parent {
       public:
@@ -23,7 +22,8 @@ namespace CppReduxTest {
     class Store {
       public:
         Store() :
-          _parent(nullptr)
+          _parent(nullptr),
+          _subscriber(nullptr)
         {}
 
         const Parent * getState() const {
@@ -32,59 +32,109 @@ namespace CppReduxTest {
 
         void setState(const Parent * parent) {
           _parent = parent;
+          if (_subscriber) {
+            _subscriber->notify();
+          }
+        }
+
+        void setSubscriber(CppRedux::Subscriber * subscriber) {
+          _subscriber = subscriber;
         }
 
       private:
         const Parent * _parent;
+        CppRedux::Subscriber * _subscriber;
+
+    };
+
+    using Selector = CppRedux::Selector<Store, Parent, Child>;
+
+    class Subscriber : public CppRedux::Subscriber {
+      public:
+        using f_cb = std::function<void()>;
+
+        Subscriber() :
+          _cb(nullptr)
+        {}
+
+        void notify() override {
+          if (_cb) {
+            f_cb cb = _cb;
+            _cb = nullptr;
+            cb();
+          }
+        }
+
+        void callbackOnce(f_cb cb) {
+          _cb = cb;
+        }
+
+      private:
+        f_cb _cb;
     };
 
     Store store;
-
-    CppRedux::Selector<Store, Parent, Child> selector(store, [](const Parent * parent) {
+    Selector selector(store, [](const Parent * parent) {
         return parent->child;
     });
+    Subscriber subscriber;
+
+    Child c1;
+    Child c2;
+    Parent p1(&c1);
+    Parent p2(&c1);
+    Parent p3(&c2);
+
+    bool calledBack;
 
     Module tests("Selector", [](Describe & describe) {
-        describe.describe("check, get & reset", [](Describe & describe) {
-            describe.it("check should only callback if the selected field has a new address", []() {
-                int callbackCount = 0;
-                const Child c1(5);
-                const Parent p1(&c1);
+        describe.setup([]() {
+            store.setSubscriber(&selector);
+            selector.setSubscriber(&subscriber);
+        });
+
+        describe.describe("with a new state", [](Describe & describe) {
+            describe.before([]() {
+                calledBack = false;
+                subscriber.callbackOnce([&]() {
+                    calledBack = true;
+                });
                 store.setState(&p1);
-                TEST_ASSERT_EQUAL(nullptr, selector.get());
-                selector.check([&](const Child * child) {
-                    TEST_ASSERT_EQUAL(&c1, child);
-                    callbackCount++;
+            });
+
+            describe.it("should notify and have the correct state", []() {
+                TEST_ASSERT_TRUE(calledBack);
+                TEST_ASSERT_EQUAL(&c1, selector.getState());
+            });
+
+            describe.describe("then with a new parent but the same child", [](Describe & describe) {
+                describe.before([]() {
+                    calledBack = false;
+                    subscriber.callbackOnce([&]() {
+                        calledBack = true;
+                    });
+                    store.setState(&p2);
                 });
-                TEST_ASSERT_EQUAL(1, callbackCount);
-                TEST_ASSERT_EQUAL(&c1, selector.get());
-                selector.check([&](const Child * child) {
-                    callbackCount++;
+
+                describe.it("should not notify or change state", []() {
+                    TEST_ASSERT_FALSE(calledBack);
+                    TEST_ASSERT_EQUAL(&c1, selector.getState());
                 });
-                // callback should not have been called
-                TEST_ASSERT_EQUAL(1, callbackCount);
-                TEST_ASSERT_EQUAL(&c1, selector.get());
-                const Parent p2(&c1);
-                store.setState(&p2);
-                TEST_ASSERT_EQUAL(&c1, selector.get());
-                selector.check([&](const Child * child) {
-                    callbackCount++;
+
+                describe.describe("then with a new parent and a new child", [](Describe & describe) {
+                    describe.before([]() {
+                        calledBack = false;
+                        subscriber.callbackOnce([&]() {
+                            calledBack = true;
+                        });
+                        store.setState(&p3);
+                    });
+
+                    describe.it("should notify and change state", []() {
+                        TEST_ASSERT_TRUE(calledBack);
+                        TEST_ASSERT_EQUAL(&c2, selector.getState());
+                    });
                 });
-                // callback should not have been called
-                TEST_ASSERT_EQUAL(&c1, selector.get());
-                TEST_ASSERT_EQUAL(1, callbackCount);
-                const Child c2(10);
-                const Parent p3(&c2);
-                store.setState(&p3);
-                TEST_ASSERT_EQUAL(&c1, selector.get());
-                selector.check([&](const Child * child) {
-                    TEST_ASSERT_EQUAL(&c2, child);
-                    callbackCount++;
-                });
-                TEST_ASSERT_EQUAL(2, callbackCount);
-                TEST_ASSERT_EQUAL(&c2, selector.get());
-                selector.reset();
-                TEST_ASSERT_EQUAL(nullptr, selector.get());
             });
         });
     });
