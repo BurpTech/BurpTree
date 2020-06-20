@@ -21,8 +21,12 @@ namespace CppRedux {
         const ReturnState * state = _select(inputState);
         if (state != _state) {
           _state = state;
-          onChange(state);
+          onChange(_state);
         }
+      }
+
+      const ReturnState * get() const {
+        return _state;
       }
 
       void reset() {
