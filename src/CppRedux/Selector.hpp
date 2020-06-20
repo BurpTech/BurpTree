@@ -4,7 +4,7 @@
 
 namespace CppRedux {
 
-  template <class InputState, class ReturnState>
+  template <class Store, class InputState, class ReturnState>
   class Selector {
     
     public:
@@ -12,13 +12,14 @@ namespace CppRedux {
       using f_select = std::function<const ReturnState * (const InputState * inputState)>;
       using f_onChange = std::function<void(const ReturnState * returnState)>;
 
-      Selector(f_select select) :
+      Selector(const Store & store, f_select select) :
+        _store(store),
         _select(select),
         _state(nullptr)
       {}
 
-      void check(const InputState * inputState, f_onChange onChange) {
-        const ReturnState * state = _select(inputState);
+      void check(f_onChange onChange) {
+        const ReturnState * state = _select(_store.getState());
         if (state != _state) {
           _state = state;
           onChange(_state);
@@ -35,6 +36,7 @@ namespace CppRedux {
 
     private:
 
+      const Store & _store;
       f_select _select;
       const ReturnState * _state;
 

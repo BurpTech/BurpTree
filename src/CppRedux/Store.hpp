@@ -72,7 +72,7 @@ namespace CppRedux {
         return ret;
       }
 
-      const State * getState() {
+      const State * getState() const {
         return _state;
       }
 

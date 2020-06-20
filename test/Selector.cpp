@@ -20,7 +20,27 @@ namespace CppReduxTest {
         {}
     };
 
-    CppRedux::Selector<Parent, Child> selector([](const Parent * parent) {
+    class Store {
+      public:
+        Store() :
+          _parent(nullptr)
+        {}
+
+        const Parent * getState() const {
+          return _parent;
+        }
+
+        void setState(const Parent * parent) {
+          _parent = parent;
+        }
+
+      private:
+        const Parent * _parent;
+    };
+
+    Store store;
+
+    CppRedux::Selector<Store, Parent, Child> selector(store, [](const Parent * parent) {
         return parent->child;
     });
 
@@ -30,20 +50,24 @@ namespace CppReduxTest {
                 int callbackCount = 0;
                 const Child c1(5);
                 const Parent p1(&c1);
-                selector.check(&p1, [&](const Child * child) {
+                store.setState(&p1);
+                TEST_ASSERT_EQUAL(nullptr, selector.get());
+                selector.check([&](const Child * child) {
                     TEST_ASSERT_EQUAL(&c1, child);
                     callbackCount++;
                 });
                 TEST_ASSERT_EQUAL(1, callbackCount);
                 TEST_ASSERT_EQUAL(&c1, selector.get());
-                selector.check(&p1, [&](const Child * child) {
+                selector.check([&](const Child * child) {
                     callbackCount++;
                 });
                 // callback should not have been called
                 TEST_ASSERT_EQUAL(1, callbackCount);
                 TEST_ASSERT_EQUAL(&c1, selector.get());
                 const Parent p2(&c1);
-                selector.check(&p2, [&](const Child * child) {
+                store.setState(&p2);
+                TEST_ASSERT_EQUAL(&c1, selector.get());
+                selector.check([&](const Child * child) {
                     callbackCount++;
                 });
                 // callback should not have been called
@@ -51,7 +75,9 @@ namespace CppReduxTest {
                 TEST_ASSERT_EQUAL(1, callbackCount);
                 const Child c2(10);
                 const Parent p3(&c2);
-                selector.check(&p3, [&](const Child * child) {
+                store.setState(&p3);
+                TEST_ASSERT_EQUAL(&c1, selector.get());
+                selector.check([&](const Child * child) {
                     TEST_ASSERT_EQUAL(&c2, child);
                     callbackCount++;
                 });
