@@ -35,6 +35,10 @@ namespace CppRedux {
       const ReturnState * getState() const {
         return _state;
       }
+      
+      void init() {
+        _state = _select(_store.getState());
+      }
 
       void reset() {
         _state = nullptr;
