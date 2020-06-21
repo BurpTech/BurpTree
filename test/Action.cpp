@@ -1,7 +1,7 @@
 #include <unity.h>
 #include "Action.hpp"
 
-namespace CppReduxTest {
+namespace BurpReduxTest {
   namespace Action {
 
     const Payload payload = {

@@ -2,7 +2,7 @@
 
 #include "Action.hpp"
 
-namespace CppReduxTest {
+namespace BurpReduxTest {
   namespace Reducer {
 
     using ActionType = Action::ActionType;

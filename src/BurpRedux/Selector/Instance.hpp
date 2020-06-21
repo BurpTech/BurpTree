@@ -4,7 +4,7 @@
 #include "../Publisher/Instance.hpp"
 #include "Interface.hpp"
 
-namespace CppRedux {
+namespace BurpRedux {
   namespace Selector {
 
     template <class Input, class Output, size_t size>

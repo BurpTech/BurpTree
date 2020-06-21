@@ -1,13 +1,13 @@
 # pragma once
 
 #include <functional>
-#include "../src/CppRedux/Subscriber.hpp"
+#include "../src/BurpRedux/Subscriber.hpp"
 
-namespace CppReduxTest {
+namespace BurpReduxTest {
   namespace Subscriber {
 
     template <class State>
-    class Subscriber : public CppRedux::Subscriber<State> {
+    class Subscriber : public BurpRedux::Subscriber<State> {
 
       public:
 

@@ -1,10 +1,10 @@
-#include "../src/CppRedux.hpp"
+#include "../src/BurpRedux.hpp"
 #include <unity.h>
 #include "Reducer.hpp"
 #include "Subscriber.hpp"
 #include "Store.hpp"
 
-namespace CppReduxTest {
+namespace BurpReduxTest {
   namespace Store {
 
     using ActionType = Action::ActionType;
@@ -19,7 +19,7 @@ namespace CppReduxTest {
     const Action action(ActionType::ACTION, &payload);
     Subscriber subscriber;
     const State * initialState = new State(0, 0);
-    CppRedux::Store::Instance<State, Action, 1> store(Reducer::reducer, initialState);
+    BurpRedux::Store::Instance<State, Action, 1> store(Reducer::reducer, initialState);
 
     Module tests("Store", [](Describe & describe) {
 

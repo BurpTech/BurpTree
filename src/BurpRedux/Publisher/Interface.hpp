@@ -3,7 +3,7 @@
 #include <stddef.h>
 #include "../Subscriber.hpp"
 
-namespace CppRedux {
+namespace BurpRedux {
   namespace Publisher {
 
     template <class State>

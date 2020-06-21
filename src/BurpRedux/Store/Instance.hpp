@@ -4,7 +4,7 @@
 #include "../Publisher/Instance.hpp"
 #include "Interface.hpp"
 
-namespace CppRedux {
+namespace BurpRedux {
   namespace Store {
 
     template <class State, class Action, size_t size>

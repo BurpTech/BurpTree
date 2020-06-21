@@ -1,15 +1,15 @@
 #pragma once
 
 #include <BurpUnity.hpp>
-#include "../src/CppRedux/Action.hpp"
+#include "../src/BurpRedux/Action.hpp"
 
-namespace CppReduxTest {
+namespace BurpReduxTest {
   namespace Action {
 
     enum class ActionType {
       ACTION
     };
-    using Action = CppRedux::Action<ActionType>;
+    using Action = BurpRedux::Action<ActionType>;
 
     struct Payload {
       int data;

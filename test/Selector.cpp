@@ -1,13 +1,13 @@
 #include <unity.h>
 #include <functional>
-#include "../src/CppRedux.hpp"
+#include "../src/BurpRedux.hpp"
 #include "Subscriber.hpp"
 #include "Selector.hpp"
 
-namespace CppReduxTest {
+namespace BurpReduxTest {
   namespace Selector {
 
-    using namespace CppRedux;
+    using namespace BurpRedux;
 
     class Child {};
 
@@ -21,8 +21,8 @@ namespace CppReduxTest {
         {}
     };
 
-    using Publisher = CppRedux::Publisher::Instance<Parent, 1>;
-    using Selector = CppRedux::Selector::Instance<Parent, Child, 1>;
+    using Publisher = BurpRedux::Publisher::Instance<Parent, 1>;
+    using Selector = BurpRedux::Selector::Instance<Parent, Child, 1>;
 
     Child c1;
     Child c2;

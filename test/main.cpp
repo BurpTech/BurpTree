@@ -28,9 +28,9 @@
 #include "Selector.hpp"
 
 Runner<4> runner({
-  &CppReduxTest::Action::tests,
-  &CppReduxTest::Store::tests,
-  &CppReduxTest::Selector::tests
+  &BurpReduxTest::Action::tests,
+  &BurpReduxTest::Store::tests,
+  &BurpReduxTest::Selector::tests
 });
 Memory memory;
 bool running = true;

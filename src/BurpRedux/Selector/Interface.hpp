@@ -3,7 +3,7 @@
 #include "../Publisher/Interface.hpp"
 #include "../Subscriber.hpp"
 
-namespace CppRedux {
+namespace BurpRedux {
   namespace Selector {
 
     template <class Input, class Output>

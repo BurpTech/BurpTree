@@ -3,7 +3,7 @@
 #include <array>
 #include "Interface.hpp"
 
-namespace CppRedux {
+namespace BurpRedux {
   namespace Publisher {
 
     template <class State, size_t size>

@@ -2,7 +2,7 @@
 
 #include <BurpUnity.hpp>
 
-namespace CppReduxTest {
+namespace BurpReduxTest {
   namespace Selector {
 
     extern Module tests;

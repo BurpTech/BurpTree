@@ -1,6 +1,6 @@
 #pragma once
 
-namespace CppRedux {
+namespace BurpRedux {
 
   template <class ActionType>
   class Action {

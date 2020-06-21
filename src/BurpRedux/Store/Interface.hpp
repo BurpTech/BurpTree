@@ -2,7 +2,7 @@
 
 #include "../Publisher/Interface.hpp"
 
-namespace CppRedux {
+namespace BurpRedux {
   namespace Store {
 
     enum class Error {

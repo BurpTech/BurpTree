@@ -1,11 +1,11 @@
 {
-  "name": "CppRedux",
+  "name": "BurpRedux",
   "keywords": "Redux, C++",
   "description": "Redux implementation for C++",
   "repository":
   {
     "type": "git",
-    "url": "https://github.com/pghalliday/CppRedux"
+    "url": "https://github.com/pghalliday/BurpRedux"
   },
   "authors":
   [
