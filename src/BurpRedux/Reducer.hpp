@@ -3,6 +3,14 @@
 #include <functional>
 
 namespace BurpRedux {
+
   template <class State, class Action>
-  using f_reducer = std::function<const State * (const State * state, const Action & action)>;
+  class Reducer {
+
+    public:
+
+      virtual const State * reduce(const State * state, const Action & action) = 0;
+
+  };
+
 }

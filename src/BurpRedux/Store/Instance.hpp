@@ -13,7 +13,7 @@ namespace BurpRedux {
 
       public:
 
-        Instance(f_reducer<State, Action> reducer, const State * state) :
+        Instance(Reducer<State, Action> & reducer, const State * state) :
           reducer(reducer),
           publisher(state),
           reducing(false),
@@ -41,11 +41,9 @@ namespace BurpRedux {
             // report warning so that users can detect when it happens
             error = Error::dispatchDuringNotificationWarning;
           }
-          if (reducer) {
-            reducing = true;
-            nextState = reducer(publisher.getState(), action);
-            reducing = false;
-          }
+          reducing = true;
+          nextState = reducer.reduce(publisher.getState(), action);
+          reducing = false;
           return error;
         }
 
@@ -63,7 +61,7 @@ namespace BurpRedux {
         
       private:
 
-        f_reducer<State, Action> reducer;
+        Reducer<State, Action> & reducer;
         Publisher::Instance<State, size> publisher;
         bool reducing;
         bool notifying;

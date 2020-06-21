@@ -1,5 +1,6 @@
 # pragma once
 
+#include "../src/BurpRedux/Reducer.hpp"
 #include "Action.hpp"
 
 namespace BurpReduxTest {
@@ -23,21 +24,27 @@ namespace BurpReduxTest {
 
     };
 
-    const State * reducer(const State * previous, const Action & action) {
-      switch (action.type) {
-        case ActionType::ACTION:
-          {
-            State * next = new State(
-              action.payload<Payload>()->data,
-              previous->data2
-            );
-            delete previous;
-            return next;
+    class Reducer : public BurpRedux::Reducer<State, Action> {
+
+      public:
+
+        const State * reduce(const State * previous, const Action & action) {
+          switch (action.type) {
+            case ActionType::ACTION:
+              {
+                State * next = new State(
+                  action.payload<Payload>()->data,
+                  previous->data2
+                );
+                delete previous;
+                return next;
+              }
+            default:
+              return previous;
           }
-        default:
-          return previous;
-      }
-    }
+        }
+
+    };
 
   }
 }
