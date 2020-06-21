@@ -1,3 +1,4 @@
+#include "../src/CppRedux.hpp"
 #include <unity.h>
 #include "Reducer.hpp"
 #include "Subscriber.hpp"
@@ -10,28 +11,24 @@ namespace CppReduxTest {
     using Payload = Action::Payload;
     using Action = Action::Action;
     using State = Reducer::State;
-    using Reducer = Reducer::Reducer;
-    using Subscriber = Subscriber::Subscriber;
+    using Subscriber = Subscriber::Subscriber<State>;
 
     const Payload payload = {
       1234
     };
     const Action action(ActionType::ACTION, &payload);
-    const Reducer reducer;
     Subscriber subscriber;
-    CppRedux::Store<State, Action> store;
+    const State * initialState = new State(0, 0);
+    CppRedux::Store::Instance<State, Action, 1> store(Reducer::reducer, initialState);
 
     Module tests("Store", [](Describe & describe) {
 
         describe.loop([]() {
             store.loop();
-            subscriber.loop();
         });
 
         describe.before([]() {
-            const State * state = new State(0, 0);
-            store.setReducer(&reducer, state);
-            store.setSubscriber(&subscriber);
+            store.subscribe(&subscriber);
         });
 
         describe.after([]() {
@@ -39,21 +36,19 @@ namespace CppReduxTest {
         });
 
         describe.it("should initialise the state", []() {
-            const State * state = store.getState();
-            TEST_ASSERT_EQUAL(0, state->data1);
-            TEST_ASSERT_EQUAL(0, state->data2);
+            TEST_ASSERT_EQUAL(initialState, store.getState());
         });
 
         describe.async("dispatch", [](Async & async, f_done & done) {
-            store.dispatch(action);
-            subscriber.callbackOnce([&]() {
-                async.it("should update the state and notify", []() {
-                    const State * state = store.getState();
+            subscriber.callbackOnce([&](const State * state) {
+                async.it("should update the state and notify", [&]() {
+                    TEST_ASSERT_EQUAL(state, store.getState());
                     TEST_ASSERT_EQUAL(1234, state->data1);
                     TEST_ASSERT_EQUAL(0, state->data2);
                 });
                 done();
             });
+            store.dispatch(action);
         });
 
     });

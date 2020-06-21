@@ -24,13 +24,11 @@
 #include <BddUnity.hpp>
 
 #include "Action.hpp"
-#include "SubscriberList.hpp"
 #include "Store.hpp"
 #include "Selector.hpp"
 
 Runner<4> runner({
   &CppReduxTest::Action::tests,
-  &CppReduxTest::SubscriberList::tests,
   &CppReduxTest::Store::tests,
   &CppReduxTest::Selector::tests
 });

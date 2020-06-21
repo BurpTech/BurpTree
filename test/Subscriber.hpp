@@ -6,29 +6,22 @@
 namespace CppReduxTest {
   namespace Subscriber {
 
-    class Subscriber : public CppRedux::Subscriber {
+    template <class State>
+    class Subscriber : public CppRedux::Subscriber<State> {
 
       public:
 
-        using f_cb = std::function<void()>;
+        using f_cb = std::function<void(const State * state)>;
 
         Subscriber() :
-          _cb(nullptr),
-          _callback(false)
+          _cb(nullptr)
         {}
 
-        void notify() override {
-          _callback = true;
-        }
-
-        void loop() {
-          if (_callback) {
-            _callback = false;
-            if (_cb) {
-              f_cb cb = _cb;
-              _cb = nullptr;
-              cb();
-            }
+        void onPublish(const State * state) override {
+          if (_cb) {
+            f_cb cb = _cb;
+            _cb = nullptr;
+            cb(state);
           }
         }
 
@@ -39,7 +32,6 @@ namespace CppReduxTest {
       private:
 
         f_cb _cb;
-        bool _callback;
 
     };
 

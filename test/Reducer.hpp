@@ -1,7 +1,6 @@
 # pragma once
 
 #include "Action.hpp"
-#include "../src/CppRedux/Reducer.hpp"
 
 namespace CppReduxTest {
   namespace Reducer {
@@ -24,27 +23,21 @@ namespace CppReduxTest {
 
     };
 
-    class Reducer : public CppRedux::Reducer<State, Action> {
-
-      public:
-
-        const State * reduce(const State * previous, const Action & action) const override {
-          switch (action.type) {
-            case ActionType::ACTION:
-              {
-                State * next = new State(
-                  action.payload<Payload>()->data,
-                  previous->data2
-                );
-                delete previous;
-                return next;
-              }
-            default:
-              return previous;
+    const State * reducer(const State * previous, const Action & action) {
+      switch (action.type) {
+        case ActionType::ACTION:
+          {
+            State * next = new State(
+              action.payload<Payload>()->data,
+              previous->data2
+            );
+            delete previous;
+            return next;
           }
-        }
-
-    };
+        default:
+          return previous;
+      }
+    }
 
   }
 }

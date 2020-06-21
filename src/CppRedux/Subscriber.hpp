@@ -2,11 +2,12 @@
 
 namespace CppRedux {
 
+  template <class State>
   class Subscriber {
 
     public:
 
-      virtual void notify() = 0;
+      virtual void onPublish(const State * state) = 0;
 
   };
 
