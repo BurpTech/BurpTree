@@ -14,6 +14,7 @@ namespace BurpRedux {
         Instance(const State * state) :
           _subscribers({}),
           _count(0),
+          _overSubscribed(false),
           _state(state)
         {}
 
@@ -23,6 +24,7 @@ namespace BurpRedux {
             _count++;
             return true;
           }
+          _overSubscribed = true;
           return false;
         }
 
@@ -32,6 +34,14 @@ namespace BurpRedux {
 
         size_t getSubscriberCount() const override {
           return _count;
+        }
+
+        size_t getSubscriberMax() const override {
+          return size;
+        }
+
+        bool isOverSubscribed() const override {
+          return _overSubscribed;
         }
 
         void publish(const State * state) override {
@@ -49,6 +59,7 @@ namespace BurpRedux {
 
         std::array<Subscriber<State> *, size> _subscribers;
         size_t _count;
+        bool _overSubscribed;
         const State * _state;
 
     };

@@ -15,6 +15,8 @@ namespace BurpRedux {
         virtual const State * getState() const = 0;
         virtual void publish(const State * state) = 0;
         virtual size_t getSubscriberCount() const = 0;
+        virtual size_t getSubscriberMax() const = 0;
+        virtual bool isOverSubscribed() const = 0;
 
     };
 

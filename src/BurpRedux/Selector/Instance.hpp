@@ -35,6 +35,14 @@ namespace BurpRedux {
           return outputPublisher.getSubscriberCount();
         }
         
+        size_t getSubscriberMax() const override {
+          return outputPublisher.getSubscriberMax();
+        }
+        
+        bool isOverSubscribed() const override {
+          return outputPublisher.isOverSubscribed();
+        }
+        
       private:
 
         Publisher::Instance<Output, size> outputPublisher;

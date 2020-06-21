@@ -59,6 +59,14 @@ namespace BurpRedux {
           return publisher.getSubscriberCount();
         }
         
+        size_t getSubscriberMax() const override {
+          return publisher.getSubscriberMax();
+        }
+        
+        bool isOverSubscribed() const override {
+          return publisher.isOverSubscribed();
+        }
+        
       private:
 
         Reducer<State, Action> & reducer;
