@@ -2,6 +2,7 @@
 
 #include <functional>
 #include "../Publisher/Instance.hpp"
+#include "../Reducer.hpp"
 #include "Interface.hpp"
 
 namespace BurpRedux {
@@ -12,9 +13,7 @@ namespace BurpRedux {
 
       public:
 
-        using f_reducer = std::function<const State * (const State * state, const Action & action)>;
-
-        Instance(f_reducer reducer, const State * state) :
+        Instance(f_reducer<State, Action> reducer, const State * state) :
           reducer(reducer),
           publisher(state),
           reducing(false),
@@ -64,7 +63,7 @@ namespace BurpRedux {
         
       private:
 
-        f_reducer reducer;
+        f_reducer<State, Action> reducer;
         Publisher::Instance<State, size> publisher;
         bool reducing;
         bool notifying;
