@@ -6,7 +6,7 @@
 namespace BurpRedux {
   namespace Sequence {
 
-    template <class State, class Params>
+    template <class State>
     class Instance : Interface<State> {
 
       public:
@@ -17,14 +17,16 @@ namespace BurpRedux {
           pair(allocator.allocate(2))
         {}
 
-        void newState(const Params * params) {
+        void assign(const State & state) override {
           id++;
           // record the previous state so we can destroy
           // it later
           State * previous = &(pair[current]);
           current++;
           current %= 2;
-          new(&(pair[current])) State(params);
+          // Use the copy constructor to persist
+          // the state in the pool
+          new(&(pair[current])) State(state);
           // we destroy the previous state later in case
           // it was referenced in the params
           previous->~State();

@@ -5,7 +5,7 @@
 
 namespace BurpReduxTest {
 
-  BurpRedux::Sequence::Instance<State, Params> sequence;
+  BurpRedux::Sequence::Instance<State> sequence;
 
   Module sequenceTests("Sequence", [](Describe & describe) {
 
@@ -13,14 +13,14 @@ namespace BurpReduxTest {
           TEST_ASSERT_EQUAL(0, sequence.getId());
       });
 
-      describe.describe("newState", [](Describe & describe) {
+      describe.describe("assign", [](Describe & describe) {
 
           describe.before([]() {
-              const Params params = {
+              const State state( 
                 0,
                 1
-              };
-              sequence.newState(&params);
+              );
+              sequence.assign(state);
           });
 
           describe.it("should increment the id", []() {
@@ -33,14 +33,14 @@ namespace BurpReduxTest {
               TEST_ASSERT_EQUAL(1, state->data2);
           });
 
-          describe.describe("then newState again", [](Describe & describe) {
+          describe.describe("then assign again", [](Describe & describe) {
 
               describe.before([]() {
-                  const Params params = {
+                  const State state(
                     2,
                     3
-                  };
-                  sequence.newState(&params);
+                  );
+                  sequence.assign(state);
               });
 
               describe.it("should increment the id", []() {

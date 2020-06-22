@@ -14,11 +14,10 @@ namespace BurpReduxTest {
         switch (action.type) {
           case ActionType::ACTION:
             {
-              const Params params = {
+              State * next = new State(
                 action.payload<Payload>()->data,
                 previous->data2
-              };
-              State * next = new State(&params);
+              );
               delete previous;
               return next;
             }

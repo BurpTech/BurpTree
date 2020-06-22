@@ -13,11 +13,7 @@ namespace BurpReduxTest {
   Reducer reducer;
   Subscriber<State> stateSubscriber;
   BurpRedux::Store::Instance<State, Action, 1> store(reducer);
-  const Params initialParams = {
-    0,
-    0
-  };
-  const State * initialState = new State(&initialParams);
+  const State * initialState = new State(0, 0);
 
   Module storeTests("Store", [](Describe & describe) {
 

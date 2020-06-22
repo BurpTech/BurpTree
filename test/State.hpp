@@ -2,11 +2,6 @@
 
 namespace BurpReduxTest {
 
-  struct Params {
-    int data1;
-    int data2;
-  };
-
   class State {
 
     public: 
@@ -14,9 +9,14 @@ namespace BurpReduxTest {
       int data1;
       int data2;
 
-      State(const Params * params) :
-        data1(params->data1),
-        data2(params->data2)
+      State(int data1, int data2) :
+        data1(data1),
+        data2(data2)
+      {}
+
+      State(const State & state) :
+        data1(state.data1),
+        data2(state.data2)
       {}
 
   };
