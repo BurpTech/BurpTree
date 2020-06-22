@@ -10,8 +10,8 @@ namespace BurpReduxTest {
 
   class Child : public BurpRedux::State<Child> {
     public:
-      bool isNew(const Child * current) const override {
-        return (this != current);
+      unsigned long getUid() const override {
+        return (unsigned long)this;
       }
   };
 
@@ -21,8 +21,8 @@ namespace BurpReduxTest {
       Parent(const Child * child) :
         child(child)
       {}
-      bool isNew(const Parent * current) const override {
-        return (this != current);
+      unsigned long getUid() const override {
+        return (unsigned long)this;
       }
   };
 

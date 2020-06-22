@@ -7,7 +7,7 @@ namespace BurpRedux {
 
     public:
 
-      virtual bool isNew(const DerivedState * current) const = 0;
+      virtual unsigned long getUid() const = 0;
 
   };
 

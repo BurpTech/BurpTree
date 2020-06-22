@@ -16,8 +16,8 @@ namespace BurpReduxTest {
         data2(data2)
       {}
 
-      bool isNew(const State * current) const override {
-        return (this != current);
+      unsigned long getUid() const override {
+        return (unsigned long)this;
       }
 
   };

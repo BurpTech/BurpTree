@@ -19,14 +19,11 @@ namespace BurpReduxTest {
 
       describe.setup([]() {
           store.setup(initialState);
+          store.subscribe(&stateSubscriber);
       });
 
       describe.loop([]() {
           store.loop();
-      });
-
-      describe.before([]() {
-          store.subscribe(&stateSubscriber);
       });
 
       describe.after([]() {
