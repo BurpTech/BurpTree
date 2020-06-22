@@ -11,12 +11,16 @@ namespace BurpRedux {
 
       public:
 
-        Instance(const State * state) :
+        Instance() :
           _subscribers({}),
           _count(0),
           _overSubscribed(false),
-          _state(state)
+          _state(nullptr)
         {}
+
+        void setup(const State * state) {
+          _state = state;
+        }
 
         bool subscribe(Subscriber<State> * subscriber) override {
           if (_count < size) {

@@ -30,10 +30,10 @@ namespace BurpReduxTest {
     Parent p2(&c1);
     Parent p3(&c2);
 
-    Publisher publisher(&p1);
+    Publisher publisher;
     Selector selector([](const Parent * parent) {
         return parent->child;
-    }, publisher.getState());
+    });
     Subscriber subscriber;
 
     const Child * callbackChild;
@@ -42,6 +42,8 @@ namespace BurpReduxTest {
         describe.setup([]() {
             publisher.subscribe(&selector);
             selector.subscribe(&subscriber);
+            publisher.setup(&p1);
+            selector.setup(publisher.getState());
         });
 
         describe.describe("with the initial state", [](Describe & describe) {

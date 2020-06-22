@@ -13,13 +13,17 @@ namespace BurpRedux {
 
       public:
 
-        Instance(Reducer<State, Action> & reducer, const State * state) :
+        Instance(Reducer<State, Action> & reducer) :
+          publisher(),
           reducer(reducer),
-          publisher(state),
           reducing(false),
           notifying(false),
           nextState(nullptr)
         {}
+
+        void setup(const State * state) {
+          publisher.setup(state);
+        }
 
         void loop() override {
           // Notify asynchronously so that 
@@ -69,8 +73,8 @@ namespace BurpRedux {
         
       private:
 
-        Reducer<State, Action> & reducer;
         Publisher::Instance<State, size> publisher;
+        Reducer<State, Action> & reducer;
         bool reducing;
         bool notifying;
         const State * nextState;

@@ -14,10 +14,14 @@ namespace BurpRedux {
 
         using f_select = std::function<const Output * (const Input * input)>;
 
-        Instance(f_select select, const Input * input) :
-          outputPublisher(select(input)),
+        Instance(f_select select) :
+          outputPublisher(),
           select(select)
         {}
+
+        void setup(const Input * input) {
+          outputPublisher.setup(select(input));
+        }
 
         void onPublish(const Input * input) override {
           publish(select(input));
