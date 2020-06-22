@@ -80,7 +80,7 @@ namespace BurpRedux {
           // We have to get and store the unique id alongside the current
           // state as the current state may well have been cleaned
           // up by the time we need to check it.
-          const BurpRedux::State<State> * next = state;
+          const BurpRedux::State * next = state;
           unsigned long uid = next->getUid();
           if (force || uid != _uid) {
             _uid = uid;

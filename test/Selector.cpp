@@ -8,14 +8,14 @@ namespace BurpReduxTest {
 
   using namespace BurpRedux;
 
-  class Child : public BurpRedux::State<Child> {
+  class Child : public BurpRedux::State {
     public:
       unsigned long getUid() const override {
         return (unsigned long)this;
       }
   };
 
-  class Parent : public BurpRedux::State<Parent> {
+  class Parent : public BurpRedux::State {
     public:
       const Child * child;
       Parent(const Child * child) :

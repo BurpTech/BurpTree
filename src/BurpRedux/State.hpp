@@ -2,7 +2,6 @@
 
 namespace BurpRedux {
 
-  template <class DerivedState>
   class State {
 
     public:

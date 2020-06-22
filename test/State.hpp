@@ -4,7 +4,7 @@
 
 namespace BurpReduxTest {
 
-  class State : public BurpRedux::State<State> {
+  class State : public BurpRedux::State {
 
     public: 
 
