@@ -5,59 +5,54 @@
 #include "Store.hpp"
 
 namespace BurpReduxTest {
-  namespace Store {
 
-    using ActionType = Action::ActionType;
-    using Payload = Action::Payload;
-    using Action = Action::Action;
-    using State = Reducer::State;
-    using Reducer = Reducer::Reducer;
-    using Subscriber = Subscriber::Subscriber<State>;
+  const Payload payload = {
+    1234
+  };
+  const Action action(ActionType::ACTION, &payload);
+  Reducer reducer;
+  Subscriber<State> stateSubscriber;
+  BurpRedux::Store::Instance<State, Action, 1> store(reducer);
+  const Params initialParams = {
+    0,
+    0
+  };
+  const State * initialState = new State(&initialParams);
 
-    const Payload payload = {
-      1234
-    };
-    const Action action(ActionType::ACTION, &payload);
-    Reducer reducer;
-    Subscriber subscriber;
-    BurpRedux::Store::Instance<State, Action, 1> store(reducer);
-    const State * initialState = new State(0, 0);
+  Module storeTests("Store", [](Describe & describe) {
 
-    Module tests("Store", [](Describe & describe) {
+      describe.setup([]() {
+          store.setup(initialState);
+      });
 
-        describe.setup([]() {
-            store.setup(initialState);
-        });
+      describe.loop([]() {
+          store.loop();
+      });
 
-        describe.loop([]() {
-            store.loop();
-        });
+      describe.before([]() {
+          store.subscribe(&stateSubscriber);
+      });
 
-        describe.before([]() {
-            store.subscribe(&subscriber);
-        });
+      describe.after([]() {
+          delete store.getState();
+      });
 
-        describe.after([]() {
-            delete store.getState();
-        });
+      describe.it("should initialise the state", []() {
+          TEST_ASSERT_EQUAL(initialState, store.getState());
+      });
 
-        describe.it("should initialise the state", []() {
-            TEST_ASSERT_EQUAL(initialState, store.getState());
-        });
+      describe.async("dispatch", [](Async & async, f_done & done) {
+          stateSubscriber.callbackOnce([&](const State * state) {
+              async.it("should update the state and notify", [&]() {
+                  TEST_ASSERT_EQUAL(state, store.getState());
+                  TEST_ASSERT_EQUAL(1234, state->data1);
+                  TEST_ASSERT_EQUAL(0, state->data2);
+              });
+              done();
+          });
+          store.dispatch(action);
+      });
 
-        describe.async("dispatch", [](Async & async, f_done & done) {
-            subscriber.callbackOnce([&](const State * state) {
-                async.it("should update the state and notify", [&]() {
-                    TEST_ASSERT_EQUAL(state, store.getState());
-                    TEST_ASSERT_EQUAL(1234, state->data1);
-                    TEST_ASSERT_EQUAL(0, state->data2);
-                });
-                done();
-            });
-            store.dispatch(action);
-        });
+  });
 
-    });
-
-  }
 }

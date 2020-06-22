@@ -4,6 +4,6 @@
 
 namespace BurpReduxTest {
 
-  extern Module selectorTests;
+  extern Module sequenceTests;
 
 }
