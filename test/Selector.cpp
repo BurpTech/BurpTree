@@ -8,14 +8,22 @@ namespace BurpReduxTest {
 
   using namespace BurpRedux;
 
-  class Child {};
+  class Child : public BurpRedux::State<Child> {
+    public:
+      bool isNew(const Child * current) const override {
+        return (this != current);
+      }
+  };
 
-  class Parent {
+  class Parent : public BurpRedux::State<Parent> {
     public:
       const Child * child;
       Parent(const Child * child) :
         child(child)
       {}
+      bool isNew(const Parent * current) const override {
+        return (this != current);
+      }
   };
 
   using Publisher = BurpRedux::Publisher::Instance<Parent, 1>;

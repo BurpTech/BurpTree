@@ -1,8 +1,10 @@
 # pragma once
 
+#include "../src/BurpRedux/State.hpp"
+
 namespace BurpReduxTest {
 
-  class State {
+  class State : public BurpRedux::State<State> {
 
     public: 
 
@@ -14,10 +16,9 @@ namespace BurpReduxTest {
         data2(data2)
       {}
 
-      State(const State & state) :
-        data1(state.data1),
-        data2(state.data2)
-      {}
+      bool isNew(const State * current) const override {
+        return (this != current);
+      }
 
   };
 

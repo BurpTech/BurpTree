@@ -23,13 +23,11 @@
 #include <unity.h>
 #include <BurpUnity.hpp>
 
-#include "Sequence.hpp"
 #include "Action.hpp"
 #include "Store.hpp"
 #include "Selector.hpp"
 
-Runner<4> runner({
-  &BurpReduxTest::sequenceTests,
+Runner<3> runner({
   &BurpReduxTest::actionTests,
   &BurpReduxTest::storeTests,
   &BurpReduxTest::selectorTests
