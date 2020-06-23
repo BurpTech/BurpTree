@@ -1,18 +1,19 @@
 # pragma once
 
-#include "../src/BurpRedux/Reducer.hpp"
+#include "../src/BurpRedux/Reducer/Interface.hpp"
 #include "State.hpp"
 #include "Action.hpp"
 
 namespace BurpReduxTest {
 
-  class Reducer : public BurpRedux::Reducer<State, Action> {
+  template <ActionType type>
+  class Reducer : public BurpRedux::Reducer::Interface<State, Action> {
 
     public:
 
-      const State * reduce(const State * previous, const Action & action) {
+      const State * reduce(const State * previous, const Action & action) override {
         switch (action.type) {
-          case ActionType::ACTION:
+          case type:
             {
               State * next = new State(
                 action.payload<Payload>()->data,
@@ -27,5 +28,7 @@ namespace BurpReduxTest {
       }
 
   };
+
+  extern Reducer<ActionType::ACTION> reducer;
 
 }

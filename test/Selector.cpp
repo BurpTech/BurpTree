@@ -8,14 +8,14 @@ namespace BurpReduxTest {
 
   using namespace BurpRedux;
 
-  class Child : public BurpRedux::State {
+  class Child : public BurpRedux::State::Interface {
     public:
       unsigned long getUid() const override {
         return (unsigned long)this;
       }
   };
 
-  class Parent : public BurpRedux::State {
+  class Parent : public BurpRedux::State::Interface {
     public:
       const Child * child;
       Parent(const Child * child) :
@@ -35,18 +35,20 @@ namespace BurpReduxTest {
   Parent p2(&c1);
   Parent p3(&c2);
 
-  Publisher publisher;
+  Subscriber<Child> childSubscriber;
   Selector selector([](const Parent * parent) {
       return parent->child;
+  }, Selector::Subscribers({
+      &childSubscriber
+  }));
+  Publisher publisher({
+      &selector
   });
-  Subscriber<Child> childSubscriber;
 
   const Child * callbackChild;
 
   Module selectorTests("Selector", [](Describe & describe) {
       describe.setup([]() {
-          publisher.subscribe(&selector);
-          selector.subscribe(&childSubscriber);
           publisher.setup(&p1);
           selector.setup(publisher.getState());
       });

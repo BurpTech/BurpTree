@@ -6,7 +6,10 @@
 namespace BurpReduxTest {
 
   enum class ActionType {
-    ACTION
+    ACTION,
+    ACTION_1,
+    ACTION_2,
+    ACTION_3
   };
   using Action = BurpRedux::Action<ActionType>;
 

@@ -1,10 +1,10 @@
 # pragma once
 
-#include "../src/BurpRedux/State.hpp"
+#include "../src/BurpRedux/State/Interface.hpp"
 
 namespace BurpReduxTest {
 
-  class State : public BurpRedux::State {
+  class State : public BurpRedux::State::Interface {
 
     public: 
 

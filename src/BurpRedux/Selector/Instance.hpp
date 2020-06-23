@@ -12,11 +12,13 @@ namespace BurpRedux {
       
       public:
 
+        using Subscriber = Subscriber::Interface<Output>;
+        using Subscribers = std::array<Subscriber *, size>;
         using f_select = std::function<const Output * (const Input * input)>;
 
-        Instance(f_select select) :
-          outputPublisher(),
-          select(select)
+        Instance(f_select select, Subscribers subscribers) :
+          select(select),
+          outputPublisher(subscribers)
         {}
 
         void setup(const Input * input) {
@@ -27,30 +29,14 @@ namespace BurpRedux {
           publish(select(input));
         }
 
-        bool subscribe(Subscriber<Output> * subscriber) override {
-          return outputPublisher.subscribe(subscriber);
-        }
-
         const Output * getState() const override {
           return outputPublisher.getState();
         }
         
-        size_t getSubscriberCount() const override {
-          return outputPublisher.getSubscriberCount();
-        }
-        
-        size_t getSubscriberMax() const override {
-          return outputPublisher.getSubscriberMax();
-        }
-        
-        bool isOverSubscribed() const override {
-          return outputPublisher.isOverSubscribed();
-        }
-        
       private:
 
-        Publisher::Instance<Output, size> outputPublisher;
         f_select select;
+        Publisher::Instance<Output, size> outputPublisher;
 
         void publish(const Output * output) override {
           outputPublisher.publish(output);

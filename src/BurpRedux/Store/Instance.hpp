@@ -2,7 +2,7 @@
 
 #include <functional>
 #include "../Publisher/Instance.hpp"
-#include "../Reducer.hpp"
+#include "../Reducer/Interface.hpp"
 #include "Interface.hpp"
 
 namespace BurpRedux {
@@ -13,8 +13,12 @@ namespace BurpRedux {
 
       public:
 
-        Instance(Reducer<State, Action> & reducer) :
-          publisher(),
+        using Subscriber = Subscriber::Interface<State>;
+        using Subscribers = std::array<Subscriber *, size>;
+        using Reducer = Reducer::Interface<State, Action>;
+
+        Instance(Reducer & reducer, Subscribers subscribers) :
+          publisher(subscribers),
           reducer(reducer),
           reducing(false),
           notifying(false),
@@ -51,30 +55,14 @@ namespace BurpRedux {
           return error;
         }
 
-        bool subscribe(Subscriber<State> * subscriber) override {
-          return publisher.subscribe(subscriber);
-        }
-
         const State * getState() const override {
           return publisher.getState();
         }
 
-        size_t getSubscriberCount() const override {
-          return publisher.getSubscriberCount();
-        }
-        
-        size_t getSubscriberMax() const override {
-          return publisher.getSubscriberMax();
-        }
-        
-        bool isOverSubscribed() const override {
-          return publisher.isOverSubscribed();
-        }
-        
       private:
 
         Publisher::Instance<State, size> publisher;
-        Reducer<State, Action> & reducer;
+        Reducer & reducer;
         bool reducing;
         bool notifying;
         const State * nextState;

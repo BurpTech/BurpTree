@@ -26,11 +26,13 @@
 #include "Action.hpp"
 #include "Store.hpp"
 #include "Selector.hpp"
+#include "Combined.hpp"
 
-Runner<3> runner({
+Runner<4> runner({
   &BurpReduxTest::actionTests,
   &BurpReduxTest::storeTests,
-  &BurpReduxTest::selectorTests
+  &BurpReduxTest::selectorTests,
+  &BurpReduxTest::combinedTests
 });
 Memory memory;
 bool running = true;

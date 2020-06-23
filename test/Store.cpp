@@ -10,16 +10,17 @@ namespace BurpReduxTest {
     1234
   };
   const Action action(ActionType::ACTION, &payload);
-  Reducer reducer;
   Subscriber<State> stateSubscriber;
-  BurpRedux::Store::Instance<State, Action, 1> store(reducer);
+  using Store = BurpRedux::Store::Instance<State, Action, 1>;
+  Store store(reducer, Store::Subscribers({
+      &stateSubscriber
+  }));
   const State * initialState = new State(0, 0);
 
   Module storeTests("Store", [](Describe & describe) {
 
       describe.setup([]() {
           store.setup(initialState);
-          store.subscribe(&stateSubscriber);
       });
 
       describe.loop([]() {
