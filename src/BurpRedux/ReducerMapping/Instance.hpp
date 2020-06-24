@@ -8,21 +8,21 @@
 namespace BurpRedux {
   namespace ReducerMapping {
 
-    template <class CombinedState, class CombinedParams, class State, class Action>
-    class Instance : public Interface<CombinedState, CombinedParams, Action> {
+    template <class CombinedState, class CombinedParams, class State>
+    class Instance : public Interface<CombinedState, CombinedParams> {
 
       public:
 
         using f_get = std::function<const State * (const CombinedState * state)>;
         using f_set = std::function<void(CombinedParams & params, const State * state)>;
 
-        Instance(f_get get, f_set set, Reducer::Interface<State, Action> & reducer) :
+        Instance(f_get get, f_set set, Reducer::Interface<State> & reducer) :
           _get(get),
           _set(set),
           _reducer(reducer)
         {}
 
-        bool reduce(const CombinedState * state, CombinedParams & params, const Action & action) override {
+        bool reduce(const CombinedState * state, CombinedParams & params, const Action::Interface & action) override {
           const State * current = _get(state);
           // we do this cast so that the compiler will
           // check that the user knows what they're doing.
@@ -41,7 +41,7 @@ namespace BurpRedux {
 
         f_get _get;
         f_set _set;
-        Reducer::Interface<State, Action> & _reducer;
+        Reducer::Interface<State> & _reducer;
 
     };
 

@@ -1,21 +1,25 @@
 #include "../src/BurpRedux.hpp"
 #include <unity.h>
-#include "Reducer.hpp"
+#include "Action.hpp"
+#include "State.hpp"
 #include "Subscriber.hpp"
 #include "Store.hpp"
 
 namespace BurpReduxTest {
 
-  const Payload payload = {
-    1234
-  };
-  const Action action(ActionType::ACTION, &payload);
-  Subscriber<State> stateSubscriber;
-  using Store = BurpRedux::Store::Instance<State, Action, 1>;
+  using Action = BurpRedux::Action::Instance<Params, ActionType::ACTION>;
+  using Reducer = BurpRedux::Reducer::Instance<State, Params, ActionType::ACTION>;
+  using Store = BurpRedux::Store::Instance<State, 1>;
+
+  Reducer reducer(create<State, Params>);
+  Subscriber<State> subscriber;
   Store store(reducer, Store::Subscribers({
-      &stateSubscriber
+      &subscriber
   }));
-  const State * initialState = new State(0, 0);
+
+  const State * initialState = new State({
+      0, 0
+  });
 
   Module storeTests("Store", [](Describe & describe) {
 
@@ -36,15 +40,17 @@ namespace BurpReduxTest {
       });
 
       describe.async("dispatch", [](Async & async, f_done & done) {
-          stateSubscriber.callbackOnce([&](const State * state) {
+          subscriber.callbackOnce([&](const State * state) {
               async.it("should update the state and notify", [&]() {
                   TEST_ASSERT_EQUAL(state, store.getState());
-                  TEST_ASSERT_EQUAL(1234, state->data1);
-                  TEST_ASSERT_EQUAL(0, state->data2);
+                  TEST_ASSERT_EQUAL(1, state->data1);
+                  TEST_ASSERT_EQUAL(2, state->data2);
               });
               done();
           });
-          store.dispatch(action);
+          store.dispatch(Action({
+              1, 2
+          }));
       });
 
   });

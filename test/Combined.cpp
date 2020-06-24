@@ -1,46 +1,22 @@
+#include <unity.h>
 #include "../src/BurpRedux.hpp"
 #include "Action.hpp"
+#include "State.hpp"
 #include "Subscriber.hpp"
-#include "Reducer.hpp"
 #include "Combined.hpp"
 
 namespace BurpReduxTest {
 
-  struct CombinedParams {
-    const State * one;
-    const State * two;
-    const State * three;
-  };
-
-  class CombinedState : public BurpRedux::State::Interface {
-
-    public:
-
-      const BurpReduxTest::State * one;
-      const BurpReduxTest::State * two;
-      const BurpReduxTest::State * three;
-
-      CombinedState(const CombinedParams & params) :
-          one(params.one),
-          two(params.two),
-          three(params.three)
-      {}
-
-      unsigned long getUid() const override {
-        return (unsigned long)this;
-      }
-
-  };
-
   namespace One {
     Subscriber<State> subscriber;
-    Reducer<ActionType::ACTION_1> reducer;
+    using Action = BurpRedux::Action::Instance<Params, ActionType::ACTION_1>;
+    using Reducer = BurpRedux::Reducer::Instance<State, Params, ActionType::ACTION_1>;
+    Reducer reducer(create<State, Params>);
     BURP_REDUX_SUB_STATE(
         one,
         CombinedState,
         CombinedParams,
         State,
-        Action,
         reducer,
         1, {
           &subscriber
@@ -50,13 +26,14 @@ namespace BurpReduxTest {
 
   namespace Two {
     Subscriber<State> subscriber;
-    Reducer<ActionType::ACTION_2> reducer;
+    using Action = BurpRedux::Action::Instance<Params, ActionType::ACTION_2>;
+    using Reducer = BurpRedux::Reducer::Instance<State, Params, ActionType::ACTION_2>;
+    Reducer reducer(create<State, Params>);
     BURP_REDUX_SUB_STATE(
         two,
         CombinedState,
         CombinedParams,
         State,
-        Action,
         reducer,
         1, {
           &subscriber
@@ -66,13 +43,14 @@ namespace BurpReduxTest {
 
   namespace Three {
     Subscriber<State> subscriber;
-    Reducer<ActionType::ACTION_3> reducer;
+    using Action = BurpRedux::Action::Instance<Params, ActionType::ACTION_3>;
+    using Reducer = BurpRedux::Reducer::Instance<State, Params, ActionType::ACTION_3>;
+    Reducer reducer(create<State, Params>);
     BURP_REDUX_SUB_STATE(
         three,
         CombinedState,
         CombinedParams,
         State,
-        Action,
         reducer,
         1, {
           &subscriber
@@ -80,19 +58,14 @@ namespace BurpReduxTest {
     );
   }
 
-  const CombinedState * create(const CombinedState * previous, const CombinedParams & params) {
-    delete previous;
-    return new CombinedState(params);
-  }
-
-  using CombinedReducer = BurpRedux::CombinedReducer<CombinedState, CombinedParams, Action, 3>;
-  CombinedReducer combinedReducer(create, CombinedReducer::Map({
+  using CombinedReducer = BurpRedux::CombinedReducer<CombinedState, CombinedParams, 3>;
+  CombinedReducer combinedReducer(create<CombinedState, CombinedParams>, CombinedReducer::Map({
       &One::reducerMapping,
       &Two::reducerMapping,
       &Three::reducerMapping
   }));
 
-  using Store = BurpRedux::Store::Instance<CombinedState, Action, 3>;
+  using Store = BurpRedux::Store::Instance<CombinedState, 3>;
   Store combinedStore(combinedReducer, Store::Subscribers({
       &One::selector,
       &Two::selector,
@@ -103,21 +76,56 @@ namespace BurpReduxTest {
   Module combinedTests("Combined", [](Describe & describe) {
 
       describe.setup([]() {
-          combinedStore.setup(new CombinedState({
-              new State(1, 1),
-              new State(2, 2),
-              new State(3, 3)
-          }));
-          One::selector.setup(combinedStore.getState());
-          Two::selector.setup(combinedStore.getState());
-          Three::selector.setup(combinedStore.getState());
+          const CombinedState * initial = new CombinedState({
+              new State({1, 2}),
+              new State({3, 4}),
+              new State({5, 6})
+          });
+          combinedStore.setup(initial);
+      });
+
+      describe.loop([]() {
+          combinedStore.loop();
       });
 
       describe.after([]() {
-          delete Three::selector.getState();
-          delete Two::selector.getState();
-          delete One::selector.getState();
-          delete combinedStore.getState();
+          const CombinedState * state = combinedStore.getState();
+          delete state->three;
+          delete state->two;
+          delete state->one;
+          delete state;
+      });
+
+      describe.it("should have the correct initial states", []() {
+          TEST_ASSERT_EQUAL(1, One::selector.getState()->data1);
+          TEST_ASSERT_EQUAL(2, One::selector.getState()->data2);
+          TEST_ASSERT_EQUAL(3, Two::selector.getState()->data1);
+          TEST_ASSERT_EQUAL(4, Two::selector.getState()->data2);
+          TEST_ASSERT_EQUAL(5, Three::selector.getState()->data1);
+          TEST_ASSERT_EQUAL(6, Three::selector.getState()->data2);
+      });
+
+      describe.describe("on action", [](Describe & describe) {
+          describe.before([](f_done & done) {
+              combinedStore.dispatch(One::Action({7, 8}));
+              One::subscriber.callbackOnce([&](const State * _) {
+                  done();
+              });
+          });
+
+          describe.it("should notify the correct subscribers with the correct state", []() {
+              TEST_ASSERT_EQUAL(1, One::subscriber.count);
+              TEST_ASSERT_EQUAL(7, One::subscriber.state->data1);
+              TEST_ASSERT_EQUAL(8, One::subscriber.state->data2);
+
+              TEST_ASSERT_EQUAL(0, Two::subscriber.count);
+              TEST_ASSERT_EQUAL(3, Two::subscriber.state->data1);
+              TEST_ASSERT_EQUAL(4, Two::subscriber.state->data2);
+
+              TEST_ASSERT_EQUAL(0, Three::subscriber.count);
+              TEST_ASSERT_EQUAL(5, Three::subscriber.state->data1);
+              TEST_ASSERT_EQUAL(6, Three::subscriber.state->data2);
+          });
       });
 
   });

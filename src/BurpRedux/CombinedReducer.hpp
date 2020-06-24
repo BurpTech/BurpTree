@@ -2,18 +2,19 @@
 
 #include <functional>
 #include <array>
+#include "Action/Interface.hpp"
 #include "Reducer/Interface.hpp"
 #include "ReducerMapping/Interface.hpp"
 
 namespace BurpRedux {
 
-  template <class State, class Params, class Action, size_t size>
-  class CombinedReducer : public Reducer::Interface<State, Action> {
+  template <class State, class Params, size_t size>
+  class CombinedReducer : public Reducer::Interface<State> {
 
     public:
 
       using f_create = std::function<const State * (const State * previous, const Params & params)>;
-      using ReducerMapping = ReducerMapping::Interface<State, Params, Action>;
+      using ReducerMapping = ReducerMapping::Interface<State, Params>;
       using Map = std::array<ReducerMapping *, size>;
 
       CombinedReducer(f_create create, Map map) :
@@ -21,7 +22,7 @@ namespace BurpRedux {
         _map(map)
       {}
 
-      const State * reduce(const State * previous, const Action & action) override {
+      const State * reduce(const State * previous, const Action::Interface & action) override {
         Params params;
         auto modified = false;
         for (auto mapping : _map) {

@@ -24,6 +24,11 @@ namespace BurpRedux {
 
         void setup(const State * state) {
           _setState(state, true);
+          for (auto subscriber : _subscribers) {
+            if (subscriber) {
+              subscriber->setup(_state);
+            }
+          }
         }
 
         const State * getState() const override {

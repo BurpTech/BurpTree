@@ -21,7 +21,7 @@ namespace BurpRedux {
           outputPublisher(subscribers)
         {}
 
-        void setup(const Input * input) {
+        void setup(const Input * input) override {
           outputPublisher.setup(select(input));
         }
 
