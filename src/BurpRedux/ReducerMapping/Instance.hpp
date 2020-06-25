@@ -8,22 +8,29 @@
 namespace BurpRedux {
   namespace ReducerMapping {
 
-    template <class CombinedState, class CombinedParams, class State>
+    template <class CombinedState, class State>
+    using f_get = const State * (*)(const CombinedState * state);
+
+    template <class CombinedParams, class State>
+    using f_set = void (*)(CombinedParams & params, const State * state);
+
+    template <
+      class CombinedState,
+      class CombinedParams,
+      class State,
+      f_get<CombinedState, State> get,
+      f_set<CombinedParams, State> set
+    >
     class Instance : public Interface<CombinedState, CombinedParams> {
 
       public:
 
-        using f_get = std::function<const State * (const CombinedState * state)>;
-        using f_set = std::function<void(CombinedParams & params, const State * state)>;
-
-        Instance(f_get get, f_set set, Reducer::Interface<State> & reducer) :
-          _get(get),
-          _set(set),
+        Instance(Reducer::Interface<State> & reducer) :
           _reducer(reducer)
         {}
 
         bool reduce(const CombinedState * state, CombinedParams & params, const Action::Interface & action) override {
-          const State * current = _get(state);
+          const State * current = get(state);
           // we do this cast so that the compiler will
           // check that the user knows what they're doing.
           // States must implement the State base class and
@@ -32,15 +39,13 @@ namespace BurpRedux {
           const BurpRedux::State::Interface * currentBase = current;
           unsigned long uid = currentBase->getUid();
           const State * next = _reducer.reduce(current, action);
-          _set(params, next);
+          set(params, next);
           const BurpRedux::State::Interface * nextBase = next;
           return nextBase->getUid() != uid;
         }
 
       private:
 
-        f_get _get;
-        f_set _set;
         Reducer::Interface<State> & _reducer;
 
     };

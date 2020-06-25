@@ -26,8 +26,12 @@ namespace BurpReduxTest {
       }
   };
 
+  const Child * select(const Parent * parent) {
+    return parent->child;
+  }
+
   using Publisher = BurpRedux::Publisher::Instance<Parent, 1>;
-  using Selector = BurpRedux::Selector::Instance<Parent, Child, 1>;
+  using Selector = BurpRedux::Selector::Instance<Parent, Child, select, 1>;
 
   Child c1;
   Child c2;
@@ -36,11 +40,9 @@ namespace BurpReduxTest {
   Parent p3(&c2);
 
   Subscriber<Child> childSubscriber;
-  Selector selector([](const Parent * parent) {
-      return parent->child;
-  }, Selector::Subscribers({
+  Selector selector({
       &childSubscriber
-  }));
+  });
   Publisher publisher({
       &selector
   });

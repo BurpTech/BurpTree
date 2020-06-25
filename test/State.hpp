@@ -1,6 +1,7 @@
 # pragma once
 
 #include "../src/BurpRedux/State/Interface.hpp"
+#include "../src/BurpRedux/Creator/Interface.hpp"
 
 namespace BurpReduxTest {
 
@@ -54,10 +55,13 @@ namespace BurpReduxTest {
   };
 
   template <class State, class Params>
-  const State * create(const State * previous, const Params & params) {
-    const State * next = new State(params);
-    delete previous;
-    return next;
-  }
+  class Creator : public BurpRedux::Creator::Interface<State, Params> {
+    public:
+      const State * create(const State * previous, const Params & params) override {
+        const State * next = new State(params);
+        delete previous;
+        return next;
+      }
+  };
 
 }

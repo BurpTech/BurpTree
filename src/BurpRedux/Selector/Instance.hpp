@@ -7,17 +7,18 @@
 namespace BurpRedux {
   namespace Selector {
 
-    template <class Input, class Output, size_t size>
+    template <class Input, class Output>
+    using f_select = const Output * (*)(const Input * input);
+
+    template <class Input, class Output, f_select<Input, Output> select, size_t size>
     class Instance : public Interface<Input, Output> {
       
       public:
 
         using Subscriber = Subscriber::Interface<Output>;
         using Subscribers = std::array<Subscriber *, size>;
-        using f_select = std::function<const Output * (const Input * input)>;
 
-        Instance(f_select select, Subscribers subscribers) :
-          select(select),
+        Instance(Subscribers subscribers) :
           outputPublisher(subscribers)
         {}
 
@@ -35,7 +36,6 @@ namespace BurpRedux {
         
       private:
 
-        f_select select;
         Publisher::Instance<Output, size> outputPublisher;
 
         void publish(const Output * output) override {

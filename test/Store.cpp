@@ -11,7 +11,8 @@ namespace BurpReduxTest {
   using Reducer = BurpRedux::Reducer::Instance<State, Params, ActionType::ACTION>;
   using Store = BurpRedux::Store::Instance<State, 1>;
 
-  Reducer reducer(create<State, Params>);
+  Creator<State, Params> creator;
+  Reducer reducer(creator);
   Subscriber<State> subscriber;
   Store store(reducer, Store::Subscribers({
       &subscriber

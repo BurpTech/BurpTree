@@ -11,62 +11,68 @@ namespace BurpReduxTest {
     Subscriber<State> subscriber;
     using Action = BurpRedux::Action::Instance<Params, ActionType::ACTION_1>;
     using Reducer = BurpRedux::Reducer::Instance<State, Params, ActionType::ACTION_1>;
-    Reducer reducer(create<State, Params>);
+    Creator<State, Params> creator;
+    Reducer reducer(creator);
     BURP_REDUX_SUB_STATE(
         one,
         CombinedState,
         CombinedParams,
-        State,
-        reducer,
-        1, {
-          &subscriber
-        }
+        State
     );
+    ReducerMapping reducerMapping(reducer);
+    Selector<1> selector({
+        &subscriber
+    });
   }
 
   namespace Two {
     Subscriber<State> subscriber;
     using Action = BurpRedux::Action::Instance<Params, ActionType::ACTION_2>;
     using Reducer = BurpRedux::Reducer::Instance<State, Params, ActionType::ACTION_2>;
-    Reducer reducer(create<State, Params>);
+    Creator<State, Params> creator;
+    Reducer reducer(creator);
     BURP_REDUX_SUB_STATE(
         two,
         CombinedState,
         CombinedParams,
-        State,
-        reducer,
-        1, {
-          &subscriber
-        }
+        State
     );
+    ReducerMapping reducerMapping(reducer);
+    Selector<1> selector({
+        &subscriber
+    });
   }
 
   namespace Three {
     Subscriber<State> subscriber;
     using Action = BurpRedux::Action::Instance<Params, ActionType::ACTION_3>;
     using Reducer = BurpRedux::Reducer::Instance<State, Params, ActionType::ACTION_3>;
-    Reducer reducer(create<State, Params>);
+    Creator<State, Params> creator;
+    Reducer reducer(creator);
     BURP_REDUX_SUB_STATE(
         three,
         CombinedState,
         CombinedParams,
-        State,
-        reducer,
-        1, {
-          &subscriber
-        }
+        State
     );
+    ReducerMapping reducerMapping(reducer);
+    Selector<1> selector({
+        &subscriber
+    });
   }
 
-  using CombinedReducer = BurpRedux::CombinedReducer<CombinedState, CombinedParams, 3>;
-  CombinedReducer combinedReducer(create<CombinedState, CombinedParams>, CombinedReducer::Map({
+  template <size_t mappingCount>
+  using CombinedReducer = BurpRedux::CombinedReducer<CombinedState, CombinedParams, mappingCount>;
+  Creator<CombinedState, CombinedParams> combinedCreator;
+  CombinedReducer<3> combinedReducer(combinedCreator, CombinedReducer<3>::Map({
       &One::reducerMapping,
       &Two::reducerMapping,
       &Three::reducerMapping
   }));
 
-  using Store = BurpRedux::Store::Instance<CombinedState, 3>;
-  Store combinedStore(combinedReducer, Store::Subscribers({
+  template <size_t subscriberCount>
+  using Store = BurpRedux::Store::Instance<CombinedState, subscriberCount>;
+  Store<3> combinedStore(combinedReducer, Store<3>::Subscribers({
       &One::selector,
       &Two::selector,
       &Three::selector

@@ -4,6 +4,7 @@
 #include <array>
 #include "Action/Interface.hpp"
 #include "Reducer/Interface.hpp"
+#include "Creator/Interface.hpp"
 #include "ReducerMapping/Interface.hpp"
 
 namespace BurpRedux {
@@ -13,12 +14,12 @@ namespace BurpRedux {
 
     public:
 
-      using f_create = std::function<const State * (const State * previous, const Params & params)>;
+      using Creator = Creator::Interface<State, Params>;
       using ReducerMapping = ReducerMapping::Interface<State, Params>;
       using Map = std::array<ReducerMapping *, size>;
 
-      CombinedReducer(f_create create, Map map) :
-        _create(create),
+      CombinedReducer(Creator & creator, Map map) :
+        _creator(creator),
         _map(map)
       {}
 
@@ -32,14 +33,14 @@ namespace BurpRedux {
           // we don't know how to create a state, 
           // maybe the user wants to use a memory pool
           // or something
-          return _create(previous, params);
+          return _creator.create(previous, params);
         }
         return previous;
       }
 
     private:
 
-      f_create _create;
+      Creator & _creator;
       const Map _map;
 
   };
