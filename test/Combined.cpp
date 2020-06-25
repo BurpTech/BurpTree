@@ -11,7 +11,7 @@ namespace BurpReduxTest {
     Subscriber<State> subscriber;
     using Action = BurpRedux::Action::Instance<Params, ActionType::ACTION_1>;
     using Reducer = BurpRedux::Reducer::Instance<State, Params, ActionType::ACTION_1>;
-    Creator<State, Params> creator;
+    Creator creator;
     Reducer reducer(creator);
     BURP_REDUX_SUB_STATE(
         one,
@@ -29,7 +29,7 @@ namespace BurpReduxTest {
     Subscriber<State> subscriber;
     using Action = BurpRedux::Action::Instance<Params, ActionType::ACTION_2>;
     using Reducer = BurpRedux::Reducer::Instance<State, Params, ActionType::ACTION_2>;
-    Creator<State, Params> creator;
+    Creator creator;
     Reducer reducer(creator);
     BURP_REDUX_SUB_STATE(
         two,
@@ -47,7 +47,7 @@ namespace BurpReduxTest {
     Subscriber<State> subscriber;
     using Action = BurpRedux::Action::Instance<Params, ActionType::ACTION_3>;
     using Reducer = BurpRedux::Reducer::Instance<State, Params, ActionType::ACTION_3>;
-    Creator<State, Params> creator;
+    Creator creator;
     Reducer reducer(creator);
     BURP_REDUX_SUB_STATE(
         three,
@@ -63,7 +63,7 @@ namespace BurpReduxTest {
 
   template <size_t mappingCount>
   using CombinedReducer = BurpRedux::CombinedReducer<CombinedState, CombinedParams, mappingCount>;
-  Creator<CombinedState, CombinedParams> combinedCreator;
+  CombinedCreator combinedCreator;
   CombinedReducer<3> combinedReducer(combinedCreator, CombinedReducer<3>::Map({
       &One::reducerMapping,
       &Two::reducerMapping,
@@ -82,24 +82,16 @@ namespace BurpReduxTest {
   Module combinedTests("Combined", [](Describe & describe) {
 
       describe.setup([]() {
-          const CombinedState * initial = new CombinedState({
-              new State({1, 2}),
-              new State({3, 4}),
-              new State({5, 6})
+          const CombinedState * initial = combinedCreator.init({
+              One::creator.init({1, 2}),
+              Two::creator.init({3, 4}),
+              Three::creator.init({5, 6})
           });
           combinedStore.setup(initial);
       });
 
       describe.loop([]() {
           combinedStore.loop();
-      });
-
-      describe.after([]() {
-          const CombinedState * state = combinedStore.getState();
-          delete state->three;
-          delete state->two;
-          delete state->one;
-          delete state;
       });
 
       describe.it("should have the correct initial states", []() {
@@ -111,7 +103,7 @@ namespace BurpReduxTest {
           TEST_ASSERT_EQUAL(6, Three::selector.getState()->data2);
       });
 
-      describe.describe("on action", [](Describe & describe) {
+      describe.describe("then dispatch action one", [](Describe & describe) {
           describe.before([](f_done & done) {
               combinedStore.dispatch(One::Action({7, 8}));
               One::subscriber.callbackOnce([&](const State * _) {
@@ -131,6 +123,52 @@ namespace BurpReduxTest {
               TEST_ASSERT_EQUAL(0, Three::subscriber.count);
               TEST_ASSERT_EQUAL(5, Three::subscriber.state->data1);
               TEST_ASSERT_EQUAL(6, Three::subscriber.state->data2);
+          });
+
+          describe.describe("then dispatch action two", [](Describe & describe) {
+              describe.before([](f_done & done) {
+                  combinedStore.dispatch(Two::Action({9, 10}));
+                  Two::subscriber.callbackOnce([&](const State * _) {
+                      done();
+                  });
+              });
+
+              describe.it("should notify the correct subscribers with the correct state", []() {
+                  TEST_ASSERT_EQUAL(1, One::subscriber.count);
+                  TEST_ASSERT_EQUAL(7, One::subscriber.state->data1);
+                  TEST_ASSERT_EQUAL(8, One::subscriber.state->data2);
+
+                  TEST_ASSERT_EQUAL(1, Two::subscriber.count);
+                  TEST_ASSERT_EQUAL(9, Two::subscriber.state->data1);
+                  TEST_ASSERT_EQUAL(10, Two::subscriber.state->data2);
+
+                  TEST_ASSERT_EQUAL(0, Three::subscriber.count);
+                  TEST_ASSERT_EQUAL(5, Three::subscriber.state->data1);
+                  TEST_ASSERT_EQUAL(6, Three::subscriber.state->data2);
+              });
+
+              describe.describe("then dispatch action three", [](Describe & describe) {
+                  describe.before([](f_done & done) {
+                      combinedStore.dispatch(Three::Action({11, 12}));
+                      Three::subscriber.callbackOnce([&](const State * _) {
+                          done();
+                      });
+                  });
+
+                  describe.it("should notify the correct subscribers with the correct state", []() {
+                      TEST_ASSERT_EQUAL(1, One::subscriber.count);
+                      TEST_ASSERT_EQUAL(7, One::subscriber.state->data1);
+                      TEST_ASSERT_EQUAL(8, One::subscriber.state->data2);
+
+                      TEST_ASSERT_EQUAL(1, Two::subscriber.count);
+                      TEST_ASSERT_EQUAL(9, Two::subscriber.state->data1);
+                      TEST_ASSERT_EQUAL(10, Two::subscriber.state->data2);
+
+                      TEST_ASSERT_EQUAL(1, Three::subscriber.count);
+                      TEST_ASSERT_EQUAL(11, Three::subscriber.state->data1);
+                      TEST_ASSERT_EQUAL(12, Three::subscriber.state->data2);
+                  });
+              });
           });
       });
 

@@ -33,7 +33,7 @@ namespace BurpRedux {
           // we don't know how to create a state, 
           // maybe the user wants to use a memory pool
           // or something
-          return _creator.create(previous, params);
+          return _creator.replace(previous, params);
         }
         return previous;
       }

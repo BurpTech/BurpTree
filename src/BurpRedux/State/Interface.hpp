@@ -7,7 +7,7 @@ namespace BurpRedux {
 
       public:
 
-        virtual unsigned long getUid() const = 0;
+        virtual const unsigned long getUid() const = 0;
 
     };
 

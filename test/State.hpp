@@ -1,7 +1,7 @@
 # pragma once
 
-#include "../src/BurpRedux/State/Interface.hpp"
-#include "../src/BurpRedux/Creator/Interface.hpp"
+#include "../src/BurpRedux/State/Instance.hpp"
+#include "../src/BurpRedux/Creator/Instance.hpp"
 
 namespace BurpReduxTest {
 
@@ -10,21 +10,18 @@ namespace BurpReduxTest {
     int data2;
   };
 
-  class State : public BurpRedux::State::Interface {
+  class State : public BurpRedux::State::Instance {
 
     public: 
 
       int data1;
       int data2;
 
-      State(const Params & params) :
+      State(const Params & params, const unsigned long uid) :
+        BurpRedux::State::Instance(uid),
         data1(params.data1),
         data2(params.data2)
       {}
-
-      unsigned long getUid() const override {
-        return (unsigned long)this;
-      }
 
   };
 
@@ -34,7 +31,7 @@ namespace BurpReduxTest {
     const State * three;
   };
 
-  class CombinedState : public BurpRedux::State::Interface {
+  class CombinedState : public BurpRedux::State::Instance {
 
     public:
 
@@ -42,26 +39,16 @@ namespace BurpReduxTest {
       const BurpReduxTest::State * two;
       const BurpReduxTest::State * three;
 
-      CombinedState(const CombinedParams & params) :
+      CombinedState(const CombinedParams & params, const unsigned long uid) :
+          BurpRedux::State::Instance(uid),
           one(params.one),
           two(params.two),
           three(params.three)
       {}
 
-      unsigned long getUid() const override {
-        return (unsigned long)this;
-      }
-
   };
 
-  template <class State, class Params>
-  class Creator : public BurpRedux::Creator::Interface<State, Params> {
-    public:
-      const State * create(const State * previous, const Params & params) override {
-        const State * next = new State(params);
-        delete previous;
-        return next;
-      }
-  };
+  using Creator = BurpRedux::Creator::Instance<State, Params>;
+  using CombinedCreator = BurpRedux::Creator::Instance<CombinedState, CombinedParams>;
 
 }

@@ -23,8 +23,8 @@ namespace BurpRedux {
           switch (action.getType()) {
             case type: {
               using Action = Action::Instance<Params, type>;
-              const Action & typedAction = dynamic_cast<const Action &>(action);
-              return _creator.create(previous, typedAction.getParams());
+              const Action & typedAction = static_cast<const Action &>(action);
+              return _creator.replace(previous, typedAction.getParams());
             }
             default:
               return previous;

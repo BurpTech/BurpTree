@@ -11,16 +11,14 @@ namespace BurpReduxTest {
   using Reducer = BurpRedux::Reducer::Instance<State, Params, ActionType::ACTION>;
   using Store = BurpRedux::Store::Instance<State, 1>;
 
-  Creator<State, Params> creator;
+  Creator creator;
   Reducer reducer(creator);
   Subscriber<State> subscriber;
   Store store(reducer, Store::Subscribers({
       &subscriber
   }));
 
-  const State * initialState = new State({
-      0, 0
-  });
+  const State * initialState = creator.init({0, 0});
 
   Module storeTests("Store", [](Describe & describe) {
 
@@ -30,10 +28,6 @@ namespace BurpReduxTest {
 
       describe.loop([]() {
           store.loop();
-      });
-
-      describe.after([]() {
-          delete store.getState();
       });
 
       describe.it("should initialise the state", []() {
