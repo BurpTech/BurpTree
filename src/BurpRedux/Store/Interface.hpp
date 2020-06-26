@@ -14,7 +14,7 @@ namespace BurpRedux {
     };
 
     template <class State>
-    class Interface : Publisher::Interface<State> {
+    class Interface : public Publisher::Interface<State> {
 
       public:
 
