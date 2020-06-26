@@ -9,11 +9,11 @@
 namespace BurpReduxTest {
 
   using Action = BurpRedux::Action::Instance<Params, ActionType::ACTION>;
-  using Reducer = BurpRedux::Reducer::Instance<State, Params, deserialize, ActionType::ACTION>;
+  using Reducer = BurpRedux::Reducer::Instance<State, Params, ActionType::ACTION>;
   using Store = BurpRedux::Store::Instance<State, 1>;
 
   Creator creator;
-  Reducer reducer(creator);
+  Reducer reducer(creator, deserialize);
   Subscriber<State> subscriber;
   Store store(reducer, Store::Subscribers({
       &subscriber

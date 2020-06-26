@@ -10,9 +10,9 @@ namespace BurpReduxTest {
   namespace One {
     Subscriber<State> subscriber;
     using Action = BurpRedux::Action::Instance<Params, ActionType::ACTION_1>;
-    using Reducer = BurpRedux::Reducer::Instance<State, Params, deserialize, ActionType::ACTION_1>;
+    using Reducer = BurpRedux::Reducer::Instance<State, Params, ActionType::ACTION_1>;
     Creator creator;
-    Reducer reducer(creator);
+    Reducer reducer(creator, deserialize);
     BURP_REDUX_SUB_STATE(
         one,
         oneField,
@@ -29,9 +29,9 @@ namespace BurpReduxTest {
   namespace Two {
     Subscriber<State> subscriber;
     using Action = BurpRedux::Action::Instance<Params, ActionType::ACTION_2>;
-    using Reducer = BurpRedux::Reducer::Instance<State, Params, deserialize, ActionType::ACTION_2>;
+    using Reducer = BurpRedux::Reducer::Instance<State, Params, ActionType::ACTION_2>;
     Creator creator;
-    Reducer reducer(creator);
+    Reducer reducer(creator, deserialize);
     BURP_REDUX_SUB_STATE(
         two,
         twoField,
@@ -48,9 +48,9 @@ namespace BurpReduxTest {
   namespace Three {
     Subscriber<State> subscriber;
     using Action = BurpRedux::Action::Instance<Params, ActionType::ACTION_3>;
-    using Reducer = BurpRedux::Reducer::Instance<State, Params, deserialize, ActionType::ACTION_3>;
+    using Reducer = BurpRedux::Reducer::Instance<State, Params, ActionType::ACTION_3>;
     Creator creator;
-    Reducer reducer(creator);
+    Reducer reducer(creator, deserialize);
     BURP_REDUX_SUB_STATE(
         three,
         threeField,

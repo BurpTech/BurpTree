@@ -8,13 +8,9 @@
 namespace BurpRedux {
   namespace Reducer {
 
-    template <class Params>
-    using f_deserialize = void (*)(const JsonObject & serialized, Params & params);
-
     template <
       class State,
       class Params,
-      f_deserialize<Params> deserializeFunction,
       unsigned int type
     >
     class Instance : public Interface<State> {
@@ -22,14 +18,16 @@ namespace BurpRedux {
       public:
 
         using Creator = Creator::Interface<State, Params>;
+        using f_deserialize = std::function<void(const JsonObject & serialized, Params & params)>;
 
-        Instance(Creator & creator) :
-          _creator(creator)
+        Instance(Creator & creator, f_deserialize deserialize) :
+          _creator(creator),
+          _deserialize(deserialize)
         {}
 
         const State * deserialize(const JsonObject & serialized) override {
           Params params;
-          deserializeFunction(serialized, params);
+          _deserialize(serialized, params);
           return _creator.init(params);
         }
 
@@ -48,6 +46,7 @@ namespace BurpRedux {
       private:
 
         Creator & _creator;
+        f_deserialize _deserialize;
 
     };
 
