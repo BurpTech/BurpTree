@@ -13,7 +13,7 @@ namespace BurpRedux {
       class Params,
       unsigned int type
     >
-    class Instance : public Interface<State> {
+    class Instance : public Interface<State, Params> {
 
       public:
 
@@ -25,9 +25,11 @@ namespace BurpRedux {
           _deserialize(deserialize)
         {}
 
-        const State * deserialize(const JsonObject & serialized) override {
-          Params params;
+        void deserialize(const JsonObject & serialized, Params & params) override {
           _deserialize(serialized, params);
+        }
+
+        const State * init(const Params & params) override {
           return _creator.init(params);
         }
 

@@ -9,35 +9,46 @@ namespace BurpRedux {
   namespace ReducerMapping {
 
     template <class CombinedState, class State>
-    using f_get = const State * (*)(const CombinedState * state);
+    using f_getState = const State * (*)(const CombinedState * state);
 
-    template <class CombinedParams, class State>
-    using f_set = void (*)(CombinedParams & params, const State * state);
+    template <class CombinedState, class State>
+    using f_setState = void (*)(CombinedState & combinedState, const State * state);
+
+    template <class CombinedParams, class Params>
+    using f_getParams = Params & (*)(CombinedParams & params);
+
+    template <class CombinedParams, class Params>
+    using f_getConstParams = const Params & (*)(const CombinedParams & params);
 
     template <
       class CombinedState,
       class CombinedParams,
       class State,
+      class Params,
       const char * serializedField,
-      f_get<CombinedState, State> get,
-      f_set<CombinedParams, State> set
+      f_getState<CombinedState, State> getState,
+      f_setState<CombinedState, State> setState,
+      f_getParams<CombinedParams, Params> getParams,
+      f_getConstParams<CombinedParams, Params> getConstParams
     >
     class Instance : public Interface<CombinedState, CombinedParams> {
 
       public:
 
-        Instance(Reducer::Interface<State> & reducer) :
+        Instance(Reducer::Interface<State, Params> & reducer) :
           _reducer(reducer)
         {}
 
         void deserialize(const JsonObject & serialized, CombinedParams & params) override {
-          const JsonObject object = serialized[serializedField].as<JsonObject>();
-          const State * initial = _reducer.deserialize(object);
-          set(params, initial);
+          _reducer.deserialize(serialized[serializedField].as<JsonObject>(), getParams(params));
         }
 
-        bool reduce(const CombinedState * state, CombinedParams & params, const Action::Interface & action) override {
-          const State * current = get(state);
+        void init(CombinedState & state, const CombinedParams & params) override {
+           setState(state, _reducer.init(getConstParams(params)));
+        }
+
+        bool reduce(const CombinedState * state, CombinedState & temp, const Action::Interface & action) override {
+          const State * current = getState(state);
           // we do this cast so that the compiler will
           // check that the user knows what they're doing.
           // States must implement the State base class and
@@ -46,14 +57,14 @@ namespace BurpRedux {
           const BurpRedux::State::Interface * currentBase = current;
           unsigned long uid = currentBase->getUid();
           const State * next = _reducer.reduce(current, action);
-          set(params, next);
+          setState(temp, next);
           const BurpRedux::State::Interface * nextBase = next;
           return nextBase->getUid() != uid;
         }
 
       private:
 
-        Reducer::Interface<State> & _reducer;
+        Reducer::Interface<State, Params> & _reducer;
 
     };
 

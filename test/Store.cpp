@@ -10,7 +10,7 @@ namespace BurpReduxTest {
 
   using Action = BurpRedux::Action::Instance<Params, ActionType::ACTION>;
   using Reducer = BurpRedux::Reducer::Instance<State, Params, ActionType::ACTION>;
-  using Store = BurpRedux::Store::Instance<State, 1>;
+  using Store = BurpRedux::Store::Instance<State, Params, 1>;
 
   Creator creator;
   Reducer reducer(creator, deserialize);
@@ -24,8 +24,8 @@ namespace BurpReduxTest {
       describe.setup([]() {
           StaticJsonDocument<256> doc;
           doc[data1Field] = 1;
-          doc[data2Field] = 2;
-          store.deserialize(doc.as<JsonObject>());
+          Params params = {0, 2};
+          store.deserialize(doc.as<JsonObject>(), params);
       });
 
       describe.loop([]() {
@@ -57,7 +57,6 @@ namespace BurpReduxTest {
                   StaticJsonDocument<256> doc;
                   store.getState()->serialize(doc.to<JsonObject>());
                   TEST_ASSERT_EQUAL(3, doc[data1Field].as<int>());
-                  TEST_ASSERT_EQUAL(4, doc[data2Field].as<int>());
               });
           });
       });

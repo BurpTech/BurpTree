@@ -3,13 +3,19 @@
 #include "ReducerMapping/Instance.hpp"
 #include "Selector/Instance.hpp"
 
-#define BURP_REDUX_SUB_STATE(NAME, FIELD, CSTATE, CPARAMS, STATE)\
-  const STATE * get(const CSTATE * state) {\
+#define BURP_REDUX_SUB_STATE(NAME, FIELD, CSTATE, CPARAMS, STATE, PARAMS)\
+  const STATE * getState(const CSTATE * state) {\
     return state->NAME;\
   }\
-  void set(CPARAMS & params, const STATE * state) {\
-    params.NAME = state;\
+  void setState(CSTATE & combinedState, const STATE * state) {\
+    combinedState.NAME = state;\
   }\
-  using ReducerMapping = BurpRedux::ReducerMapping::Instance<CSTATE, CPARAMS, STATE, FIELD, get, set>;\
+  PARAMS & getParams(CPARAMS & params) {\
+    return params.NAME;\
+  }\
+  const PARAMS & getConstParams(const CPARAMS & params) {\
+    return params.NAME;\
+  }\
+  using ReducerMapping = BurpRedux::ReducerMapping::Instance<CSTATE, CPARAMS, STATE, PARAMS, FIELD, getState, setState, getParams, getConstParams>;\
   template <size_t subscriberCount>\
-  using Selector = BurpRedux::Selector::Instance<CSTATE, STATE, get, subscriberCount>;
+  using Selector = BurpRedux::Selector::Instance<CSTATE, STATE, getState, subscriberCount>;

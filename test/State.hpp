@@ -6,7 +6,6 @@
 namespace BurpReduxTest {
 
   constexpr char data1Field[] = "data1";
-  constexpr char data2Field[] = "data2";
 
   struct Params {
     int data1;
@@ -28,7 +27,6 @@ namespace BurpReduxTest {
 
       void serialize(const JsonObject & serialized) const override {
         serialized[data1Field] = data1;
-        serialized[data2Field] = data2;
       }
 
   };
@@ -40,9 +38,9 @@ namespace BurpReduxTest {
   constexpr char threeField[] = "three";
 
   struct CombinedParams {
-    const State * one;
-    const State * two;
-    const State * three;
+    Params one;
+    Params two;
+    Params three;
   };
 
   class CombinedState : public BurpRedux::State::Instance {
@@ -53,11 +51,18 @@ namespace BurpReduxTest {
       const BurpReduxTest::State * two;
       const BurpReduxTest::State * three;
 
-      CombinedState(const CombinedParams & params, const unsigned long uid) :
+      CombinedState() :
+          BurpRedux::State::Instance(0),
+          one(nullptr),
+          two(nullptr),
+          three(nullptr)
+      {}
+
+      CombinedState(const CombinedState & state, const unsigned long uid) :
           BurpRedux::State::Instance(uid),
-          one(params.one),
-          two(params.two),
-          three(params.three)
+          one(state.one),
+          two(state.two),
+          three(state.three)
       {}
 
       void serialize(const JsonObject & serialized) const override {
@@ -69,6 +74,6 @@ namespace BurpReduxTest {
   };
 
   using Creator = BurpRedux::Creator::Instance<State, Params>;
-  using CombinedCreator = BurpRedux::Creator::Instance<CombinedState, CombinedParams>;
+  using CombinedCreator = BurpRedux::Creator::Instance<CombinedState, CombinedState>;
 
 }

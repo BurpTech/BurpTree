@@ -12,16 +12,18 @@ namespace BurpRedux {
       dispatchDuringNotificationWarning,
       dispatchDuringSetupWarning,
       dispatchDuringDeserializeError,
+      dispatchDuringInitError,
       dispatchDuringReduceError
     };
 
-    template <class State>
+    template <class State, class Params>
     class Interface : public Publisher::Interface<State> {
 
       public:
 
         virtual void loop() = 0;
-        virtual void deserialize(const JsonObject & serialized) = 0;
+        virtual void deserialize(const JsonObject & serialized, Params & params) = 0;
+        virtual void init(const Params & params) = 0;
         virtual void setup(const State * initial) = 0;
         virtual Error dispatch(const Action::Interface & action) = 0;
 

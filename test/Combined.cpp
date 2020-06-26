@@ -18,7 +18,8 @@ namespace BurpReduxTest {
         oneField,
         CombinedState,
         CombinedParams,
-        State
+        State,
+        Params
     );
     ReducerMapping reducerMapping(reducer);
     Selector<1> selector({
@@ -37,7 +38,8 @@ namespace BurpReduxTest {
         twoField,
         CombinedState,
         CombinedParams,
-        State
+        State,
+        Params
     );
     ReducerMapping reducerMapping(reducer);
     Selector<1> selector({
@@ -56,7 +58,8 @@ namespace BurpReduxTest {
         threeField,
         CombinedState,
         CombinedParams,
-        State
+        State,
+        Params
     );
     ReducerMapping reducerMapping(reducer);
     Selector<1> selector({
@@ -74,7 +77,7 @@ namespace BurpReduxTest {
   }));
 
   template <size_t subscriberCount>
-  using Store = BurpRedux::Store::Instance<CombinedState, subscriberCount>;
+  using Store = BurpRedux::Store::Instance<CombinedState, CombinedParams, subscriberCount>;
   Store<3> combinedStore(combinedReducer, Store<3>::Subscribers({
       &One::selector,
       &Two::selector,
@@ -87,12 +90,14 @@ namespace BurpReduxTest {
       describe.setup([]() {
           StaticJsonDocument<512> doc;
           doc[oneField][data1Field] = 1;
-          doc[oneField][data2Field] = 2;
           doc[twoField][data1Field] = 3;
-          doc[twoField][data2Field] = 4;
           doc[threeField][data1Field] = 5;
-          doc[threeField][data2Field] = 6;
-          combinedStore.deserialize(doc.as<JsonObject>());
+          CombinedParams params = {
+            {0, 2},
+            {0, 4},
+            {0, 6}
+          };
+          combinedStore.deserialize(doc.as<JsonObject>(), params);
       });
 
       describe.loop([]() {
@@ -173,11 +178,8 @@ namespace BurpReduxTest {
                           StaticJsonDocument<512> doc;
                           combinedStore.getState()->serialize(doc.to<JsonObject>());
                           TEST_ASSERT_EQUAL(7, doc[oneField][data1Field].as<int>());
-                          TEST_ASSERT_EQUAL(8, doc[oneField][data2Field].as<int>());
                           TEST_ASSERT_EQUAL(9, doc[twoField][data1Field].as<int>());
-                          TEST_ASSERT_EQUAL(10, doc[twoField][data2Field].as<int>());
                           TEST_ASSERT_EQUAL(11, doc[threeField][data1Field].as<int>());
-                          TEST_ASSERT_EQUAL(12, doc[threeField][data2Field].as<int>());
                       });
                   });
               });

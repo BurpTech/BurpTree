@@ -14,11 +14,11 @@ namespace BurpRedux {
     class Params,
     size_t size
   >
-  class CombinedReducer : public Reducer::Interface<State> {
+  class CombinedReducer : public Reducer::Interface<State, Params> {
 
     public:
 
-      using Creator = Creator::Interface<State, Params>;
+      using Creator = Creator::Interface<State, State>;
       using ReducerMapping = ReducerMapping::Interface<State, Params>;
       using Map = std::array<ReducerMapping *, size>;
 
@@ -27,25 +27,31 @@ namespace BurpRedux {
         _map(map)
       {}
 
-      const State * deserialize(const JsonObject & serialized) override {
-        Params params;
+      void deserialize(const JsonObject & serialized, Params & params) override {
         for (auto mapping : _map) {
           mapping->deserialize(serialized, params);
         }
-        return _creator.init(params);
+      }
+
+      const State * init(const Params & params) override {
+        State state;
+        for (auto mapping : _map) {
+          mapping->init(state, params);
+        }
+        return _creator.init(state);
       }
 
       const State * reduce(const State * previous, const Action::Interface & action) override {
-        Params params;
+        State state;
         auto modified = false;
         for (auto mapping : _map) {
-          modified = mapping->reduce(previous, params, action) || modified;
+          modified = mapping->reduce(previous, state, action) || modified;
         }
         if (modified) {
           // we don't know how to create a state, 
           // maybe the user wants to use a memory pool
           // or something
-          return _creator.replace(previous, params);
+          return _creator.replace(previous, state);
         }
         return previous;
       }

@@ -8,14 +8,14 @@
 namespace BurpRedux {
   namespace Store {
 
-    template <class State, size_t size>
-    class Instance : public Interface<State> {
+    template <class State, class Params, size_t size>
+    class Instance : public Interface<State, Params> {
 
       public:
 
         using Subscriber = Subscriber::Interface<State>;
         using Subscribers = std::array<Subscriber *, size>;
-        using Reducer = Reducer::Interface<State>;
+        using Reducer = Reducer::Interface<State, Params>;
 
         Instance(Reducer & reducer, Subscribers subscribers) :
           publisher(subscribers),
@@ -24,13 +24,21 @@ namespace BurpRedux {
           notifying(false),
           settingUp(false),
           deserializing(false),
+          initializing(false),
           nextState(nullptr)
         {}
 
-        void deserialize(const JsonObject & serialized) override {
+        void deserialize(const JsonObject & serialized, Params & params) override {
           deserializing = true;
-          const State * initial = reducer.deserialize(serialized);
+          reducer.deserialize(serialized, params);
           deserializing = false;
+          init(params);
+        }
+
+        void init(const Params & params) override {
+          initializing = true;
+          const State * initial = reducer.init(params);
+          initializing = false;
           setup(initial);
         }
 
@@ -53,6 +61,10 @@ namespace BurpRedux {
           if (deserializing) {
             // prevent dispatch during deserialization and report error
             return Error::dispatchDuringDeserializeError;
+          }
+          if (initializing) {
+            // prevent dispatch during initialization and report error
+            return Error::dispatchDuringInitError;
           }
           if (reducing) {
             // prevent dispatch during reduce and report error
@@ -87,6 +99,7 @@ namespace BurpRedux {
         bool notifying;
         bool settingUp;
         bool deserializing;
+        bool initializing;
         const State * nextState;
 
         void publish(const State * state) override {

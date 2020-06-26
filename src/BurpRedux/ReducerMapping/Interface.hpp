@@ -12,7 +12,8 @@ namespace BurpRedux {
       public:
 
         virtual void deserialize(const JsonObject & serialized, CombinedParams & params) = 0;
-        virtual bool reduce(const CombinedState * previous, CombinedParams & params, const Action::Interface & action) = 0;
+        virtual void init(CombinedState & state, const CombinedParams & params) = 0;
+        virtual bool reduce(const CombinedState * previous, CombinedState & temp, const Action::Interface & action) = 0;
 
     };
 
