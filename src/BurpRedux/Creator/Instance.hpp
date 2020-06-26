@@ -12,10 +12,18 @@ namespace BurpRedux {
       public:
 
         const State * init(const Params & params) override {
+          return replace(nullptr, &params);
+        }
+
+        const State * init(const Params * params) override {
           return replace(nullptr, params);
         }
 
         const State * replace(const State * previous, const Params & params) override {
+          return replace(previous, &params);
+        }
+
+        const State * replace(const State * previous, const Params * params) override {
           _current++;
           _current %= 2;
           _uid++;

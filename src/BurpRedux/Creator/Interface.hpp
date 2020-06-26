@@ -9,7 +9,9 @@ namespace BurpRedux {
       public:
 
         virtual const State * init(const Params & params) = 0;
+        virtual const State * init(const Params * params) = 0;
         virtual const State * replace(const State * previous, const Params & params) = 0;
+        virtual const State * replace(const State * previous, const Params * params) = 0;
 
     };
 

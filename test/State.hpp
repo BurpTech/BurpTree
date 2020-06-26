@@ -17,10 +17,10 @@ namespace BurpReduxTest {
       int data1;
       int data2;
 
-      State(const Params & params, const unsigned long uid) :
+      State(const Params * params, const unsigned long uid) :
         BurpRedux::State::Instance(uid),
-        data1(params.data1),
-        data2(params.data2)
+        data1(params->data1),
+        data2(params->data2)
       {}
 
   };
@@ -39,11 +39,11 @@ namespace BurpReduxTest {
       const BurpReduxTest::State * two;
       const BurpReduxTest::State * three;
 
-      CombinedState(const CombinedParams & params, const unsigned long uid) :
+      CombinedState(const CombinedParams * params, const unsigned long uid) :
           BurpRedux::State::Instance(uid),
-          one(params.one),
-          two(params.two),
-          three(params.three)
+          one(params->one),
+          two(params->two),
+          three(params->three)
       {}
 
   };
