@@ -23,12 +23,20 @@ namespace BurpRedux {
           reducing(false),
           notifying(false),
           settingUp(false),
+          deserializing(false),
           nextState(nullptr)
         {}
 
-        void setup(const State * state) {
+        void deserialize(const JsonObject & serialized) override {
+          deserializing = true;
+          const State * initial = reducer.deserialize(serialized);
+          deserializing = false;
+          setup(initial);
+        }
+
+        void setup(const State * initial) override {
           settingUp = true;
-          publisher.setup(state);
+          publisher.setup(initial);
           settingUp = false;
         }
 
@@ -42,6 +50,10 @@ namespace BurpRedux {
         }
 
         Error dispatch(const Action::Interface & action) override {
+          if (deserializing) {
+            // prevent dispatch during deserialization and report error
+            return Error::dispatchDuringDeserializeError;
+          }
           if (reducing) {
             // prevent dispatch during reduce and report error
             return Error::dispatchDuringReduceError;
@@ -74,6 +86,7 @@ namespace BurpRedux {
         bool reducing;
         bool notifying;
         bool settingUp;
+        bool deserializing;
         const State * nextState;
 
         void publish(const State * state) override {

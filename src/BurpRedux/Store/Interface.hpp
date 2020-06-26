@@ -1,5 +1,6 @@
 #pragma once
 
+#include <ArduinoJson.h>
 #include "../Action/Interface.hpp"
 #include "../Publisher/Interface.hpp"
 
@@ -10,6 +11,7 @@ namespace BurpRedux {
       noError,
       dispatchDuringNotificationWarning,
       dispatchDuringSetupWarning,
+      dispatchDuringDeserializeError,
       dispatchDuringReduceError
     };
 
@@ -19,6 +21,8 @@ namespace BurpRedux {
       public:
 
         virtual void loop() = 0;
+        virtual void deserialize(const JsonObject & serialized) = 0;
+        virtual void setup(const State * initial) = 0;
         virtual Error dispatch(const Action::Interface & action) = 0;
 
     };

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <ArduinoJson.h>
 #include "../Action/Interface.hpp"
 
 namespace BurpRedux {
@@ -10,7 +11,8 @@ namespace BurpRedux {
 
       public:
 
-        virtual bool reduce(const CombinedState * state, CombinedParams & params, const Action::Interface & action) = 0;
+        virtual void deserialize(const JsonObject & serialized, CombinedParams & params) = 0;
+        virtual bool reduce(const CombinedState * previous, CombinedParams & params, const Action::Interface & action) = 0;
 
     };
 

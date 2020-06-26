@@ -1,3 +1,6 @@
 [submodule "lib/BurpUnity"]
 	path = lib/BurpUnity
 	url = https://github.com/pghalliday/BurpUnity.git
+[submodule "lib/ArduinoJson"]
+	path = lib/ArduinoJson
+	url = https://github.com/bblanchon/ArduinoJson.git

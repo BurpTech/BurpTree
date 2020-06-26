@@ -18,6 +18,7 @@ namespace BurpRedux {
       class CombinedState,
       class CombinedParams,
       class State,
+      const char * serializedField,
       f_get<CombinedState, State> get,
       f_set<CombinedParams, State> set
     >
@@ -28,6 +29,12 @@ namespace BurpRedux {
         Instance(Reducer::Interface<State> & reducer) :
           _reducer(reducer)
         {}
+
+        void deserialize(const JsonObject & serialized, CombinedParams & params) override {
+          const JsonObject object = serialized[serializedField].as<JsonObject>();
+          const State * initial = _reducer.deserialize(object);
+          set(params, initial);
+        }
 
         bool reduce(const CombinedState * state, CombinedParams & params, const Action::Interface & action) override {
           const State * current = get(state);

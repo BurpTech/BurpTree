@@ -9,7 +9,11 @@
 
 namespace BurpRedux {
 
-  template <class State, class Params, size_t size>
+  template <
+    class State,
+    class Params,
+    size_t size
+  >
   class CombinedReducer : public Reducer::Interface<State> {
 
     public:
@@ -22,6 +26,14 @@ namespace BurpRedux {
         _creator(creator),
         _map(map)
       {}
+
+      const State * deserialize(const JsonObject & serialized) override {
+        Params params;
+        for (auto mapping : _map) {
+          mapping->deserialize(serialized, params);
+        }
+        return _creator.init(params);
+      }
 
       const State * reduce(const State * previous, const Action::Interface & action) override {
         Params params;

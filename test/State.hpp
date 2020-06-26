@@ -5,6 +5,9 @@
 
 namespace BurpReduxTest {
 
+  constexpr char data1Field[] = "data1";
+  constexpr char data2Field[] = "data2";
+
   struct Params {
     int data1;
     int data2;
@@ -17,13 +20,24 @@ namespace BurpReduxTest {
       int data1;
       int data2;
 
-      State(const Params * params, const unsigned long uid) :
+      State(const Params & params, const unsigned long uid) :
         BurpRedux::State::Instance(uid),
-        data1(params->data1),
-        data2(params->data2)
+        data1(params.data1),
+        data2(params.data2)
       {}
 
+      void serialize(const JsonObject & serialized) const override {
+        serialized[data1Field] = data1;
+        serialized[data2Field] = data2;
+      }
+
   };
+
+  void deserialize(const JsonObject & serialized, Params & params);
+
+  constexpr char oneField[] = "one";
+  constexpr char twoField[] = "two";
+  constexpr char threeField[] = "three";
 
   struct CombinedParams {
     const State * one;
@@ -39,12 +53,18 @@ namespace BurpReduxTest {
       const BurpReduxTest::State * two;
       const BurpReduxTest::State * three;
 
-      CombinedState(const CombinedParams * params, const unsigned long uid) :
+      CombinedState(const CombinedParams & params, const unsigned long uid) :
           BurpRedux::State::Instance(uid),
-          one(params->one),
-          two(params->two),
-          three(params->three)
+          one(params.one),
+          two(params.two),
+          three(params.three)
       {}
+
+      void serialize(const JsonObject & serialized) const override {
+        one->serialize(serialized[oneField].to<JsonObject>());
+        two->serialize(serialized[twoField].to<JsonObject>());
+        three->serialize(serialized[threeField].to<JsonObject>());
+      }
 
   };
 

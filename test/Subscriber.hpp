@@ -10,7 +10,7 @@ namespace BurpReduxTest {
 
     public:
 
-      using f_cb = std::function<void(const State * state)>;
+      using f_cb = std::function<void()>;
 
       const State * state;
       unsigned int count;
@@ -31,7 +31,7 @@ namespace BurpReduxTest {
         if (_cb) {
           f_cb cb = _cb;
           _cb = nullptr;
-          cb(state);
+          cb();
         }
       }
 

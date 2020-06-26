@@ -10,11 +10,12 @@ namespace BurpReduxTest {
   namespace One {
     Subscriber<State> subscriber;
     using Action = BurpRedux::Action::Instance<Params, ActionType::ACTION_1>;
-    using Reducer = BurpRedux::Reducer::Instance<State, Params, ActionType::ACTION_1>;
+    using Reducer = BurpRedux::Reducer::Instance<State, Params, deserialize, ActionType::ACTION_1>;
     Creator creator;
     Reducer reducer(creator);
     BURP_REDUX_SUB_STATE(
         one,
+        oneField,
         CombinedState,
         CombinedParams,
         State
@@ -28,11 +29,12 @@ namespace BurpReduxTest {
   namespace Two {
     Subscriber<State> subscriber;
     using Action = BurpRedux::Action::Instance<Params, ActionType::ACTION_2>;
-    using Reducer = BurpRedux::Reducer::Instance<State, Params, ActionType::ACTION_2>;
+    using Reducer = BurpRedux::Reducer::Instance<State, Params, deserialize, ActionType::ACTION_2>;
     Creator creator;
     Reducer reducer(creator);
     BURP_REDUX_SUB_STATE(
         two,
+        twoField,
         CombinedState,
         CombinedParams,
         State
@@ -46,11 +48,12 @@ namespace BurpReduxTest {
   namespace Three {
     Subscriber<State> subscriber;
     using Action = BurpRedux::Action::Instance<Params, ActionType::ACTION_3>;
-    using Reducer = BurpRedux::Reducer::Instance<State, Params, ActionType::ACTION_3>;
+    using Reducer = BurpRedux::Reducer::Instance<State, Params, deserialize, ActionType::ACTION_3>;
     Creator creator;
     Reducer reducer(creator);
     BURP_REDUX_SUB_STATE(
         three,
+        threeField,
         CombinedState,
         CombinedParams,
         State
@@ -82,12 +85,14 @@ namespace BurpReduxTest {
   Module combinedTests("Combined", [](Describe & describe) {
 
       describe.setup([]() {
-          const CombinedState * initial = combinedCreator.init({
-              One::creator.init({1, 2}),
-              Two::creator.init({3, 4}),
-              Three::creator.init({5, 6})
-          });
-          combinedStore.setup(initial);
+          StaticJsonDocument<512> doc;
+          doc[oneField][data1Field] = 1;
+          doc[oneField][data2Field] = 2;
+          doc[twoField][data1Field] = 3;
+          doc[twoField][data2Field] = 4;
+          doc[threeField][data1Field] = 5;
+          doc[threeField][data2Field] = 6;
+          combinedStore.deserialize(doc.as<JsonObject>());
       });
 
       describe.loop([]() {
@@ -106,9 +111,7 @@ namespace BurpReduxTest {
       describe.describe("then dispatch action one", [](Describe & describe) {
           describe.before([](f_done & done) {
               combinedStore.dispatch(One::Action({7, 8}));
-              One::subscriber.callbackOnce([&](const State * _) {
-                  done();
-              });
+              One::subscriber.callbackOnce(done);
           });
 
           describe.it("should notify the correct subscribers with the correct state", []() {
@@ -128,9 +131,7 @@ namespace BurpReduxTest {
           describe.describe("then dispatch action two", [](Describe & describe) {
               describe.before([](f_done & done) {
                   combinedStore.dispatch(Two::Action({9, 10}));
-                  Two::subscriber.callbackOnce([&](const State * _) {
-                      done();
-                  });
+                  Two::subscriber.callbackOnce(done);
               });
 
               describe.it("should notify the correct subscribers with the correct state", []() {
@@ -150,9 +151,7 @@ namespace BurpReduxTest {
               describe.describe("then dispatch action three", [](Describe & describe) {
                   describe.before([](f_done & done) {
                       combinedStore.dispatch(Three::Action({11, 12}));
-                      Three::subscriber.callbackOnce([&](const State * _) {
-                          done();
-                      });
+                      Three::subscriber.callbackOnce(done);
                   });
 
                   describe.it("should notify the correct subscribers with the correct state", []() {
@@ -167,6 +166,19 @@ namespace BurpReduxTest {
                       TEST_ASSERT_EQUAL(1, Three::subscriber.count);
                       TEST_ASSERT_EQUAL(11, Three::subscriber.state->data1);
                       TEST_ASSERT_EQUAL(12, Three::subscriber.state->data2);
+                  });
+
+                  describe.describe("then serialize", [](Describe & describe) {
+                      describe.it("should serialize the state", []() {
+                          StaticJsonDocument<512> doc;
+                          combinedStore.getState()->serialize(doc.to<JsonObject>());
+                          TEST_ASSERT_EQUAL(7, doc[oneField][data1Field].as<int>());
+                          TEST_ASSERT_EQUAL(8, doc[oneField][data2Field].as<int>());
+                          TEST_ASSERT_EQUAL(9, doc[twoField][data1Field].as<int>());
+                          TEST_ASSERT_EQUAL(10, doc[twoField][data2Field].as<int>());
+                          TEST_ASSERT_EQUAL(11, doc[threeField][data1Field].as<int>());
+                          TEST_ASSERT_EQUAL(12, doc[threeField][data2Field].as<int>());
+                      });
                   });
               });
           });
