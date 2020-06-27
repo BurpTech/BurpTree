@@ -6,8 +6,7 @@
 namespace BurpRedux {
   namespace Selector {
 
-    template <class Input, class Output>
-    class Interface : public Publisher::Interface<Output>, public Subscriber::Interface<Input> {};
+    class Interface : public Publisher::Interface, public Subscriber::Interface {};
 
   }
 }

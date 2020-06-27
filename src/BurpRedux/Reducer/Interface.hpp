@@ -1,19 +1,22 @@
 #pragma once
 
-#include <ArduinoJson.h>
-#include "../Action/Interface.hpp"
+#include "../StateList/Interface.hpp"
+#include "../State/Interface.hpp"
 
 namespace BurpRedux {
   namespace Reducer {
 
-    template <class State, class Params>
     class Interface {
 
       public:
 
-        virtual void deserialize(const JsonObject & serialized, Params & params) = 0;
-        virtual const State * init(const Params & params) = 0;
-        virtual const State * reduce(const State * previous, const Action::Interface & action) = 0;
+        using Id = unsigned int;
+        using StateList = StateList::Interface;
+        using State = State::Interface;
+
+        virtual const State * init(const StateList & list) const = 0;
+        virtual void deserialize(State * current, const JsonObject & serialized) const = 0;
+        virtual const State * reduce(const Id id, const State * previous, const State * next) const = 0;
 
     };
 

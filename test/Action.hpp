@@ -1,16 +1,14 @@
 #pragma once
 
-#include <BurpUnity.hpp>
+#include "State.hpp"
+#include <functional>
 
 namespace BurpReduxTest {
+  namespace Action {
 
-  enum ActionType : unsigned int {
-    ACTION,
-    ACTION_1,
-    ACTION_2,
-    ACTION_3
-  };
+    void incrementData(const State * previous, State * next);
+    void setExternal(const State * previous, State * next, const char * external);
+    void setError(const State * previous, State * next);
 
-  extern Module actionTests;
-
+  }
 }

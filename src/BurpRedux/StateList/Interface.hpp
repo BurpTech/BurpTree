@@ -1,18 +1,19 @@
 #pragma once
 
+#include <cstddef>
 #include "../State/Interface.hpp"
 
 namespace BurpRedux {
-  namespace Publisher {
+  namespace StateList {
 
     class Interface {
 
       public:
 
         using State = State::Interface;
+        using Index = size_t;
 
-        virtual const State * getState() const = 0;
-        virtual void publish(const State * state) = 0;
+        virtual State * get(const Index index) const = 0;
 
     };
 

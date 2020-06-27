@@ -9,12 +9,15 @@ namespace BurpRedux {
 
       public:
 
-        Instance(const unsigned long uid);
-        const unsigned long getUid() const override;
+        Instance(const Uid uid);
+        const unsigned int getUid() const override;
+        const unsigned int getError() const override;
+        void setError(Error error) override;
 
       private:
 
-        const unsigned long _uid;
+        const Uid _uid;
+        Error _error;
 
     };
 

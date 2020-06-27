@@ -1,27 +1,20 @@
-#include <unity.h>
-#include "../src/BurpRedux/Action/Instance.hpp"
-#include "State.hpp"
 #include "Action.hpp"
 
 namespace BurpReduxTest {
+  namespace Action {
 
-  const Params params =  {1, 2};
-  const BurpRedux::Action::Instance<Params, ActionType::ACTION>  action(params);
+    void incrementData(const State * previous, State * next) {
+      next->data = previous->data + 1;
+    }
 
-  Module actionTests("Action", [](Describe & describe) {
+    void setExternal(const State * previous, const char * external, State * next) {
+      next->data = previous->data;
+      next->external = external;
+    }
 
-      describe.describe("getType", [](Describe & describe) {
-          describe.it("should return the type", []() {
-              TEST_ASSERT_EQUAL(ActionType::ACTION, action.getType());
-          });
-      });
+    void setError(State * next) {
+      next->setError(1);
+    }
 
-      describe.describe("getParams", [](Describe & describe) {
-          describe.it("should return the params", []() {
-              TEST_ASSERT_EQUAL(&params, &(action.getParams()));
-          });
-      });
-
-  });
-
+  }
 }

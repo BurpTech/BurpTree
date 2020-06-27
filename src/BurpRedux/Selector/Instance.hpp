@@ -1,28 +1,28 @@
 #pragma once
 
-#include <functional>
+#include "../State/Interface.hpp"
+#include "../CombinedState/Interface.hpp"
 #include "../Publisher/Instance.hpp"
 #include "Interface.hpp"
 
 namespace BurpRedux {
   namespace Selector {
 
-    template <class Input, class Output>
-    using f_select = const Output * (*)(const Input * input);
-
-    template <class Input, class Output, f_select<Input, Output> select, size_t size>
-    class Instance : public Interface<Input, Output> {
+    template <size_t size>
+    class Instance : public Interface {
       
       public:
 
-        using Subscriber = Subscriber::Interface<Output>;
+        using State = BurpRedux::State::Interface;
+        using CombinedState = BurpRedux::CombinedState::Interface;
+        using Subscriber = Subscriber::Interface;
         using Subscribers = std::array<Subscriber *, size>;
 
         Instance(Subscribers subscribers) :
           outputPublisher(subscribers)
         {}
 
-        void setup(const Input * input) override {
+        void setup(const State * input) override {
           outputPublisher.setup(select(input));
         }
 

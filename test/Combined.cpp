@@ -1,186 +1,267 @@
 #include <unity.h>
 #include "../src/BurpRedux.hpp"
 #include "Action.hpp"
+#include "Constants.hpp"
+#include "Actions.hpp"
 #include "State.hpp"
 #include "Subscriber.hpp"
 #include "Combined.hpp"
 
 namespace BurpReduxTest {
 
-  namespace One {
-    Subscriber<State> subscriber;
-    using Action = BurpRedux::Action::Instance<Params, ActionType::ACTION_1>;
-    using Reducer = BurpRedux::Reducer::Instance<State, Params, ActionType::ACTION_1>;
-    Creator creator;
-    Reducer reducer(creator, deserialize);
-    BURP_REDUX_SUB_STATE(
-        one,
-        oneField,
-        CombinedState,
-        CombinedParams,
-        State,
-        Params
-    );
-    ReducerMapping reducerMapping(reducer);
-    Selector<1> selector({
-        &subscriber
-    });
+  namespace A {
+
+    namespace A {
+      Creator creator;
+      Reducer reducer(ReducerId::aa);
+      Subscriber subscriber;
+      using Selector = BurpRedux::Selector::Instance<1>;
+      Selector selector(ReducerIndex::a, Selector::Subscribers({
+          &subscriber
+      }));
+    }
+
+    namespace B {
+      Creator creator;
+      Reducer reducer(ReducerId::ab);
+      Subscriber subscriber;
+      using Selector = BurpRedux::Selector::Instance<1>;
+      Selector selector(ReducerIndex::b, Selector::Subscribers({
+          &subscriber
+      }));
+    }
+
+    namespace C {
+      Creator creator;
+      Reducer reducer(ReducerId::ac);
+      Subscriber subscriber;
+      using Selector = BurpRedux::Selector::Instance<1>;
+      Selector selector(ReducerIndex::c, Selector::Subscribers({
+          &subscriber
+      }));
+    }
+
+    using Reducer = BurpRedux::CombinedReducer<ReducerIndex::count>;
+    Reducer::Map map;
+    map[ReducerIndex::a] = {A::field, &A::reducer};
+    map[ReducerIndex::b] = {B::field, &B::reducer};
+    map[ReducerIndex::c] = {C::field, &C::reducer};
+    Reducer reducer(map);
+
+    using Selector = BurpRedux::Selector::Instance<3>;
+    Selector selector(BurpReduxTest::ReducerIndex::a, Selector::Subscribers({
+      &A::selector,
+      &B::selector,
+      &C::selector
+    }));
+
   }
 
-  namespace Two {
-    Subscriber<State> subscriber;
-    using Action = BurpRedux::Action::Instance<Params, ActionType::ACTION_2>;
-    using Reducer = BurpRedux::Reducer::Instance<State, Params, ActionType::ACTION_2>;
-    Creator creator;
-    Reducer reducer(creator, deserialize);
-    BURP_REDUX_SUB_STATE(
-        two,
-        twoField,
-        CombinedState,
-        CombinedParams,
-        State,
-        Params
-    );
-    ReducerMapping reducerMapping(reducer);
-    Selector<1> selector({
-        &subscriber
-    });
+  namespace B {
+
+    namespace A {
+      Creator creator;
+      Reducer reducer(ReducerId::ba);
+      Subscriber subscriber;
+      using Selector = BurpRedux::Selector::Instance<1>;
+      Selector selector(ReducerIndex::a, Selector::Subscribers({
+          &subscriber
+      }));
+    }
+
+    namespace B {
+      Creator creator;
+      Reducer reducer(ReducerId::bb);
+      Subscriber subscriber;
+      using Selector = BurpRedux::Selector::Instance<1>;
+      Selector selector(ReducerIndex::b, Selector::Subscribers({
+          &subscriber
+      }));
+    }
+
+    namespace C {
+      Creator creator;
+      Reducer reducer(ReducerId::bc);
+      Subscriber subscriber;
+      using Selector = BurpRedux::Selector::Instance<1>;
+      Selector selector(ReducerIndex::c, Selector::Subscribers({
+          &subscriber
+      }));
+    }
+
+    using Reducer = BurpRedux::CombinedReducer<ReducerIndex::count>;
+    Reducer::Map map;
+    map[ReducerIndex::a] = {A::field, &A::reducer};
+    map[ReducerIndex::b] = {B::field, &B::reducer};
+    map[ReducerIndex::c] = {C::field, &C::reducer};
+    Reducer reducer(map);
+
+    using Selector = BurpRedux::Selector::Instance<3>;
+    Selector selector(BurpReduxTest::ReducerIndex::b, Selector::Subscribers({
+      &A::selector,
+      &B::selector,
+      &C::selector
+    }));
+
   }
 
-  namespace Three {
-    Subscriber<State> subscriber;
-    using Action = BurpRedux::Action::Instance<Params, ActionType::ACTION_3>;
-    using Reducer = BurpRedux::Reducer::Instance<State, Params, ActionType::ACTION_3>;
-    Creator creator;
-    Reducer reducer(creator, deserialize);
-    BURP_REDUX_SUB_STATE(
-        three,
-        threeField,
-        CombinedState,
-        CombinedParams,
-        State,
-        Params
-    );
-    ReducerMapping reducerMapping(reducer);
-    Selector<1> selector({
-        &subscriber
-    });
-  }
+  using Reducer = BurpRedux::CombinedReducer<ReducerIndex::count>;
+  Reducer::Map map;
+  map[ReducerIndex::a] = {A::field, &A::reducer};
+  map[ReducerIndex::b] = {A::field, &B::reducer};
+  Reducer reducer(map);
 
-  template <size_t mappingCount>
-  using CombinedReducer = BurpRedux::CombinedReducer<CombinedState, CombinedParams, mappingCount>;
-  CombinedCreator combinedCreator;
-  CombinedReducer<3> combinedReducer(combinedCreator, CombinedReducer<3>::Map({
-      &One::reducerMapping,
-      &Two::reducerMapping,
-      &Three::reducerMapping
+  using Store = BurpRedux::Store::Instance<ReducerId::count, 2>;
+  Store store(reducer, Store::Subscribers({
+    &A::selector,
+    &B::selector
   }));
 
-  template <size_t subscriberCount>
-  using Store = BurpRedux::Store::Instance<CombinedState, CombinedParams, subscriberCount>;
-  Store<3> combinedStore(combinedReducer, Store<3>::Subscribers({
-      &One::selector,
-      &Two::selector,
-      &Three::selector
-  }));
+  namespace A {
+    namespace A {
+      Action::Dispatcher<State, Params> dispatcher(store, creator, ReducerId::aa);
+    }
+    namespace B {
+      Action::Dispatcher<State, Params> dispatcher(store, creator, ReducerId::ab);
+    }
+    namespace C {
+      Action::Dispatcher<State, Params> dispatcher(store, creator, ReducerId::ac);
+    }
+  }
 
+  namespace B {
+    namespace A {
+      Action::Dispatcher<State, Params> dispatcher(store, creator, ReducerId::ba);
+    }
+    namespace B {
+      Action::Dispatcher<State, Params> dispatcher(store, creator, ReducerId::bb);
+    }
+    namespace C {
+      Action::Dispatcher<State, Params> dispatcher(store, creator, ReducerId::bc);
+    }
+  }
 
   Module combinedTests("Combined", [](Describe & describe) {
 
       describe.setup([]() {
+
+          Store::InitialStates initialStates;
+          initialStates[ReducerId::aa] = A::A::creator.init({"aa"});
+          initialStates[ReducerId::ab] = A::B::creator.init({"ab"});
+          initialStates[ReducerId::ac] = A::C::creator.init({"ac"});
+          initialStates[ReducerId::ba] = B::A::creator.init({"ba"});
+          initialStates[ReducerId::bb] = B::B::creator.init({"bb"});
+          initialStates[ReducerId::bc] = B::C::creator.init({"bc"});
+          store.init(initialStates);
+
           StaticJsonDocument<512> doc;
-          doc[oneField][data1Field] = 1;
-          doc[twoField][data1Field] = 3;
-          doc[threeField][data1Field] = 5;
-          CombinedParams params = {
-            {0, 2},
-            {0, 4},
-            {0, 6}
-          };
-          combinedStore.deserialize(doc.as<JsonObject>(), params);
+          doc[A::field][A::A::field][dataField] = 10;
+          doc[A::field][A::B::field][dataField] = 20;
+          doc[A::field][A::C::field][dataField] = 30;
+          doc[B::field][B::A::field][dataField] = 40;
+          doc[B::field][B::B::field][dataField] = 50;
+          doc[B::field][B::C::field][dataField] = 60;
+          store.deserialize(doc.as<JsonObject>());
+
       });
 
       describe.loop([]() {
-          combinedStore.loop();
+          store.loop();
       });
 
       describe.it("should have the correct initial states", []() {
-          TEST_ASSERT_EQUAL(1, One::selector.getState()->data1);
-          TEST_ASSERT_EQUAL(2, One::selector.getState()->data2);
-          TEST_ASSERT_EQUAL(3, Two::selector.getState()->data1);
-          TEST_ASSERT_EQUAL(4, Two::selector.getState()->data2);
-          TEST_ASSERT_EQUAL(5, Three::selector.getState()->data1);
-          TEST_ASSERT_EQUAL(6, Three::selector.getState()->data2);
+          TEST_ASSERT_EQUAL(10, A::A::selector.getState()->data);
+          TEST_ASSERT_EQUAL_STRING("aa", A::A::selector.getState()->external);
+          TEST_ASSERT_EQUAL(20, A::B::selector.getState()->data);
+          TEST_ASSERT_EQUAL_STRING("ab", A::B::selector.getState()->external);
+          TEST_ASSERT_EQUAL(30, A::C::selector.getState()->data);
+          TEST_ASSERT_EQUAL_STRING("ac", A::C::selector.getState()->external);
+          TEST_ASSERT_EQUAL(40, B::A::selector.getState()->data);
+          TEST_ASSERT_EQUAL_STRING("ba", B::A::selector.getState()->external);
+          TEST_ASSERT_EQUAL(50, B::B::selector.getState()->data);
+          TEST_ASSERT_EQUAL_STRING("bb", B::B::selector.getState()->external);
+          TEST_ASSERT_EQUAL(60, B::C::selector.getState()->data);
+          TEST_ASSERT_EQUAL_STRING("bc", B::C::selector.getState()->external);
       });
 
-      describe.describe("then dispatch action one", [](Describe & describe) {
+      describe.describe("then dispatch incrementData A::A", [](Describe & describe) {
           describe.before([](f_done & done) {
-              combinedStore.dispatch(One::Action({7, 8}));
-              One::subscriber.callbackOnce(done);
+              A::A::subscriber.callbackOnce(done);
+              const State * previous = A::A::selector.getState();
+              using std::placeholders;
+              A::A::dispatcher.dispatch(previous, std::bind(Action::incrementData, _1, _2));
           });
 
           describe.it("should notify the correct subscribers with the correct state", []() {
-              TEST_ASSERT_EQUAL(1, One::subscriber.count);
-              TEST_ASSERT_EQUAL(7, One::subscriber.state->data1);
-              TEST_ASSERT_EQUAL(8, One::subscriber.state->data2);
+              TEST_ASSERT_EQUAL(1, A::A::subscriber.count);
+              TEST_ASSERT_EQUAL(11, A::A::selector.getState()->data);
+              TEST_ASSERT_EQUAL_STRING("aa", A::A::selector.getState()->external);
 
-              TEST_ASSERT_EQUAL(0, Two::subscriber.count);
-              TEST_ASSERT_EQUAL(3, Two::subscriber.state->data1);
-              TEST_ASSERT_EQUAL(4, Two::subscriber.state->data2);
+              TEST_ASSERT_EQUAL(0, A::B::subscriber.count);
+              TEST_ASSERT_EQUAL(20, A::B::selector.getState()->data);
+              TEST_ASSERT_EQUAL_STRING("ab", A::B::selector.getState()->external);
 
-              TEST_ASSERT_EQUAL(0, Three::subscriber.count);
-              TEST_ASSERT_EQUAL(5, Three::subscriber.state->data1);
-              TEST_ASSERT_EQUAL(6, Three::subscriber.state->data2);
+              TEST_ASSERT_EQUAL(0, A::C::subscriber.count);
+              TEST_ASSERT_EQUAL(30, A::C::selector.getState()->data);
+              TEST_ASSERT_EQUAL_STRING("ac", A::C::selector.getState()->external);
+
+              TEST_ASSERT_EQUAL(0, B::A::subscriber.count);
+              TEST_ASSERT_EQUAL(40, B::A::selector.getState()->data);
+              TEST_ASSERT_EQUAL_STRING("ba", B::A::selector.getState()->external);
+
+              TEST_ASSERT_EQUAL(0, B::B::subscriber.count);
+              TEST_ASSERT_EQUAL(50, B::B::selector.getState()->data);
+              TEST_ASSERT_EQUAL_STRING("bb", B::B::selector.getState()->external);
+
+              TEST_ASSERT_EQUAL(0, B::C::subscriber.count);
+              TEST_ASSERT_EQUAL(60, B::C::selector.getState()->data);
+              TEST_ASSERT_EQUAL_STRING("bc", B::C::selector.getState()->external);
           });
 
-          describe.describe("then dispatch action two", [](Describe & describe) {
+          describe.describe("then dispatch setExternal on B::B", [](Describe & describe) {
               describe.before([](f_done & done) {
-                  combinedStore.dispatch(Two::Action({9, 10}));
-                  Two::subscriber.callbackOnce(done);
+                  B::B::subscriber.callbackOnce(done);
+                  const State * previous = B::B::selector.getState();
+                  using std::placeholders;
+                  B::B::dispatcher.dispatch(previous, std::bind(Action::setExternal, _1, _2, "BB"));
               });
 
               describe.it("should notify the correct subscribers with the correct state", []() {
-                  TEST_ASSERT_EQUAL(1, One::subscriber.count);
-                  TEST_ASSERT_EQUAL(7, One::subscriber.state->data1);
-                  TEST_ASSERT_EQUAL(8, One::subscriber.state->data2);
+                  TEST_ASSERT_EQUAL(1, A::A::subscriber.count);
+                  TEST_ASSERT_EQUAL(11, A::A::selector.getState()->data);
+                  TEST_ASSERT_EQUAL_STRING("aa", A::A::selector.getState()->external);
 
-                  TEST_ASSERT_EQUAL(1, Two::subscriber.count);
-                  TEST_ASSERT_EQUAL(9, Two::subscriber.state->data1);
-                  TEST_ASSERT_EQUAL(10, Two::subscriber.state->data2);
+                  TEST_ASSERT_EQUAL(0, A::B::subscriber.count);
+                  TEST_ASSERT_EQUAL(20, A::B::selector.getState()->data);
+                  TEST_ASSERT_EQUAL_STRING("ab", A::B::selector.getState()->external);
 
-                  TEST_ASSERT_EQUAL(0, Three::subscriber.count);
-                  TEST_ASSERT_EQUAL(5, Three::subscriber.state->data1);
-                  TEST_ASSERT_EQUAL(6, Three::subscriber.state->data2);
+                  TEST_ASSERT_EQUAL(0, A::C::subscriber.count);
+                  TEST_ASSERT_EQUAL(30, A::C::selector.getState()->data);
+                  TEST_ASSERT_EQUAL_STRING("ac", A::C::selector.getState()->external);
+
+                  TEST_ASSERT_EQUAL(0, B::A::subscriber.count);
+                  TEST_ASSERT_EQUAL(40, B::A::selector.getState()->data);
+                  TEST_ASSERT_EQUAL_STRING("ba", B::A::selector.getState()->external);
+
+                  TEST_ASSERT_EQUAL(1, B::B::subscriber.count);
+                  TEST_ASSERT_EQUAL(50, B::B::selector.getState()->data);
+                  TEST_ASSERT_EQUAL_STRING("BB", B::B::selector.getState()->external);
+
+                  TEST_ASSERT_EQUAL(0, B::C::subscriber.count);
+                  TEST_ASSERT_EQUAL(60, B::C::selector.getState()->data);
+                  TEST_ASSERT_EQUAL_STRING("bc", B::C::selector.getState()->external);
               });
 
-              describe.describe("then dispatch action three", [](Describe & describe) {
-                  describe.before([](f_done & done) {
-                      combinedStore.dispatch(Three::Action({11, 12}));
-                      Three::subscriber.callbackOnce(done);
-                  });
-
-                  describe.it("should notify the correct subscribers with the correct state", []() {
-                      TEST_ASSERT_EQUAL(1, One::subscriber.count);
-                      TEST_ASSERT_EQUAL(7, One::subscriber.state->data1);
-                      TEST_ASSERT_EQUAL(8, One::subscriber.state->data2);
-
-                      TEST_ASSERT_EQUAL(1, Two::subscriber.count);
-                      TEST_ASSERT_EQUAL(9, Two::subscriber.state->data1);
-                      TEST_ASSERT_EQUAL(10, Two::subscriber.state->data2);
-
-                      TEST_ASSERT_EQUAL(1, Three::subscriber.count);
-                      TEST_ASSERT_EQUAL(11, Three::subscriber.state->data1);
-                      TEST_ASSERT_EQUAL(12, Three::subscriber.state->data2);
-                  });
-
-                  describe.describe("then serialize", [](Describe & describe) {
-                      describe.it("should serialize the state", []() {
-                          StaticJsonDocument<512> doc;
-                          combinedStore.getState()->serialize(doc.to<JsonObject>());
-                          TEST_ASSERT_EQUAL(7, doc[oneField][data1Field].as<int>());
-                          TEST_ASSERT_EQUAL(9, doc[twoField][data1Field].as<int>());
-                          TEST_ASSERT_EQUAL(11, doc[threeField][data1Field].as<int>());
-                      });
+              describe.describe("then serialize", [](Describe & describe) {
+                  describe.it("should serialize the state", []() {
+                      StaticJsonDocument<512> doc;
+                      store.getState()->serialize(doc.to<JsonObject>());
+                      TEST_ASSERT_EQUAL(11, doc[A:field][A::A::field][dataField].as<int>());
+                      TEST_ASSERT_EQUAL(20, doc[A:field][A::B::field][dataField].as<int>());
+                      TEST_ASSERT_EQUAL(30, doc[A:field][A::C::field][dataField].as<int>());
+                      TEST_ASSERT_EQUAL(40, doc[B:field][B::A::field][dataField].as<int>());
+                      TEST_ASSERT_EQUAL(51, doc[B:field][B::B::field][dataField].as<int>());
+                      TEST_ASSERT_EQUAL(60, doc[B:field][B::C::field][dataField].as<int>());
                   });
               });
           });

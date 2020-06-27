@@ -1,19 +1,18 @@
 #pragma once
 
 #include <array>
-#include "../State/Interface.hpp"
 #include "../Subscriber/Interface.hpp"
 #include "Interface.hpp"
 
 namespace BurpRedux {
   namespace Publisher {
 
-    template <class State, size_t size>
-    class Instance : Interface<State> {
+    template <size_t size>
+    class Instance : Interface {
 
       public:
 
-        using Subscriber = Subscriber::Interface<State>;
+        using Subscriber = Subscriber::Interface;
         using Subscribers = std::array<Subscriber *, size>;
 
         Instance(Subscribers subscribers) :
