@@ -10,13 +10,13 @@ using Reducer = BurpRedux::Reducer::Instance;
 namespace BurpReduxTest {
 
   using MapEntry = BurpRedux::Reducer::Combined::Map::Entry;
-  using CombinedReducer = BurpRedux::Reducer::Combined::Instance<ReducerIndex::count>;
+  using CombinedReducer = BurpRedux::Reducer::Combined::Instance<2>;
   using StateList = BurpRedux::State::List::Instance<ReducerId::count>;
   using Store = BurpRedux::Store::Instance<CombinedReducer::State, 2>;
 
   namespace A {
 
-    using CombinedReducer = BurpRedux::Reducer::Combined::Instance<ReducerIndex::count>;
+    using CombinedReducer = BurpRedux::Reducer::Combined::Instance<3>;
     using CombinedSelector = BurpRedux::Selector::Instance<BurpReduxTest::CombinedReducer::State, CombinedReducer::State, 3>;
     using Selector = BurpRedux::Selector::Instance<CombinedReducer::State, State, 1>;
 
@@ -84,7 +84,7 @@ namespace BurpReduxTest {
 
   namespace B {
 
-    using CombinedReducer = BurpRedux::Reducer::Combined::Instance<ReducerIndex::count>;
+    using CombinedReducer = BurpRedux::Reducer::Combined::Instance<3>;
     using CombinedSelector = BurpRedux::Selector::Instance<BurpReduxTest::CombinedReducer::State, CombinedReducer::State, 3>;
     using Selector = BurpRedux::Selector::Instance<CombinedReducer::State, State, 1>;
 

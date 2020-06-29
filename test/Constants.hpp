@@ -20,15 +20,6 @@ namespace BurpReduxTest {
       constexpr char field[] = "c";
     }
 
-    namespace ReducerIndex {
-      enum : unsigned int {
-        a,
-        b,
-        c,
-        count
-      };
-    }
-
   }
 
   namespace B {
@@ -45,23 +36,6 @@ namespace BurpReduxTest {
       constexpr char field[] = "c";
     }
 
-    namespace ReducerIndex {
-      enum : unsigned int {
-        a,
-        b,
-        c,
-        count
-      };
-    }
-
-  }
-
-  namespace ReducerIndex {
-    enum : unsigned int {
-      a,
-      b,
-      count
-    };
   }
 
   namespace ReducerId {
