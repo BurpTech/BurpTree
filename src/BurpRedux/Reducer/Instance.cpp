@@ -7,15 +7,11 @@ namespace BurpRedux {
       _id(id)
     {}
 
-    const Instance::State * Instance::init(const StateList & list) const {
+    Instance::State * Instance::init(const StateList & list) {
       return list.get(_id);
     }
 
-    void Instance::deserialize(State * current, const JsonObject & serialized) const {
-      current->deserialize(serialized);
-    }
-
-    const Instance::State * Instance::reduce(const Id id, const State * previous, const State * next) const {
+    Instance::State * Instance::reduce(const Id id, State * previous, State * next) {
       if (id == _id) {
         return next;
       }

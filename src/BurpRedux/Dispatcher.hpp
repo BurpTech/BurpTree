@@ -3,7 +3,8 @@
 #include <functional>
 #include "State/Interface.hpp"
 #include "Store/Interface.hpp"
-#include "Creator/Interface1.hpp"
+#include "Creator/Interface.hpp"
+#include "Status.hpp"
 
 namespace BurpRedux {
 
@@ -14,8 +15,8 @@ namespace BurpRedux {
 
       using Base = BurpRedux::State::Interface;
       using Store = BurpRedux::Store::Interface;
-      using Creator = BurpRedux::Creator::Interface1<State>;
-      using f_assign = std::function<void(const State * previous, State * next)>;
+      using Creator = BurpRedux::Creator::Interface<State>;
+      using f_assign = std::function<void(State * next, const State * previous)>;
 
       Dispatcher(Store & store, Creator & creator, const unsigned int id) :
         _store(store),
@@ -23,22 +24,22 @@ namespace BurpRedux {
         _id(id)
       {}
 
-      const unsigned int dispatch(const State * previous, f_assign assign) {
+      const Status & dispatch(const State * previous, f_assign assign) {
         State * next = _creator.begin(previous);
-        assign(previous, next);
+        assign(next, previous);
         Base * base = next;
-        const Base::Error error = base->getError();
-        if (Base::noError == error) {
-          _creator.commit(previous);
-          _store.dispatch(_id, base);
+        const Status & status = base->getStatus();
+        if (BurpRedux::Status::Level::ERROR == status.level) {
+          return status;
         }
-        return error;
+        _creator.commit(previous);
+        return Status::maxLevel(status, _store.dispatch(_id, base));
       }
 
     private:
 
-      Store _store;
-      Creator _creator;
+      Store & _store;
+      Creator & _creator;
       const unsigned int _id;
 
   };

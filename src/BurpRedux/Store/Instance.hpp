@@ -1,51 +1,38 @@
 #pragma once
 
-#include <functional>
 #include "../Publisher/Instance.hpp"
-#include "../Reducer/Interface.hpp"
 #include "Interface.hpp"
+#include "Status.hpp"
 
 namespace BurpRedux {
   namespace Store {
 
-    template <class State, class Params, size_t size>
-    class Instance : public Interface<State, Params> {
+    template <class State, size_t subscriberCount>
+    class Instance : public Interface {
 
       public:
 
-        using Subscriber = Subscriber::Interface<State>;
-        using Subscribers = std::array<Subscriber *, size>;
-        using Reducer = Reducer::Interface<State, Params>;
+        using StateList = Interface::StateList;
+        using Id = Interface::Id;
+        using StateInterface = Interface::StateInterface;
+        using Reducer = Reducer::Interface;
+        using Publisher = Publisher::Instance<State, subscriberCount>;
+        using Subscribers = typename Publisher::Subscribers;
 
         Instance(Reducer & reducer, Subscribers subscribers) :
           publisher(subscribers),
           reducer(reducer),
           reducing(false),
           notifying(false),
-          settingUp(false),
-          deserializing(false),
           initializing(false),
           nextState(nullptr)
         {}
 
-        void deserialize(const JsonObject & serialized, Params & params) override {
-          deserializing = true;
-          reducer.deserialize(serialized, params);
-          deserializing = false;
-          init(params);
-        }
-
-        void init(const Params & params) override {
+        void init(const StateList & list) override {
           initializing = true;
-          const State * initial = reducer.init(params);
+          StateInterface * initial = reducer.init(list);
+          publisher.setup(initial->template as<State>());
           initializing = false;
-          setup(initial);
-        }
-
-        void setup(const State * initial) override {
-          settingUp = true;
-          publisher.setup(initial);
-          settingUp = false;
         }
 
         void loop() override {
@@ -53,61 +40,50 @@ namespace BurpRedux {
           // actions can be batched synchronously.
           // State reduction is always synchronous
           if (nextState) {
-            publish(nextState);
+            StateInterface * state = nextState;
+            nextState = nullptr;
+            notifying = true;
+            publisher.publish(state->template as<State>());
+            notifying = false;
           }
         }
 
-        Error dispatch(const Action::Interface & action) override {
-          if (deserializing) {
-            // prevent dispatch during deserialization and report error
-            return Error::dispatchDuringDeserializeError;
-          }
+        const Status & dispatch(const Id id, StateInterface * next) override {
           if (initializing) {
             // prevent dispatch during initialization and report error
-            return Error::dispatchDuringInitError;
+            status.set(Status::Level::ERROR, Status::dispatchDuringInit);
+            return status;
           }
           if (reducing) {
             // prevent dispatch during reduce and report error
-            return Error::dispatchDuringReduceError;
+            status.set(Status::Level::ERROR, Status::dispatchDuringReduce);
+            return status;
           }
-          Error error = Error::noError;
-          if (settingUp) {
-            // don't prevent dispatch during setup but
-            // report warning so that users can detect when it happens
-            error = Error::dispatchDuringSetupWarning;
-          }
+          status.set(Status::Level::INFO, Status::noError);
           if (notifying) {
             // don't prevent dispatch during notification but
             // report warning so that users can detect when it happens
-            error = Error::dispatchDuringNotificationWarning;
+            status.set(Status::Level::WARNING, Status::dispatchDuringNotification);
           }
           reducing = true;
-          nextState = reducer.reduce(publisher.getState(), action);
+          nextState = reducer.reduce(id, publisher.getState(), next);
           reducing = false;
-          return error;
+          return status;
         }
 
-        const State * getState() const override {
+        State * getState() const {
           return publisher.getState();
         }
 
       private:
 
-        Publisher::Instance<State, size> publisher;
+        Publisher publisher;
         Reducer & reducer;
         bool reducing;
         bool notifying;
-        bool settingUp;
-        bool deserializing;
         bool initializing;
-        const State * nextState;
-
-        void publish(const State * state) override {
-          nextState = nullptr;
-          notifying = true;
-          publisher.publish(state);
-          notifying = false;
-        }
+        StateInterface * nextState;
+        Status status;
 
     };
 

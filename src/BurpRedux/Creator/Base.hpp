@@ -1,22 +1,15 @@
 #pragma once
 
 #include <memory>
-#include "Interface2.hpp"
+#include "Interface.hpp"
 
 namespace BurpRedux {
   namespace Creator {
 
-    template <class State, class Params>
-    class Instance : public Interface2<State, Params> {
+    template <class State>
+    class Base : public Interface<State> {
 
       public:
-
-        State * init(const Params & params) override {
-          _uid++;
-          State * next = new(&(_pair[_current])) State(params, _uid);
-          _increment();
-          return next;
-        }
 
         State * begin(const State * previous) override {
           _uid++;
@@ -28,7 +21,7 @@ namespace BurpRedux {
           previous->~State();
         }
 
-      private:
+      protected:
 
         std::allocator<State> allocator;
         State * _pair = allocator.allocate(2);

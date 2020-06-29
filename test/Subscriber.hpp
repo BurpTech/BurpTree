@@ -2,10 +2,10 @@
 
 #include <functional>
 #include "../src/BurpRedux/Subscriber/Interface.hpp"
+#include "State.hpp"
 
 namespace BurpReduxTest {
 
-  template <class State>
   class Subscriber : public BurpRedux::Subscriber::Interface<State> {
 
     public:
@@ -21,11 +21,11 @@ namespace BurpReduxTest {
         _cb(nullptr)
       {}
 
-      void setup(const State * initial) override {
+      void setup(State * initial) override {
         state = initial;
       }
 
-      void onPublish(const State * next) override {
+      void onPublish(State * next) override {
         count++;
         state = next;
         if (_cb) {

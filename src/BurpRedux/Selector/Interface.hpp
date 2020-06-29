@@ -1,12 +1,18 @@
 #pragma once
 
-#include "../Publisher/Interface.hpp"
-#include "../Subscriber/Interface.hpp"
+#include "../State/List/Interface.hpp"
 
 namespace BurpRedux {
   namespace Selector {
 
-    class Interface : public Publisher::Interface, public Subscriber::Interface {};
+    class Interface {
+
+      public:
+
+        using Index = State::List::Interface::Index;
+        virtual void init(const Index index) = 0;
+
+    };
 
   }
 }

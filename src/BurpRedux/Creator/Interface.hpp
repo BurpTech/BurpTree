@@ -4,7 +4,7 @@ namespace BurpRedux {
   namespace Creator {
 
     template <class State>
-    class Interface1 {
+    class Interface {
 
       public:
 

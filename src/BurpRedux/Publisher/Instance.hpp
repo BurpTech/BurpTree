@@ -1,19 +1,21 @@
 #pragma once
 
 #include <array>
+#include "../State/Interface.hpp"
 #include "../Subscriber/Interface.hpp"
 #include "Interface.hpp"
 
 namespace BurpRedux {
   namespace Publisher {
 
-    template <size_t size>
-    class Instance : Interface {
+    template <class State, size_t subscriberCount>
+    class Instance : Interface<State> {
 
       public:
 
-        using Subscriber = Subscriber::Interface;
-        using Subscribers = std::array<Subscriber *, size>;
+        using Subscriber = Subscriber::Interface<State>;
+        using Subscribers = std::array<Subscriber *, subscriberCount>;
+        using StateInterface = BurpRedux::State::Interface;
 
         Instance(Subscribers subscribers) :
             _subscribers(subscribers),
@@ -21,7 +23,7 @@ namespace BurpRedux {
             _uid(0)
         {}
 
-        void setup(const State * state) {
+        void setup(State * state) {
           _setState(state, true);
           for (auto subscriber : _subscribers) {
             if (subscriber) {
@@ -30,11 +32,11 @@ namespace BurpRedux {
           }
         }
 
-        const State * getState() const override {
+        State * getState() const override {
           return _state;
         }
 
-        void publish(const State * state) override {
+        void publish(State * state) override {
           if (_setState(state)) {
             for (auto subscriber : _subscribers) {
               if (subscriber) {
@@ -47,10 +49,10 @@ namespace BurpRedux {
       private:
 
         const Subscribers _subscribers;
-        const State * _state;
+        State * _state;
         unsigned long _uid;
 
-        bool _setState(const State * state, bool force = false) {
+        bool _setState(State * state, bool force = false) {
           // All states must implement the State interface
           // to expose a unique id. We will use this to
           // check if a state has changed. Simply checking pointers
@@ -62,7 +64,7 @@ namespace BurpRedux {
           // We have to get and store the unique id alongside the current
           // state as the current state may well have been cleaned
           // up by the time we need to check it.
-          const BurpRedux::State::Interface * next = state;
+          const StateInterface * next = state;
           unsigned long uid = next->getUid();
           if (force || uid != _uid) {
             _uid = uid;

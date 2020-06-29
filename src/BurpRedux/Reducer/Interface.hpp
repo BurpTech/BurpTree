@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../StateList/Interface.hpp"
 #include "../State/Interface.hpp"
+#include "../State/List/Interface.hpp"
 
 namespace BurpRedux {
   namespace Reducer {
@@ -11,12 +11,11 @@ namespace BurpRedux {
       public:
 
         using Id = unsigned int;
-        using StateList = StateList::Interface;
+        using StateList = State::List::Interface;
         using State = State::Interface;
 
-        virtual const State * init(const StateList & list) const = 0;
-        virtual void deserialize(State * current, const JsonObject & serialized) const = 0;
-        virtual const State * reduce(const Id id, const State * previous, const State * next) const = 0;
+        virtual State * init(const StateList & list) = 0;
+        virtual State * reduce(const Id id, State * previous, State * next) = 0;
 
     };
 

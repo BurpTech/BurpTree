@@ -10,9 +10,8 @@ namespace BurpRedux {
       public:
 
         Instance(const Id id);
-        const State * init(const StateList & list) const override;
-        void deserialize(State * current, const JsonObject & serialized) const override;
-        const State * reduce(const Id id, const State * previous, const State * next) const override;
+        State * init(const StateList & list) override;
+        State * reduce(const Id id, State * previous, State * next) override;
 
       private:
 

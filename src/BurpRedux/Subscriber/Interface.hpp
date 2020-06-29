@@ -1,18 +1,15 @@
 #pragma once
 
-#include "../State/Interface.hpp"
-
 namespace BurpRedux {
   namespace Subscriber {
 
+    template <class State>
     class Interface {
 
       public:
 
-        using State = State::Interface;
-
-        virtual void setup(const State * initial) = 0;
-        virtual void onPublish(const State * next) = 0;
+        virtual void setup(State * initial) = 0;
+        virtual void onPublish(State * next) = 0;
 
     };
 
