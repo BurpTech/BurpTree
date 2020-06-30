@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../src/BurpRedux/Reducer/Interface.hpp"
+#include "../src/BurpTree/Node/Interface.hpp"
 
-namespace BurpReduxTest {
+namespace BurpTreeTest {
 
   constexpr char dataField[] = "data";
 
@@ -38,8 +38,8 @@ namespace BurpReduxTest {
 
   }
 
-  namespace ReducerId {
-    enum : BurpRedux::Reducer::Interface::Id {
+  namespace NodeId {
+    enum : BurpTree::Node::Interface::Id {
       aa,
       ab,
       ac,

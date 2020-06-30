@@ -3,18 +3,18 @@
 #include <cstddef>
 #include "../Interface.hpp"
 
-namespace BurpRedux {
+namespace BurpTree {
   namespace State {
     namespace List {
 
-      class Set {
+      class Get {
 
         public:
 
           using Index = size_t;
           using State = State::Interface;
 
-          virtual void set(const Index index, const State * state) = 0;
+          virtual const State * get(const Index index) const = 0;
 
       };
 

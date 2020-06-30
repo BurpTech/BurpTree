@@ -1,23 +1,23 @@
 #pragma once
 
-#include "../Combined.hpp"
+#include "../Branch.hpp"
 #include "Pool.hpp"
 
-namespace BurpRedux {
+namespace BurpTree {
   namespace State {
     namespace Factory {
 
       template <size_t length>
-      class Combined : public Pool<State::Combined<length>> {
+      class Branch : public Pool<State::Branch<length>> {
 
         public:
 
-          using State = State::Combined<length>;
+          using State = State::Branch<length>;
           using Uid = Interface::Uid;
           using Fields = typename State::Fields;
           using States = typename State::States;
 
-          Combined(const Fields & fields) :
+          Branch(const Fields & fields) :
             _fields(fields)
           {}
 

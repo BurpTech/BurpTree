@@ -1,41 +1,41 @@
 #pragma once
 
 #include <array>
-#include "../State/Combined.hpp"
-#include "../State/Factory/Combined.hpp"
+#include "../State/Branch.hpp"
+#include "../State/Factory/Branch.hpp"
 #include "../Publisher.hpp"
 #include "Interface.hpp"
 
-namespace BurpRedux {
-  namespace Reducer {
+namespace BurpTree {
+  namespace Node {
 
     template <size_t nodeCount, size_t subscriberCount>
-    class Combined : public Interface {
+    class Branch : public Interface {
 
       public:
 
-        using Reducer = Interface;
+        using Node = Interface;
 
         struct Entry {
           const char * field;
-          Reducer * reducer;
+          Node * node;
         };
 
         using Map = std::array<const Entry, nodeCount>;
-        using CombinedState = BurpRedux::State::Combined<nodeCount>;
-        using Publisher = BurpRedux::Publisher<subscriberCount>;
+        using BranchState = BurpTree::State::Branch<nodeCount>;
+        using Publisher = BurpTree::Publisher<subscriberCount>;
         using Subscribers = typename Publisher::Subscribers;
-        using Factory = BurpRedux::State::Factory::Combined<nodeCount>;
-        using State = BurpRedux::State::Interface;
+        using Factory = BurpTree::State::Factory::Branch<nodeCount>;
+        using State = BurpTree::State::Interface;
         using Uid = State::Uid;
         using Uids = std::array<Uid, nodeCount>;
-        using Index = typename CombinedState::Index;
-        using States = typename CombinedState::States;
+        using Index = typename BranchState::Index;
+        using States = typename BranchState::States;
         using Fields = typename Factory::Fields;
-        using Reducers = std::array<Reducer *, nodeCount>;
-        using Id = Reducer::Id;
+        using Nodes = std::array<Node *, nodeCount>;
+        using Id = Node::Id;
 
-        Combined(const Map & map, const Subscribers & subscribers) :
+        Branch(const Map & map, const Subscribers & subscribers) :
           _lists(transposeMap(map)),
           _factory(_lists.fields),
           _publisher(subscribers)
@@ -44,7 +44,7 @@ namespace BurpRedux {
         const State * deserialize(const JsonObject & object) override {
           States states;
           for (Index index = 0; index < nodeCount; index++) {
-            auto state = _lists.reducers[index]->deserialize(object[_lists.fields[index]].template as<JsonObject>());
+            auto state = _lists.nodes[index]->deserialize(object[_lists.fields[index]].template as<JsonObject>());
             _uids[index] = state->getUid();
             states.set(index, state);
           }
@@ -55,7 +55,7 @@ namespace BurpRedux {
           States states;
           bool changed = false;
           for (Index index = 0; index < nodeCount; index++) {
-            auto state = _lists.reducers[index]->reduce(id, next);
+            auto state = _lists.nodes[index]->reduce(id, next);
             const Uid uid = state->getUid();
             if (uid != _uids[index]) {
               changed = true;
@@ -74,17 +74,17 @@ namespace BurpRedux {
         }
 
         void setup(const State * initial) override {
-          const CombinedState * combined = initial->as<CombinedState>();
+          const BranchState * branch = initial->as<BranchState>();
           for (Index index = 0; index < nodeCount; index++) {
-            _lists.reducers[index]->setup(combined->get(index));
+            _lists.nodes[index]->setup(branch->get(index));
           }
           _publisher.setup(initial);
         }
 
         void onPublish(const State * next) override {
-          const CombinedState * combined = next->as<CombinedState>();
+          const BranchState * branch = next->as<BranchState>();
           for (Index index = 0; index < nodeCount; index++) {
-            _lists.reducers[index]->onPublish(combined->get(index));
+            _lists.nodes[index]->onPublish(branch->get(index));
           }
           _publisher.publish(next);
         }
@@ -93,7 +93,7 @@ namespace BurpRedux {
 
         struct _Lists {
           Fields fields;
-          Reducers reducers;
+          Nodes nodes;
         };
 
         const _Lists _lists;
@@ -106,7 +106,7 @@ namespace BurpRedux {
           for (Index index = 0; index < nodeCount; index++) {
             const Entry entry = map[index];
             lists.fields[index] = entry.field;
-            lists.reducers[index] = entry.reducer;
+            lists.nodes[index] = entry.node;
           }
           return lists;
         }

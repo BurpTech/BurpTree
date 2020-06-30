@@ -5,11 +5,11 @@
 #include "List/Instance.hpp"
 #include "Instance.hpp"
 
-namespace BurpRedux {
+namespace BurpTree {
   namespace State {
 
     template <size_t length>
-    class Combined : public List::Get, public State::Instance {
+    class Branch : public List::Get, public State::Instance {
 
       public:
 
@@ -18,7 +18,7 @@ namespace BurpRedux {
         using States = List::Instance<length>;
         using Fields = std::array<const char *, length>;
 
-        Combined(const Uid uid, const Fields & fields, const States & states) :
+        Branch(const Uid uid, const Fields & fields, const States & states) :
           Instance(uid),
           _states(states),
           _fields(fields)

@@ -2,7 +2,7 @@
 
 #include "State/Interface.hpp"
 
-namespace BurpRedux {
+namespace BurpTree {
 
   class Subscriber {
 

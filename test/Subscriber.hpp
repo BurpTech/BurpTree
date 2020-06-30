@@ -1,11 +1,11 @@
 # pragma once
 
 #include <functional>
-#include "../src/BurpRedux/Subscriber.hpp"
+#include "../src/BurpTree/Subscriber.hpp"
 
-namespace BurpReduxTest {
+namespace BurpTreeTest {
 
-  class Subscriber : public BurpRedux::Subscriber {
+  class Subscriber : public BurpTree::Subscriber {
 
     public:
 

@@ -2,7 +2,7 @@
 
 #include <ArduinoJson.h>
 
-namespace BurpRedux {
+namespace BurpTree {
   namespace State {
 
     class Interface {

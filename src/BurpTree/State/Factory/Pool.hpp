@@ -3,7 +3,7 @@
 #include <functional>
 #include "../Interface.hpp"
 
-namespace BurpRedux {
+namespace BurpTree {
   namespace State {
     namespace Factory {
 

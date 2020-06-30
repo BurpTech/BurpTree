@@ -1,6 +1,6 @@
 #include "Status.hpp"
 
-namespace BurpRedux {
+namespace BurpTree {
 
   const Status & Status::maxLevel(const Status & first, const Status & second) {
     return second.level > first.level ? second : first;

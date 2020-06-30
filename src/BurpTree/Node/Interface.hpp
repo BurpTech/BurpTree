@@ -4,15 +4,15 @@
 #include "../State/Interface.hpp"
 #include "../Subscriber.hpp"
 
-namespace BurpRedux {
-  namespace Reducer {
+namespace BurpTree {
+  namespace Node {
 
     class Interface : public Subscriber {
 
       public:
 
         using Id = unsigned int;
-        using State = BurpRedux::State::Interface;
+        using State = BurpTree::State::Interface;
 
         virtual const State * deserialize(const JsonObject & object) = 0;
         virtual const State * reduce(const Id id, const State * next) = 0;

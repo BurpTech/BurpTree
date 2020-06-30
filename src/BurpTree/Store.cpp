@@ -1,24 +1,24 @@
 #include "Store.hpp"
 
-namespace BurpRedux {
+namespace BurpTree {
 
   const char * Store::Status::c_str() const {
     switch (getCode()) {
       case noError:
-        return "BurpRedux::Store : no error";
+        return "BurpTree::Store : no error";
       case dispatchDuringNotification:
-        return "BurpRedux::Store : dispatch during notification";
+        return "BurpTree::Store : dispatch during notification";
       case dispatchDuringDeserialize:
-        return "BurpRedux::Store : dispatch during deserialize";
+        return "BurpTree::Store : dispatch during deserialize";
       case dispatchDuringReduce:
-        return "BurpRedux::Store : dispatch during reduce";
+        return "BurpTree::Store : dispatch during reduce";
       default:
-        return "BurpRedux::Store : unknown";
+        return "BurpTree::Store : unknown";
     }
   }
 
-  Store::Store(Reducer & reducer) :
-    _reducer(reducer),
+  Store::Store(Node & node) :
+    _node(node),
     _reducing(false),
     _notifying(false),
     _deserializing(false),
@@ -27,8 +27,8 @@ namespace BurpRedux {
 
   void Store::deserialize(const JsonObject & object) {
     _deserializing = true;
-    const State * initial = _reducer.deserialize(object);
-    _reducer.setup(initial);
+    const State * initial = _node.deserialize(object);
+    _node.setup(initial);
     _deserializing = false;
   }
 
@@ -40,7 +40,7 @@ namespace BurpRedux {
       const State * state = _next;
       _next = nullptr;
       _notifying = true;
-      _reducer.onPublish(state);
+      _node.onPublish(state);
       _notifying = false;
     }
   }
@@ -63,13 +63,13 @@ namespace BurpRedux {
       _status.set(Status::Level::WARNING, Status::dispatchDuringNotification);
     }
     _reducing = true;
-    _next = _reducer.reduce(id, next);
+    _next = _node.reduce(id, next);
     _reducing = false;
     return _status;
   }
 
   const Store::State * Store::getState() const {
-    return _reducer.getState();
+    return _node.getState();
   }
 
 }

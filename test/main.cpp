@@ -23,10 +23,10 @@
 #include <unity.h>
 #include <BurpUnity.hpp>
 
-#include "Combined.hpp"
+#include "Branch.hpp"
 
 Runner<1> runner({
-  &BurpReduxTest::combinedTests
+  &BurpTreeTest::branchTests
 });
 Memory memory;
 bool running = true;

@@ -5,21 +5,21 @@
 #include "../State/Factory/Deserializer.hpp"
 #include "Interface.hpp"
 
-namespace BurpRedux {
-  namespace Reducer {
+namespace BurpTree {
+  namespace Node {
 
     template <size_t subscriberCount>
-    class Instance : public Interface {
+    class Leaf : public Interface {
 
       public:
 
-        using Deserializer = BurpRedux::State::Factory::Deserializer;
-        using Publisher = BurpRedux::Publisher<subscriberCount>;
+        using Deserializer = BurpTree::State::Factory::Deserializer;
+        using Publisher = BurpTree::Publisher<subscriberCount>;
         using Subscribers = typename Publisher::Subscribers;
         using State = Interface::State;
         using Id = Interface::Id;
 
-        Instance(const Id id, Deserializer & deserializer, const Subscribers subscribers) :
+        Leaf(const Id id, Deserializer & deserializer, const Subscribers subscribers) :
           _id(id),
           _deserializer(deserializer),
           _publisher(subscribers)

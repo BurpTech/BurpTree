@@ -4,14 +4,14 @@
 #include "State/Interface.hpp"
 #include "Subscriber.hpp"
 
-namespace BurpRedux {
+namespace BurpTree {
 
   template <size_t subscriberCount>
   class Publisher {
 
     public:
 
-      using State = BurpRedux::State::Interface;
+      using State = BurpTree::State::Interface;
       using Subscribers = std::array<Subscriber *, subscriberCount>;
 
       Publisher(const Subscribers subscribers) :

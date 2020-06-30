@@ -1,22 +1,22 @@
 #pragma once
 
 #include "State/Interface.hpp"
-#include "Reducer/Interface.hpp"
+#include "Node/Interface.hpp"
 #include "Status.hpp"
 
-namespace BurpRedux {
+namespace BurpTree {
 
   class Store {
 
     public:
 
-      class Status : public BurpRedux::Status {
+      class Status : public BurpTree::Status {
 
         public: 
 
-          using Level = BurpRedux::Status::Level;
+          using Level = BurpTree::Status::Level;
 
-          enum Code : BurpRedux::Status::Code {
+          enum Code : BurpTree::Status::Code {
             noError,
             dispatchDuringNotification,
             dispatchDuringDeserialize,
@@ -27,11 +27,11 @@ namespace BurpRedux {
 
       };
 
-      using State = BurpRedux::State::Interface;
-      using Reducer = BurpRedux::Reducer::Interface;
-      using Id = Reducer::Id;
+      using State = BurpTree::State::Interface;
+      using Node = BurpTree::Node::Interface;
+      using Id = Node::Id;
 
-      Store(Reducer & reducer);
+      Store(Node & node);
       void deserialize(const JsonObject & object);
       void loop();
       const Status & dispatch(const Id id, const State * next);
@@ -39,7 +39,7 @@ namespace BurpRedux {
 
     private:
 
-      Reducer & _reducer;
+      Node & _node;
       bool _reducing;
       bool _notifying;
       bool _deserializing;

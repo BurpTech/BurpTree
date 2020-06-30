@@ -1,11 +1,11 @@
 {
-  "name": "BurpRedux",
+  "name": "BurpTree",
   "keywords": "Redux, C++",
-  "description": "Redux implementation for C++",
+  "description": "Redux inspired state tree implementation for C++",
   "repository":
   {
     "type": "git",
-    "url": "https://github.com/pghalliday/BurpRedux"
+    "url": "https://github.com/pghalliday/BurpTree"
   },
   "authors":
   [

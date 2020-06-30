@@ -2,7 +2,7 @@
 
 #include "Interface.hpp"
 
-namespace BurpRedux {
+namespace BurpTree {
   namespace State {
 
     class Instance : public Interface {

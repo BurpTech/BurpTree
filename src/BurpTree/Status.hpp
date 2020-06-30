@@ -1,6 +1,6 @@
 #pragma once
 
-namespace BurpRedux {
+namespace BurpTree {
 
   class Status {
 

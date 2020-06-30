@@ -4,7 +4,7 @@
 #include "Get.hpp"
 #include "Set.hpp"
 
-namespace BurpRedux {
+namespace BurpTree {
   namespace State {
     namespace List {
 

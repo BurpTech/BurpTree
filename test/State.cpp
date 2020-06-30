@@ -1,10 +1,10 @@
 #include "Constants.hpp"
 #include "State.hpp"
 
-namespace BurpReduxTest {
+namespace BurpTreeTest {
 
   State::State(const Uid uid, const char * persistent, const int data) :
-    BurpRedux::State::Instance(uid),
+    BurpTree::State::Instance(uid),
     persistent(persistent),
     data(data)
   {}
@@ -21,25 +21,25 @@ namespace BurpReduxTest {
     return _status;
   }
 
-  const BurpRedux::State::Interface * StateFactory::deserialize(const JsonObject & serialized) {
+  const BurpTree::State::Interface * StateFactory::deserialize(const JsonObject & serialized) {
     return _create([&](const Uid uid, void * address) {
         return new(address) State(uid, _persistent, serialized[dataField].as<int>());
     });
   }
 
-  const BurpRedux::State::Interface * StateFactory::incrementData() {
+  const BurpTree::State::Interface * StateFactory::incrementData() {
     return _create([&](const Uid uid, void * address) {
         return new(address) State(uid, _previous->persistent, _previous->data + 1);
     });
   }
 
-  const BurpRedux::State::Interface * StateFactory::setPersistent(const char * persistent) {
+  const BurpTree::State::Interface * StateFactory::setPersistent(const char * persistent) {
     return _create([&](const Uid uid, void * address) {
         return new(address) State(uid, persistent, _previous->data);
     });
   }
 
-  const BurpRedux::State::Interface * StateFactory::setError() {
+  const BurpTree::State::Interface * StateFactory::setError() {
     _status.set(Status::Level::ERROR, Status::error);
     return nullptr;
   }

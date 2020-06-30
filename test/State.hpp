@@ -1,14 +1,14 @@
 # pragma once
 
-#include "../src/BurpRedux/State/Instance.hpp"
-#include "../src/BurpRedux/State/Factory/Deserializer.hpp"
-#include "../src/BurpRedux/State/Factory/Pool.hpp"
-#include "../src/BurpRedux/Status.hpp"
+#include "../src/BurpTree/State/Instance.hpp"
+#include "../src/BurpTree/State/Factory/Deserializer.hpp"
+#include "../src/BurpTree/State/Factory/Pool.hpp"
+#include "../src/BurpTree/Status.hpp"
 #include <functional>
 
-namespace BurpReduxTest {
+namespace BurpTreeTest {
 
-  class State : public BurpRedux::State::Instance {
+  class State : public BurpTree::State::Instance {
 
     public: 
 
@@ -20,13 +20,13 @@ namespace BurpReduxTest {
 
   };
 
-  class Status : public BurpRedux::Status {
+  class Status : public BurpTree::Status {
 
     public:
 
-      using Level = BurpRedux::Status::Level;
+      using Level = BurpTree::Status::Level;
 
-      enum Code : BurpRedux::Status::Code {
+      enum Code : BurpTree::Status::Code {
         noError,
         error
       };
@@ -34,27 +34,27 @@ namespace BurpReduxTest {
       const char * c_str() const override {
         switch (getCode()) {
           case noError:
-            return "BurpReduxTest::State : no error";
+            return "BurpTreeTest::State : no error";
           case error:
-            return "BurpReduxTest::State : error";
+            return "BurpTreeTest::State : error";
           default:
-            return "BurpReduxTest::State : unknown";
+            return "BurpTreeTest::State : unknown";
         }
       }
 
   };
 
-  class StateFactory : public BurpRedux::State::Factory::Deserializer, public BurpRedux::State::Factory::Pool<State> {
+  class StateFactory : public BurpTree::State::Factory::Deserializer, public BurpTree::State::Factory::Pool<State> {
 
     public:
 
       void setInitialPersistent(const char * persistent);
       const Status & getStatus() const;
 
-      const BurpRedux::State::Interface * deserialize(const JsonObject & serialized) override ;
-      const BurpRedux::State::Interface * incrementData();
-      const BurpRedux::State::Interface * setPersistent(const char * newPersistent);
-      const BurpRedux::State::Interface * setError();
+      const BurpTree::State::Interface * deserialize(const JsonObject & serialized) override ;
+      const BurpTree::State::Interface * incrementData();
+      const BurpTree::State::Interface * setPersistent(const char * newPersistent);
+      const BurpTree::State::Interface * setError();
 
     private:
 

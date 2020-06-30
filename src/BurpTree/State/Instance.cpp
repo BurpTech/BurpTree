@@ -1,6 +1,6 @@
 #include "Instance.hpp"
 
-namespace BurpRedux {
+namespace BurpTree {
   namespace State {
 
     Instance::Instance(const Uid uid) :
