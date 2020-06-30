@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../src/BurpTree/Node/Interface.hpp"
+#include "../src/BurpTree.hpp"
 
 namespace BurpTreeTest {
 
@@ -39,7 +39,7 @@ namespace BurpTreeTest {
   }
 
   namespace NodeId {
-    enum : BurpTree::Node::Interface::Id {
+    enum : BurpTree::Node::Id {
       aa,
       ab,
       ac,

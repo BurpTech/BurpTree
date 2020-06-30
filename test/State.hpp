@@ -1,14 +1,10 @@
 # pragma once
 
-#include "../src/BurpTree/State/Instance.hpp"
-#include "../src/BurpTree/State/Factory/Deserializer.hpp"
-#include "../src/BurpTree/State/Factory/Pool.hpp"
-#include "../src/BurpTree/Status.hpp"
-#include <functional>
+#include "../src/BurpTree.hpp"
 
 namespace BurpTreeTest {
 
-  class State : public BurpTree::State::Instance {
+  class State : public BurpTree::State {
 
     public: 
 
@@ -44,17 +40,17 @@ namespace BurpTreeTest {
 
   };
 
-  class StateFactory : public BurpTree::State::Factory::Deserializer, public BurpTree::State::Factory::Pool<State> {
+  class StateFactory : public BurpTree::Factory<BurpTreeTest::State> {
 
     public:
 
       void setInitialPersistent(const char * persistent);
       const Status & getStatus() const;
 
-      const BurpTree::State::Interface * deserialize(const JsonObject & serialized) override ;
-      const BurpTree::State::Interface * incrementData();
-      const BurpTree::State::Interface * setPersistent(const char * newPersistent);
-      const BurpTree::State::Interface * setError();
+      const BurpTree::State * deserialize(const JsonObject & serialized) override ;
+      const BurpTree::State * incrementData();
+      const BurpTree::State * setPersistent(const char * newPersistent);
+      const BurpTree::State * setError();
 
     private:
 

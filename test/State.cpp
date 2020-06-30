@@ -4,7 +4,7 @@
 namespace BurpTreeTest {
 
   State::State(const Uid uid, const char * persistent, const int data) :
-    BurpTree::State::Instance(uid),
+    BurpTree::State(uid),
     persistent(persistent),
     data(data)
   {}
@@ -21,25 +21,25 @@ namespace BurpTreeTest {
     return _status;
   }
 
-  const BurpTree::State::Interface * StateFactory::deserialize(const JsonObject & serialized) {
+  const BurpTree::State * StateFactory::deserialize(const JsonObject & serialized) {
     return _create([&](const Uid uid, void * address) {
-        return new(address) State(uid, _persistent, serialized[dataField].as<int>());
+        return new(address) BurpTreeTest::State(uid, _persistent, serialized[dataField].as<int>());
     });
   }
 
-  const BurpTree::State::Interface * StateFactory::incrementData() {
+  const BurpTree::State * StateFactory::incrementData() {
     return _create([&](const Uid uid, void * address) {
-        return new(address) State(uid, _previous->persistent, _previous->data + 1);
+        return new(address) BurpTreeTest::State(uid, _previous->persistent, _previous->data + 1);
     });
   }
 
-  const BurpTree::State::Interface * StateFactory::setPersistent(const char * persistent) {
+  const BurpTree::State * StateFactory::setPersistent(const char * persistent) {
     return _create([&](const Uid uid, void * address) {
-        return new(address) State(uid, persistent, _previous->data);
+        return new(address) BurpTreeTest::State(uid, persistent, _previous->data);
     });
   }
 
-  const BurpTree::State::Interface * StateFactory::setError() {
+  const BurpTree::State * StateFactory::setError() {
     _status.set(Status::Level::ERROR, Status::error);
     return nullptr;
   }

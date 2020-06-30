@@ -1,8 +1,6 @@
 #include <unity.h>
 #include <functional>
-#include "../src/BurpTree/Root.hpp"
-#include "../src/BurpTree/Node/Branch.hpp"
-#include "../src/BurpTree/Node/Leaf.hpp"
+#include "../src/BurpTree.hpp"
 #include "Constants.hpp"
 #include "State.hpp"
 #include "Subscriber.hpp"
@@ -11,9 +9,9 @@
 namespace BurpTreeTest {
 
   using Root = BurpTree::Root;
-  using Node1 = BurpTree::Node::Branch<2, 1>;
-  using Node2 = BurpTree::Node::Branch<3, 1>;
-  using Node3 = BurpTree::Node::Leaf<1>;
+  using Node1 = BurpTree::Branch<2, 1>;
+  using Node2 = BurpTree::Branch<3, 1>;
+  using Node3 = BurpTree::Leaf<1>;
 
   namespace A {
 
@@ -133,7 +131,7 @@ namespace BurpTreeTest {
 
   Root root(node);
 
-  void dispatch(const BurpTree::Node::Interface::Id id, const BurpTree::State::Interface * state) {
+  void dispatch(const BurpTree::Node::Id id, const BurpTree::State * state) {
     if (state) {
       root.dispatch(id, state);
     }

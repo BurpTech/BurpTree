@@ -1,7 +1,7 @@
 # pragma once
 
 #include <functional>
-#include "../src/BurpTree/Subscriber.hpp"
+#include "../src/BurpTree.hpp"
 
 namespace BurpTreeTest {
 
