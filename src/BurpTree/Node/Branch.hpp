@@ -51,11 +51,11 @@ namespace BurpTree {
           return _factory.create(states);
         }
 
-        const State * reduce(const Id id, const State * next) override {
+        const State * dispatch(const Id id, const State * next) override {
           States states;
           bool changed = false;
           for (Index index = 0; index < nodeCount; index++) {
-            auto state = _lists.nodes[index]->reduce(id, next);
+            auto state = _lists.nodes[index]->dispatch(id, next);
             const Uid uid = state->getUid();
             if (uid != _uids[index]) {
               changed = true;

@@ -15,7 +15,7 @@ namespace BurpTree {
         using State = BurpTree::State::Interface;
 
         virtual const State * deserialize(const JsonObject & object) = 0;
-        virtual const State * reduce(const Id id, const State * next) = 0;
+        virtual const State * dispatch(const Id id, const State * next) = 0;
         virtual const State * getState() const = 0;
 
     };

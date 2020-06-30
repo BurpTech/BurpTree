@@ -20,7 +20,7 @@ namespace BurpTree {
             noError,
             dispatchDuringNotification,
             dispatchDuringDeserialize,
-            dispatchDuringReduce
+            dispatchDuringDispatch
           };
 
           const char * c_str() const override;
@@ -40,7 +40,7 @@ namespace BurpTree {
     private:
 
       Node & _node;
-      bool _reducing;
+      bool _dispatching;
       bool _notifying;
       bool _deserializing;
       const State * _next;

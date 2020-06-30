@@ -10,8 +10,8 @@ namespace BurpTree {
         return "BurpTree::Root : dispatch during notification";
       case dispatchDuringDeserialize:
         return "BurpTree::Root : dispatch during deserialize";
-      case dispatchDuringReduce:
-        return "BurpTree::Root : dispatch during reduce";
+      case dispatchDuringDispatch:
+        return "BurpTree::Root : dispatch during dispatch";
       default:
         return "BurpTree::Root : unknown";
     }
@@ -19,7 +19,7 @@ namespace BurpTree {
 
   Root::Root(Node & node) :
     _node(node),
-    _reducing(false),
+    _dispatching(false),
     _notifying(false),
     _deserializing(false),
     _next(nullptr)
@@ -51,9 +51,9 @@ namespace BurpTree {
       _status.set(Status::Level::ERROR, Status::dispatchDuringDeserialize);
       return _status;
     }
-    if (_reducing) {
+    if (_dispatching) {
       // prevent dispatch during reduce and report error
-      _status.set(Status::Level::ERROR, Status::dispatchDuringReduce);
+      _status.set(Status::Level::ERROR, Status::dispatchDuringDispatch);
       return _status;
     }
     _status.set(Status::Level::INFO, Status::noError);
@@ -62,9 +62,9 @@ namespace BurpTree {
       // report warning so that users can detect when it happens
       _status.set(Status::Level::WARNING, Status::dispatchDuringNotification);
     }
-    _reducing = true;
-    _next = _node.reduce(id, next);
-    _reducing = false;
+    _dispatching = true;
+    _next = _node.dispatch(id, next);
+    _dispatching = false;
     return _status;
   }
 

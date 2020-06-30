@@ -29,7 +29,7 @@ namespace BurpTree {
           return _deserializer.deserialize(object);
         }
 
-        const State * reduce(const Id id, const State * next) override {
+        const State * dispatch(const Id id, const State * next) override {
           if (id == _id) {
             return next;
           }
