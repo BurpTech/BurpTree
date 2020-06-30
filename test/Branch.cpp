@@ -1,6 +1,6 @@
 #include <unity.h>
 #include <functional>
-#include "../src/BurpTree/Store.hpp"
+#include "../src/BurpTree/Root.hpp"
 #include "../src/BurpTree/Node/Branch.hpp"
 #include "../src/BurpTree/Node/Leaf.hpp"
 #include "Constants.hpp"
@@ -10,7 +10,7 @@
 
 namespace BurpTreeTest {
 
-  using Store = BurpTree::Store;
+  using Root = BurpTree::Root;
   using Node1 = BurpTree::Node::Branch<2, 1>;
   using Node2 = BurpTree::Node::Branch<3, 1>;
   using Node3 = BurpTree::Node::Leaf<1>;
@@ -131,11 +131,11 @@ namespace BurpTreeTest {
       &subscriber
   }));
 
-  Store store(node);
+  Root root(node);
 
   void dispatch(const BurpTree::Node::Interface::Id id, const BurpTree::State::Interface * state) {
     if (state) {
-      store.dispatch(id, state);
+      root.dispatch(id, state);
     }
   }
 
@@ -158,12 +158,12 @@ namespace BurpTreeTest {
           doc[B::field][B::B::field][dataField] = 50;
           doc[B::field][B::C::field][dataField] = 60;
 
-          store.deserialize(doc.as<JsonObject>());
+          root.deserialize(doc.as<JsonObject>());
 
       });
 
       describe.loop([]() {
-          store.loop();
+          root.loop();
       });
 
       describe.it("should have the correct initial states", []() {

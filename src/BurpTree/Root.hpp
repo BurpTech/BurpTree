@@ -6,7 +6,7 @@
 
 namespace BurpTree {
 
-  class Store {
+  class Root {
 
     public:
 
@@ -31,7 +31,7 @@ namespace BurpTree {
       using Node = BurpTree::Node::Interface;
       using Id = Node::Id;
 
-      Store(Node & node);
+      Root(Node & node);
       void deserialize(const JsonObject & object);
       void loop();
       const Status & dispatch(const Id id, const State * next);
