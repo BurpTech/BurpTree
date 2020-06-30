@@ -17,9 +17,12 @@ namespace BurpTree {
             using f_construct = std::function<State * (const Uid uid, void * address)>;
 
             const State * _create(f_construct construct) {
-              State * state = construct(_uid++, &(_memory[_current++]));
-              _current %= _size;
-              _setPrevious(state);
+              State * state = construct(_uid++, &(_memory[_current]));
+              if (state) {
+                _current++;
+                _current %= _size;
+                _setPrevious(state);
+              }
               return state;
             };
 
