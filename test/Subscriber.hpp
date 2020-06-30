@@ -2,11 +2,10 @@
 
 #include <functional>
 #include "../src/BurpRedux/Subscriber.hpp"
-#include "State.hpp"
 
 namespace BurpReduxTest {
 
-  class Subscriber : public BurpRedux::Subscriber<State> {
+  class Subscriber : public BurpRedux::Subscriber {
 
     public:
 
