@@ -45,8 +45,7 @@ namespace BurpTreeTest {
       ac,
       ba,
       bb,
-      bc,
-      count
+      bc
     };
   }
 
