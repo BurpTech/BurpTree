@@ -1,12 +1,12 @@
 # pragma once
 
 #include <functional>
-#include "../src/BurpRedux/Subscriber/Interface.hpp"
+#include "../src/BurpRedux/Subscriber.hpp"
 #include "State.hpp"
 
 namespace BurpReduxTest {
 
-  class Subscriber : public BurpRedux::Subscriber::Interface<State> {
+  class Subscriber : public BurpRedux::Subscriber<State> {
 
     public:
 
@@ -21,11 +21,11 @@ namespace BurpReduxTest {
         _cb(nullptr)
       {}
 
-      void setup(State * initial) override {
+      void setup(const State * initial) override {
         state = initial;
       }
 
-      void onPublish(State * next) override {
+      void onPublish(const State * next) override {
         count++;
         state = next;
         if (_cb) {

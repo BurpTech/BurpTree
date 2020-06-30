@@ -8,8 +8,8 @@ namespace BurpRedux {
 
       public:
 
-        virtual State * getState() const = 0;
-        virtual void publish(State * state) = 0;
+        virtual const State * getState() const = 0;
+        virtual void publish(const State * state) = 0;
 
     };
 

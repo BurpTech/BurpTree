@@ -8,31 +8,30 @@ namespace BurpRedux {
   namespace Store {
 
     template <class State, size_t subscriberCount>
-    class Instance : public Interface {
+    class Instance : public Interface<State> {
 
       public:
 
-        using StateList = Interface::StateList;
-        using Id = Interface::Id;
-        using StateInterface = Interface::StateInterface;
+        using Id = typename Interface<State>::Id;
+        using StateInterface = typename Interface<State>::StateInterface;
         using Reducer = Reducer::Interface;
         using Publisher = Publisher::Instance<State, subscriberCount>;
         using Subscribers = typename Publisher::Subscribers;
 
-        Instance(Reducer & reducer, Subscribers subscribers) :
+        Instance(Reducer & reducer, const Subscribers subscribers) :
           publisher(subscribers),
           reducer(reducer),
           reducing(false),
           notifying(false),
-          initializing(false),
+          deserializing(false),
           nextState(nullptr)
         {}
 
-        void init(const StateList & list) override {
-          initializing = true;
-          StateInterface * initial = reducer.init(list);
+        void deserialize(const JsonObject & object) override {
+          deserializing = true;
+          const StateInterface * initial = reducer.deserialize(object);
           publisher.setup(initial->template as<State>());
-          initializing = false;
+          deserializing = false;
         }
 
         void loop() override {
@@ -40,7 +39,7 @@ namespace BurpRedux {
           // actions can be batched synchronously.
           // State reduction is always synchronous
           if (nextState) {
-            StateInterface * state = nextState;
+            const StateInterface * state = nextState;
             nextState = nullptr;
             notifying = true;
             publisher.publish(state->template as<State>());
@@ -48,10 +47,10 @@ namespace BurpRedux {
           }
         }
 
-        const Status & dispatch(const Id id, StateInterface * next) override {
-          if (initializing) {
-            // prevent dispatch during initialization and report error
-            status.set(Status::Level::ERROR, Status::dispatchDuringInit);
+        const Status & dispatch(const Id id, const StateInterface * next) override {
+          if (deserializing) {
+            // prevent dispatch during deserialization and report error
+            status.set(Status::Level::ERROR, Status::dispatchDuringDeserialize);
             return status;
           }
           if (reducing) {
@@ -71,7 +70,7 @@ namespace BurpRedux {
           return status;
         }
 
-        State * getState() const {
+        const State * getState() const override {
           return publisher.getState();
         }
 
@@ -81,8 +80,8 @@ namespace BurpRedux {
         Reducer & reducer;
         bool reducing;
         bool notifying;
-        bool initializing;
-        StateInterface * nextState;
+        bool deserializing;
+        const StateInterface * nextState;
         Status status;
 
     };

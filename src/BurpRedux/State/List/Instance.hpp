@@ -1,35 +1,31 @@
 #pragma once
 
 #include <array>
-#include <cstddef>
-#include "Interface.hpp"
+#include "Get.hpp"
+#include "Set.hpp"
 
 namespace BurpRedux {
   namespace State {
     namespace List {
 
       template <size_t length>
-      class Instance : public Interface {
+      class Instance : public Get, public Set {
 
         public:
 
-          using States = std::array<State *, length>;
+          using Index = Get::Index;
+          using State = Get::State;
+          using States = std::array<const State *, length>;
 
-          Instance() {}
-
-          Instance(States states) :
-            _states(states)
-          {}
-
-          State * get(const Index index) const override {
+          const State * get(const Index index) const override {
             return _states[index];
           }
 
-          void set(const Index index, State * state) override {
+          void set(const Index index, const State * state) override {
             _states[index] = state;
           }
 
-        protected:
+        private:
 
           States _states;
 

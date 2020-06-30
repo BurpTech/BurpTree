@@ -2,7 +2,7 @@
 
 #include <array>
 #include "../State/Interface.hpp"
-#include "../Subscriber/Interface.hpp"
+#include "../Subscriber.hpp"
 #include "Interface.hpp"
 
 namespace BurpRedux {
@@ -13,17 +13,16 @@ namespace BurpRedux {
 
       public:
 
-        using Subscriber = Subscriber::Interface<State>;
-        using Subscribers = std::array<Subscriber *, subscriberCount>;
+        using Subscribers = std::array<Subscriber<State> *, subscriberCount>;
         using StateInterface = BurpRedux::State::Interface;
 
-        Instance(Subscribers subscribers) :
+        Instance(const Subscribers subscribers) :
             _subscribers(subscribers),
             _state(nullptr),
             _uid(0)
         {}
 
-        void setup(State * state) {
+        void setup(const State * state) {
           _setState(state, true);
           for (auto subscriber : _subscribers) {
             if (subscriber) {
@@ -32,11 +31,11 @@ namespace BurpRedux {
           }
         }
 
-        State * getState() const override {
+        const State * getState() const override {
           return _state;
         }
 
-        void publish(State * state) override {
+        void publish(const State * state) override {
           if (_setState(state)) {
             for (auto subscriber : _subscribers) {
               if (subscriber) {
@@ -49,10 +48,10 @@ namespace BurpRedux {
       private:
 
         const Subscribers _subscribers;
-        State * _state;
+        const State * _state;
         unsigned long _uid;
 
-        bool _setState(State * state, bool force = false) {
+        bool _setState(const State * state, bool force = false) {
           // All states must implement the State interface
           // to expose a unique id. We will use this to
           // check if a state has changed. Simply checking pointers

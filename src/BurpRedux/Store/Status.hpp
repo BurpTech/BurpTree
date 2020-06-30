@@ -14,7 +14,7 @@ namespace BurpRedux {
         enum Code : BurpRedux::Status::Code {
           noError,
           dispatchDuringNotification,
-          dispatchDuringInit,
+          dispatchDuringDeserialize,
           dispatchDuringReduce
         };
 
@@ -24,8 +24,8 @@ namespace BurpRedux {
               return "BurpRedux::Store : no error";
             case dispatchDuringNotification:
               return "BurpRedux::Store : dispatch during notification";
-            case dispatchDuringInit:
-              return "BurpRedux::Store : dispatch during init";
+            case dispatchDuringDeserialize:
+              return "BurpRedux::Store : dispatch during deserialize";
             case dispatchDuringReduce:
               return "BurpRedux::Store : dispatch during reduce";
             default:

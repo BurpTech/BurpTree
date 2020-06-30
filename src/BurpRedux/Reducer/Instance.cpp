@@ -3,15 +3,16 @@
 namespace BurpRedux {
   namespace Reducer {
 
-    Instance::Instance(const Id id) :
-      _id(id)
+    Instance::Instance(const Id id, Deserializer & deserializer) :
+      _id(id),
+      _deserializer(deserializer)
     {}
 
-    Instance::State * Instance::init(const StateList & list) {
-      return list.get(_id);
+    const Instance::State * Instance::deserialize(const JsonObject & object) {
+      return _deserializer.deserialize(object);
     }
 
-    Instance::State * Instance::reduce(const Id id, State * previous, State * next) {
+    const Instance::State * Instance::reduce(const Id id, const State * previous, const State * next) {
       if (id == _id) {
         return next;
       }

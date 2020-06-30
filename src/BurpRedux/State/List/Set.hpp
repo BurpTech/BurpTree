@@ -7,15 +7,14 @@ namespace BurpRedux {
   namespace State {
     namespace List {
 
-      class Interface {
+      class Set {
 
         public:
 
-          using State = State::Interface;
           using Index = size_t;
+          using State = State::Interface;
 
-          virtual State * get(const Index index) const = 0;
-          virtual void set(const Index index, State * state) = 0;
+          virtual void set(const Index index, const State * state) = 0;
 
       };
 

@@ -1,10 +1,24 @@
 # pragma once
 
 #include "../src/BurpRedux/State/Instance.hpp"
-#include "../src/BurpRedux/Creator/WithInitParams.hpp"
+#include "../src/BurpRedux/State/Factory/Deserializer.hpp"
+#include "../src/BurpRedux/State/Factory/Pool.hpp"
 #include "../src/BurpRedux/Status.hpp"
+#include <functional>
 
 namespace BurpReduxTest {
+
+  class State : public BurpRedux::State::Instance {
+
+    public: 
+
+      const char * persistent;
+      const int data;
+
+      State(const Uid uid, const char * persistent, const int data);
+      void serialize(const JsonObject & serialized) const override;
+
+  };
 
   class Status : public BurpRedux::Status {
 
@@ -30,29 +44,23 @@ namespace BurpReduxTest {
 
   };
 
-  class State : public BurpRedux::State::Instance {
+  class StateFactory : public BurpRedux::State::Factory::Deserializer, public BurpRedux::State::Factory::Pool<State> {
 
-    public: 
+    public:
 
-      int data;
-      const char * persistent;
+      void setInitialPersistent(const char * persistent);
+      const Status & getStatus() const;
 
-      State(const char * persistent, const Uid uid);
-      State(const State * previous, const Uid uid);
-      const Status & getStatus() const override;
-      void serialize(const JsonObject & serialized) const override;
-      void deserialize(const JsonObject & serialized) override;
-
-      void incrementData(const State * previous);
-      void setPersistent(const State * previous, const char * newPersistent);
-      void setError(const State * previous);
+      const BurpRedux::State::Interface * deserialize(const JsonObject & serialized) override ;
+      const BurpRedux::State::Interface * incrementData();
+      const BurpRedux::State::Interface * setPersistent(const char * newPersistent);
+      const BurpRedux::State::Interface * setError();
 
     private:
 
+      const char * _persistent;
       Status _status;
 
   };
-
-  using Creator = BurpRedux::Creator::WithInitParams<State, const char *>;
 
 }

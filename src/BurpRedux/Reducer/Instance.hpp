@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../State/Factory/Deserializer.hpp"
 #include "Interface.hpp"
 
 namespace BurpRedux {
@@ -9,13 +10,16 @@ namespace BurpRedux {
 
       public:
 
-        Instance(const Id id);
-        State * init(const StateList & list) override;
-        State * reduce(const Id id, State * previous, State * next) override;
+        using Deserializer = BurpRedux::State::Factory::Deserializer;
+
+        Instance(const Id id, Deserializer & deserializer);
+        const State * deserialize(const JsonObject & object) override;
+        const State * reduce(const Id id, const State * previous, const State * next) override;
 
       private:
 
         const Id _id;
+        Deserializer & _deserializer;
 
     };
 

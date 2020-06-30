@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../State/List/Interface.hpp"
+#include "../State/Combined.hpp"
 
 namespace BurpRedux {
   namespace Selector {
@@ -9,8 +9,7 @@ namespace BurpRedux {
 
       public:
 
-        using Index = State::List::Interface::Index;
-        virtual void init(const Index index) = 0;
+        virtual void init(const size_t index) = 0;
 
     };
 

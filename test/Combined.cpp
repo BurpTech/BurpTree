@@ -1,5 +1,9 @@
 #include <unity.h>
-#include "../src/BurpRedux.hpp"
+#include <functional>
+#include "../src/BurpRedux/Store/Instance.hpp"
+#include "../src/BurpRedux/Reducer/Combined.hpp"
+#include "../src/BurpRedux/Reducer/Instance.hpp"
+#include "../src/BurpRedux/Selector/Instance.hpp"
 #include "Constants.hpp"
 #include "State.hpp"
 #include "Subscriber.hpp"
@@ -9,20 +13,18 @@ using Reducer = BurpRedux::Reducer::Instance;
 
 namespace BurpReduxTest {
 
-  using MapEntry = BurpRedux::Reducer::Combined::Map::Entry;
-  using CombinedReducer = BurpRedux::Reducer::Combined::Instance<2>;
-  using StateList = BurpRedux::State::List::Instance<ReducerId::count>;
+  using CombinedReducer = BurpRedux::Reducer::Combined<2>;
   using Store = BurpRedux::Store::Instance<CombinedReducer::State, 2>;
 
   namespace A {
 
-    using CombinedReducer = BurpRedux::Reducer::Combined::Instance<3>;
+    using CombinedReducer = BurpRedux::Reducer::Combined<3>;
     using CombinedSelector = BurpRedux::Selector::Instance<BurpReduxTest::CombinedReducer::State, CombinedReducer::State, 3>;
     using Selector = BurpRedux::Selector::Instance<CombinedReducer::State, State, 1>;
 
     namespace A {
-      Creator creator;
-      Reducer reducer(ReducerId::aa);
+      StateFactory factory;
+      Reducer reducer(ReducerId::aa, factory);
       Subscriber subscriber;
       Selector selector({
           &subscriber
@@ -35,8 +37,8 @@ namespace BurpReduxTest {
     }
 
     namespace B {
-      Creator creator;
-      Reducer reducer(ReducerId::ab);
+      StateFactory factory;
+      Reducer reducer(ReducerId::ab, factory);
       Subscriber subscriber;
       Selector selector({
           &subscriber
@@ -49,8 +51,8 @@ namespace BurpReduxTest {
     }
 
     namespace C {
-      Creator creator;
-      Reducer reducer(ReducerId::ac);
+      StateFactory factory;
+      Reducer reducer(ReducerId::ac, factory);
       Subscriber subscriber;
       Selector selector({
           &subscriber
@@ -84,13 +86,13 @@ namespace BurpReduxTest {
 
   namespace B {
 
-    using CombinedReducer = BurpRedux::Reducer::Combined::Instance<3>;
+    using CombinedReducer = BurpRedux::Reducer::Combined<3>;
     using CombinedSelector = BurpRedux::Selector::Instance<BurpReduxTest::CombinedReducer::State, CombinedReducer::State, 3>;
     using Selector = BurpRedux::Selector::Instance<CombinedReducer::State, State, 1>;
 
     namespace A {
-      Creator creator;
-      Reducer reducer(ReducerId::ba);
+      StateFactory factory;
+      Reducer reducer(ReducerId::ba, factory);
       Subscriber subscriber;
       Selector selector({
           &subscriber
@@ -103,8 +105,8 @@ namespace BurpReduxTest {
     }
 
     namespace B {
-      Creator creator;
-      Reducer reducer(ReducerId::bb);
+      StateFactory factory;
+      Reducer reducer(ReducerId::bb, factory);
       Subscriber subscriber;
       Selector selector({
           &subscriber
@@ -117,8 +119,8 @@ namespace BurpReduxTest {
     }
 
     namespace C {
-      Creator creator;
-      Reducer reducer(ReducerId::bc);
+      StateFactory factory;
+      Reducer reducer(ReducerId::bc, factory);
       Subscriber subscriber;
       Selector selector({
           &subscriber
@@ -160,27 +162,9 @@ namespace BurpReduxTest {
     &B::selector
   }));
 
-  namespace A {
-    namespace A {
-      BurpRedux::Dispatcher<State> dispatcher(store, creator, ReducerId::aa);
-    }
-    namespace B {
-      BurpRedux::Dispatcher<State> dispatcher(store, creator, ReducerId::ab);
-    }
-    namespace C {
-      BurpRedux::Dispatcher<State> dispatcher(store, creator, ReducerId::ac);
-    }
-  }
-
-  namespace B {
-    namespace A {
-      BurpRedux::Dispatcher<State> dispatcher(store, creator, ReducerId::ba);
-    }
-    namespace B {
-      BurpRedux::Dispatcher<State> dispatcher(store, creator, ReducerId::bb);
-    }
-    namespace C {
-      BurpRedux::Dispatcher<State> dispatcher(store, creator, ReducerId::bc);
+  void dispatch(const BurpRedux::Reducer::Interface::Id id, const BurpRedux::State::Interface * state) {
+    if (state) {
+      store.dispatch(id, state);
     }
   }
 
@@ -188,14 +172,12 @@ namespace BurpReduxTest {
 
       describe.setup([]() {
 
-          StateList initialStates;
-          initialStates.set(ReducerId::aa, A::A::creator.init("aa"));
-          initialStates.set(ReducerId::ab, A::B::creator.init("ab"));
-          initialStates.set(ReducerId::ac, A::C::creator.init("ac"));
-          initialStates.set(ReducerId::ba, B::A::creator.init("ba"));
-          initialStates.set(ReducerId::bb, B::B::creator.init("bb"));
-          initialStates.set(ReducerId::bc, B::C::creator.init("bc"));
-          store.init(initialStates);
+          A::A::factory.setInitialPersistent("aa");
+          A::B::factory.setInitialPersistent("ab");
+          A::C::factory.setInitialPersistent("ac");
+          B::A::factory.setInitialPersistent("ba");
+          B::B::factory.setInitialPersistent("bb");
+          B::C::factory.setInitialPersistent("bc");
 
           StaticJsonDocument<512> doc;
           doc[A::field][A::A::field][dataField] = 10;
@@ -204,7 +186,7 @@ namespace BurpReduxTest {
           doc[B::field][B::A::field][dataField] = 40;
           doc[B::field][B::B::field][dataField] = 50;
           doc[B::field][B::C::field][dataField] = 60;
-          store.getState()->deserialize(doc.as<JsonObject>());
+          store.deserialize(doc.as<JsonObject>());
 
       });
 
@@ -230,9 +212,7 @@ namespace BurpReduxTest {
       describe.describe("then dispatch incrementData A::A", [](Describe & describe) {
           describe.before([](f_done & done) {
               A::A::subscriber.callbackOnce(done);
-              const State * previous = A::A::selector.getState();
-              using namespace std::placeholders;
-              A::A::dispatcher.dispatch(previous, std::bind(&State::incrementData, _1, _2));
+              dispatch(ReducerId::aa, A::A::factory.incrementData());
           });
 
           describe.it("should notify the correct subscribers with the correct state", []() {
@@ -264,9 +244,7 @@ namespace BurpReduxTest {
           describe.describe("then dispatch setPersistent on B::B", [](Describe & describe) {
               describe.before([](f_done & done) {
                   B::B::subscriber.callbackOnce(done);
-                  const State * previous = B::B::selector.getState();
-                  using namespace std::placeholders;
-                  B::B::dispatcher.dispatch(previous, std::bind(&State::setPersistent, _1, _2, "BB"));
+                  dispatch(ReducerId::bb, B::B::factory.setPersistent("BB"));
               });
 
               describe.it("should notify the correct subscribers with the correct state", []() {

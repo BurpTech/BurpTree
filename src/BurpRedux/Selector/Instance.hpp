@@ -11,8 +11,8 @@ namespace BurpRedux {
       
       public:
 
-        using Index = Interface::Index;
-        using StateList = State::List::Interface;
+        using States = State::List::Get;
+        using Index = States::Index;
         using Publisher = Publisher::Instance<Output, subscriberCount>;
         using Subscribers = typename Publisher::Subscribers;
 
@@ -20,15 +20,15 @@ namespace BurpRedux {
           publisher(subscribers)
         {}
 
-        void init(const Index index) override {
+        void init(const size_t index) override {
           _index = index;
         }
 
-        void setup(Input * input) override {
+        void setup(const Input * input) override {
           publisher.setup(_select(input));
         }
 
-        void onPublish(Input * input) override {
+        void onPublish(const Input * input) override {
           publish(_select(input));
         }
 
@@ -41,13 +41,13 @@ namespace BurpRedux {
         Index _index;
         Publisher publisher;
 
-        void publish(Output * output) {
+        void publish(const Output * output) {
           publisher.publish(output);
         }
 
-        Output * _select(Input * input) {
-          StateList * list = input;
-          return list->get(_index)->template as<Output>();
+        const Output * _select(const Input * input) {
+          const States * states = input;
+          return states->get(_index)->template as<Output>();
         }
 
     };
