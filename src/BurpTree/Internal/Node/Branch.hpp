@@ -44,7 +44,9 @@ namespace BurpTree {
           const State * deserialize(const JsonObject & object) override {
             States states;
             for (Index index = 0; index < nodeCount; index++) {
-              auto state = _lists.nodes[index]->deserialize(object[_lists.fields[index]].template as<JsonObject>());
+              auto state = _lists.nodes[index]->deserialize(
+                  object[_lists.fields[index]].template as<JsonObject>()
+              );
               _uids[index] = state->getUid();
               states.set(index, state);
             }

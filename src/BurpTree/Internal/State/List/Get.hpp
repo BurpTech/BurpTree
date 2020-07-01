@@ -13,9 +13,8 @@ namespace BurpTree {
           public:
 
             using Index = size_t;
-            using State = Base;
 
-            virtual const State * get(const Index index) const = 0;
+            virtual const Base * get(const Index index) const = 0;
 
         };
 

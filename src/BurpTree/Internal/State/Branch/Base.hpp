@@ -12,10 +12,8 @@ namespace BurpTree {
 
           public:
 
-            using State = Internal::State::Base;
-
             Base(const Uid uid) :
-              State(uid)
+              State::Base(uid)
             {}
 
         };

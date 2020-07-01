@@ -2,7 +2,6 @@
 
 #include <ArduinoJson.h>
 #include "../Base.hpp"
-#include "../../Status.hpp"
 
 namespace BurpTree {
   namespace Internal {
@@ -13,10 +12,7 @@ namespace BurpTree {
 
           public:
 
-            using State = Base;
-
-            virtual const State * deserialize(const JsonObject & serialized) = 0;
-            virtual const Status & getStatus() const = 0;
+            virtual const Base * deserialize(const JsonObject & serialized) = 0;
 
         };
 

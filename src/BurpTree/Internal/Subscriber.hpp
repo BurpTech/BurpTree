@@ -9,10 +9,8 @@ namespace BurpTree {
 
       public:
 
-        using State = State::Base;
-
-        virtual void setup(const State * initial) = 0;
-        virtual void onPublish(const State * next) = 0;
+        virtual void setup(const State::Base * initial) = 0;
+        virtual void onPublish(const State::Base * next) = 0;
 
     };
 

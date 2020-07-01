@@ -15,14 +15,13 @@ namespace BurpTree {
           public:
 
             using Index = Get::Index;
-            using State = Get::State;
-            using States = std::array<const State *, length>;
+            using States = std::array<const Base *, length>;
 
-            const State * get(const Index index) const override {
+            const Base * get(const Index index) const override {
               return _states[index];
             }
 
-            void set(const Index index, const State * state) override {
+            void set(const Index index, const Base * state) override {
               _states[index] = state;
             }
 

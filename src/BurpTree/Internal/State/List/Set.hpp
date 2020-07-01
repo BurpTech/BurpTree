@@ -13,9 +13,8 @@ namespace BurpTree {
           public:
 
             using Index = size_t;
-            using State = Base;
 
-            virtual void set(const Index index, const State * state) = 0;
+            virtual void set(const Index index, const Base * state) = 0;
 
         };
 

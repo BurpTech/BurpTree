@@ -15,11 +15,10 @@ namespace BurpTree {
 
           public:
 
-            using State = List::Get::State;
             using Index = List::Get::Index;
             using States = List::Instance<length>;
             using Fields = std::array<const char *, length>;
-            using Uid = State::Uid;
+            using Uid = State::Base::Uid;
 
             Instance(const Uid uid, const Fields & fields, const States & states) :
               Base(uid),
@@ -27,7 +26,7 @@ namespace BurpTree {
               _fields(fields)
             {}
 
-            const State * get(const Index index) const override {
+            const State::Base * get(const Index index) const override {
               return _states.get(index);
             }
 

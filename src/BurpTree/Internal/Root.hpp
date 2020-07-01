@@ -17,7 +17,7 @@ namespace BurpTree {
 
             using Level = Status::Level;
 
-            enum Code : Status::Code {
+            enum : Status::Code {
               noError,
               dispatchDuringNotification,
               dispatchDuringDeserialize,

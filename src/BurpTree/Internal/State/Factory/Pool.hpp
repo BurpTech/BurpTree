@@ -2,42 +2,79 @@
 
 #include <functional>
 #include "../Base.hpp"
+#include "../../Status.hpp"
 
 namespace BurpTree {
   namespace Internal {
     namespace State {
       namespace Factory {
 
-        template <class State>
+        template <class State, class Status>
         class Pool {
+
+          public:
+
+            const Status & getStatus() const {
+              return _status;
+            }
 
           protected:
 
             using Uid = Base::Uid;
-            using f_construct = std::function<State * (const Uid uid, void * address)>;
+            using f_construct = std::function<const State * ()>;
 
-            const State * _create(f_construct construct) {
-              State * state = construct(_uid++, &(_memory[_current]));
+            const Uid getUid() const {
+              return _uid;
+            }
+
+            void * getAddress() const {
+              return _address;
+            }
+
+            const State * getState() const {
+              return _state;
+            }
+
+            const State * create(f_construct construct) {
+              _status.set(Status::Level::INFO, Status::noError);
+              const State * state = construct();
               if (state) {
+                _uid++;
                 _current++;
                 _current %= _size;
-                _setPrevious(state);
+                _address = &(_memory[_current]);
+                _setState(state);
               }
               return state;
             };
 
-            void _setPrevious(State * state) {
-              if (_previous) {
-                _previous->~State();
+            const State * fail(const typename Status::Code code) {
+              if (_state) {
+                _status.set(Status::Level::ERROR, code);
+                return nullptr;
               }
-              _previous = state;
+              _status.set(Status::Level::WARNING, code);
+              return _default();
             }
 
-            static constexpr size_t _size = 2;
-            unsigned char _current = 0;
-            State * _previous = nullptr;
+          private:
+
+            virtual const State * _default();
+
+            void _setState(const State * state) {
+              if (_state) {
+                _state->~State();
+              }
+              _state = state;
+            }
+
             Uid _uid;
+            static constexpr size_t _size = 2;
             char _memory[_size][sizeof(State)];
+            unsigned char _current = 0;
+            void * _address = &(_memory[_current]);
+            const State * _state = nullptr;
+            Status _status;
 
         };
 
