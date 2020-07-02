@@ -19,7 +19,7 @@ namespace BurpTree {
         };
 
         enum : Code {
-          noError
+          ok
         };
 
         Level level;

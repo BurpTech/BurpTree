@@ -36,7 +36,7 @@ namespace BurpTree {
             }
 
             const State * create(f_construct construct) {
-              _status.set(Status::Level::INFO, Status::noError);
+              _status.set(Status::Level::INFO, Status::ok);
               const State * state = construct();
               if (state) {
                 _uid++;
@@ -59,7 +59,7 @@ namespace BurpTree {
 
           private:
 
-            virtual const State * _default();
+            virtual const State * _default() = 0;
 
             void _setState(const State * state) {
               if (_state) {

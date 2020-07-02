@@ -4,6 +4,6 @@
 
 namespace BurpTreeTest {
 
-  extern Module branchTests;
+  extern Module integrationTests;
 
 }

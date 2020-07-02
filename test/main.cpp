@@ -4,16 +4,16 @@
 
 #define BURP_UNITY_MAX_MODULE 1
 #define BURP_UNITY_MAX_DESCRIBE 2
-#define BURP_UNITY_MAX_POP 4
-#define BURP_UNITY_MAX_TEST 1
-#define BURP_UNITY_MAX_IT 1
+#define BURP_UNITY_MAX_POP 7
+#define BURP_UNITY_MAX_TEST 2
+#define BURP_UNITY_MAX_IT 2
 #define BURP_UNITY_MAX_ASYNC_IT 1
 #define BURP_UNITY_MAX_CALLBACK 1
 #define BURP_UNITY_MAX_ASYNC_CALLBACK 1
 #define BURP_UNITY_MAX_STACKED_CALLBACK 1
 #define BURP_UNITY_MAX_STACKED_ASYNC_CALLBACK 1
 #define BURP_UNITY_MAX_SETUP 1
-#define BURP_UNITY_MAX_DEPTH 4
+#define BURP_UNITY_MAX_DEPTH 7
 #define BURP_UNITY_MAX_BEFORE_EACH 1
 #define BURP_UNITY_MAX_ASYNC_BEFORE_EACH 1
 #define BURP_UNITY_MAX_AFTER_EACH 1
@@ -23,10 +23,10 @@
 #include <unity.h>
 #include <BurpUnity.hpp>
 
-#include "Branch.hpp"
+#include "Integration.hpp"
 
 Runner<1> runner({
-  &BurpTreeTest::branchTests
+  &BurpTreeTest::integrationTests
 });
 Memory memory;
 bool running = true;

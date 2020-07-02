@@ -11,7 +11,7 @@ namespace BurpTreeTest {
 
       using f_cb = std::function<void()>;
 
-      const State * state;
+      const BurpTree::State * state;
       unsigned int count;
 
       Subscriber() :
@@ -20,11 +20,11 @@ namespace BurpTreeTest {
         _cb(nullptr)
       {}
 
-      void setup(const State * initial) override {
+      void setup(const BurpTree::State * initial) override {
         state = initial;
       }
 
-      void onPublish(const State * next) override {
+      void onPublish(const BurpTree::State * next) override {
         count++;
         state = next;
         if (_cb) {
