@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../State/Branch/Instance.hpp"
+#include "../State/Branch.hpp"
 #include "../State/Factory/Branch.hpp"
 #include "../Publisher.hpp"
 #include "Map.hpp"
@@ -18,7 +18,7 @@ namespace BurpTree {
           using Map = Node::Map<nodeCount>;
           using Entry = Node::Entry;
           using StateInterface = Internal::State::Interface;
-          using State = State::Branch::Instance<nodeCount>;
+          using State = State::Branch<nodeCount>;
           using Publisher = Internal::Publisher<State, subscriberCount>;
           using Subscribers = typename Publisher::Subscribers;
           using Factory = Internal::State::Factory::Branch<nodeCount>;

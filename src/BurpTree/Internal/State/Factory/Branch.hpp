@@ -2,7 +2,7 @@
 
 #include "../../Status.hpp"
 #include "../../Node/Map.hpp"
-#include "../Branch/Instance.hpp"
+#include "../Branch.hpp"
 #include "Base.hpp"
 
 namespace BurpTree {
@@ -11,13 +11,13 @@ namespace BurpTree {
       namespace Factory {
 
         template <size_t nodeCount>
-        class Branch : public Base<State::Branch::Instance<nodeCount>, Status> {
+        class Branch : public Base<State::Branch<nodeCount>, Status> {
 
           public:
 
             using Map = Node::Map<nodeCount>;
             using Entry = Node::Entry;
-            using State = State::Branch::Instance<nodeCount>;
+            using State = State::Branch<nodeCount>;
             using States = typename State::States;
             using Index = List::Index;
             using Base = Factory::Base<State, Status>;

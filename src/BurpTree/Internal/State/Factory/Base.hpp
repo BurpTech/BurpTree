@@ -1,7 +1,7 @@
 #pragma once
 
 #include <functional>
-#include "Interface.hpp"
+#include <ArduinoJson.h>
 
 namespace BurpTree {
   namespace Internal {
@@ -9,20 +9,23 @@ namespace BurpTree {
       namespace Factory {
 
         template <class _State, class _Status>
-        class Base : public Interface<_State> {
+        class Base {
 
           public:
 
             using State = _State;
             using Status = _Status;
 
-            const State * getState() const override {
+            const State * getState() const {
               return _state;
             }
 
             const Status & getStatus() const {
               return _status;
             }
+
+            virtual bool deserialize(const JsonObject & serialized) = 0;
+            virtual void createDefault() = 0;
 
           protected:
 
