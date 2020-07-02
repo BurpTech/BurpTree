@@ -32,6 +32,10 @@ namespace BurpTree {
           return _factory.getStatus();
         }
 
+        Factory & getFactory() const {
+          return _factory;
+        }
+
       private:
 
         Root & _root;
