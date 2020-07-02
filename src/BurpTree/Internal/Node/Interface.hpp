@@ -1,23 +1,20 @@
 #pragma once
 
 #include <ArduinoJson.h>
-#include "../State/Base.hpp"
-#include "../Subscriber.hpp"
+#include "../State/Interface.hpp"
+#include "Id.hpp"
 
 namespace BurpTree {
   namespace Internal {
     namespace Node {
 
-      class Interface : public Subscriber {
+      class Interface {
 
         public:
 
-          using Id = unsigned int;
-          using State = Internal::State::Base;
-
-          virtual const State * deserialize(const JsonObject & object) = 0;
-          virtual const State * dispatch(const Id id, const State * next) = 0;
-          virtual const State * getState() const = 0;
+          virtual const State::Interface * deserialize(const JsonObject & object) = 0;
+          virtual const State::Interface * dispatch(const Id id) = 0;
+          virtual void notify() = 0;
 
       };
 

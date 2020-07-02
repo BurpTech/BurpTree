@@ -1,43 +1,56 @@
 #pragma once
 
-#include "../Branch/Instance.hpp"
-#include "Pool.hpp"
 #include "../../Status.hpp"
+#include "../../Node/Map.hpp"
+#include "../Branch/Instance.hpp"
+#include "Base.hpp"
 
 namespace BurpTree {
   namespace Internal {
     namespace State {
       namespace Factory {
 
-        template <size_t length>
-        class Branch : public Pool<State::Branch::Instance<length>, Status> {
+        template <size_t nodeCount>
+        class Branch : public Base<State::Branch::Instance<nodeCount>, Status> {
 
           public:
 
-            using BranchState = State::Branch::Instance<length>;
-            using Fields = typename BranchState::Fields;
-            using States = typename BranchState::States;
-            using Uid = Base::Uid;
-            using P = Pool<BranchState, Status>;
+            using Map = Node::Map<nodeCount>;
+            using Entry = Node::Entry;
+            using State = State::Branch::Instance<nodeCount>;
+            using States = typename State::States;
+            using Index = List::Index;
+            using Base = Factory::Base<State, Status>;
 
-            Branch(const Fields & fields) :
-              _fields(fields)
+            Branch(const Map & map) :
+              _map(map)
             {}
 
-            const Base * create(const States & states) {
-              return P::create([&]() -> const BranchState * {
-                  return new(this->getAddress()) BranchState(this->getUid(), _fields, states);
+            bool create(const States & states) {
+              return Base::create([&]() -> const State * {
+                  return new(this->getAddress()) State(_map, states);
               });
+            }
+
+            bool deserialize(const JsonObject & serialized) override {
+              States states;
+              for (Index index = 0; index < nodeCount; index++) {
+                const Entry & entry = _map[index];
+                auto state = entry.node->deserialize(
+                    serialized[entry.field].template as<JsonObject>()
+                );
+                states.set(index, state);
+              }
+              return create(states);
+            }
+
+            void createDefault() override {
+              // Should never get here as we never fail Branch State creation
             }
 
           private:
             
-            const Fields & _fields;
-
-            const BranchState * _default() override {
-              // Should never get here as we never call Pool::fail()
-              return nullptr;
-            }
+            const Map & _map;
 
         };
 

@@ -8,39 +8,39 @@
 
 namespace BurpTreeTest {
 
-  using Root = BurpTree::Root;
   using Node1 = BurpTree::Branch<2, 1>;
   using Node2 = BurpTree::Branch<3, 1>;
-  using Node3 = BurpTree::Leaf<1>;
+  using Node3 = BurpTree::Leaf<Factory, 1>;
   using Dispatcher = BurpTree::Dispatcher<Factory>;
+  using Root = BurpTree::Root<Node1>;
 
   namespace A {
 
     namespace A {
-      Subscriber subscriber;
+      Subscriber<State> subscriber;
       Factory factory;
-      Node3 node(NodeId::aa, factory, Node3::Subscribers{
+      Node3 node(NodeId::aa, factory, Node3::Subscribers({
           &subscriber
-      });
+      }));
     }
 
     namespace B {
-      Subscriber subscriber;
+      Subscriber<State> subscriber;
       Factory factory;
-      Node3 node(NodeId::ab, factory, Node3::Subscribers{
+      Node3 node(NodeId::ab, factory, Node3::Subscribers({
           &subscriber
-      });
+      }));
     }
 
     namespace C {
-      Subscriber subscriber;
+      Subscriber<State> subscriber;
       Factory factory;
-      Node3 node(NodeId::ac, factory, Node3::Subscribers{
+      Node3 node(NodeId::ac, factory, Node3::Subscribers({
           &subscriber
-      });
+      }));
     }
 
-    Subscriber subscriber;
+    Subscriber<Node2::State> subscriber;
     Node2 node(Node2::Map({
         Node2::Entry({A::field, &A::node}),
         Node2::Entry({B::field, &B::node}),
@@ -54,30 +54,30 @@ namespace BurpTreeTest {
   namespace B {
 
     namespace A {
-      Subscriber subscriber;
+      Subscriber<State> subscriber;
       Factory factory;
-      Node3 node(NodeId::ba, factory, Node3::Subscribers{
+      Node3 node(NodeId::ba, factory, Node3::Subscribers({
           &subscriber
-      });
+      }));
     }
 
     namespace B {
-      Subscriber subscriber;
+      Subscriber<State> subscriber;
       Factory factory;
-      Node3 node(NodeId::bb, factory, Node3::Subscribers{
+      Node3 node(NodeId::bb, factory, Node3::Subscribers({
           &subscriber
-      });
+      }));
     }
 
     namespace C {
-      Subscriber subscriber;
+      Subscriber<State> subscriber;
       Factory factory;
-      Node3 node(NodeId::bc, factory, Node3::Subscribers{
+      Node3 node(NodeId::bc, factory, Node3::Subscribers({
           &subscriber
-      });
+      }));
     }
 
-    Subscriber subscriber;
+    Subscriber<Node2::State> subscriber;
     Node2 node(Node2::Map({
       Node2::Entry({A::field, &A::node}),
       Node2::Entry({B::field, &B::node}),
@@ -88,7 +88,7 @@ namespace BurpTreeTest {
 
   }
 
-  Subscriber subscriber;
+  Subscriber<Node1::State> subscriber;
   Node1 node(Node1::Map({
       Node1::Entry({A::field, &A::node}),
       Node1::Entry({B::field, &B::node})
@@ -100,25 +100,25 @@ namespace BurpTreeTest {
 
   namespace A {
     namespace A {
-      Dispatcher dispatcher(root, NodeId::aa, factory);
+      Dispatcher dispatcher(root, node);
     }
     namespace B {
-      Dispatcher dispatcher(root, NodeId::ab, factory);
+      Dispatcher dispatcher(root, node);
     }
     namespace C {
-      Dispatcher dispatcher(root, NodeId::ac, factory);
+      Dispatcher dispatcher(root, node);
     }
   }
 
   namespace B {
     namespace A {
-      Dispatcher dispatcher(root, NodeId::ba, factory);
+      Dispatcher dispatcher(root, node);
     }
     namespace B {
-      Dispatcher dispatcher(root, NodeId::bb, factory);
+      Dispatcher dispatcher(root, node);
     }
     namespace C {
-      Dispatcher dispatcher(root, NodeId::bc, factory);
+      Dispatcher dispatcher(root, node);
     }
   }
 
@@ -171,27 +171,27 @@ namespace BurpTreeTest {
           TEST_ASSERT_EQUAL(Status::ok, statusBA.getCode());
 
           const BurpTree::Status statusBB = B::B::factory.getStatus();
-          TEST_ASSERT_EQUAL(Status::Level::WARNING, statusBB.getLevel());
-          TEST_ASSERT_EQUAL(Status::invalidData, statusBB.getCode());
+          TEST_ASSERT_EQUAL(Status::Level::INFO, statusBB.getLevel());
+          TEST_ASSERT_EQUAL(Status::ok, statusBB.getCode());
 
           const BurpTree::Status statusBC = B::C::factory.getStatus();
-          TEST_ASSERT_EQUAL(Status::Level::WARNING, statusBC.getLevel());
-          TEST_ASSERT_EQUAL(Status::noObject, statusBC.getCode());
+          TEST_ASSERT_EQUAL(Status::Level::INFO, statusBC.getLevel());
+          TEST_ASSERT_EQUAL(Status::ok, statusBC.getCode());
       });
 
       describe.it("should have the correct initial states", []() {
-          TEST_ASSERT_EQUAL(10, A::A::node.getState()->as<State>()->data);
-          TEST_ASSERT_EQUAL_STRING("aa", A::A::node.getState()->as<State>()->persistent);
-          TEST_ASSERT_EQUAL(20, A::B::node.getState()->as<State>()->data);
-          TEST_ASSERT_EQUAL_STRING("ab", A::B::node.getState()->as<State>()->persistent);
-          TEST_ASSERT_EQUAL(30, A::C::node.getState()->as<State>()->data);
-          TEST_ASSERT_EQUAL_STRING("ac", A::C::node.getState()->as<State>()->persistent);
-          TEST_ASSERT_EQUAL(40, B::A::node.getState()->as<State>()->data);
-          TEST_ASSERT_EQUAL_STRING("ba", B::A::node.getState()->as<State>()->persistent);
-          TEST_ASSERT_EQUAL(0, B::B::node.getState()->as<State>()->data);
-          TEST_ASSERT_EQUAL_STRING("bb", B::B::node.getState()->as<State>()->persistent);
-          TEST_ASSERT_EQUAL(0, B::C::node.getState()->as<State>()->data);
-          TEST_ASSERT_EQUAL_STRING("bc", B::C::node.getState()->as<State>()->persistent);
+          TEST_ASSERT_EQUAL(10, A::A::node.getState()->data);
+          TEST_ASSERT_EQUAL_STRING("aa", A::A::node.getState()->persistent);
+          TEST_ASSERT_EQUAL(20, A::B::node.getState()->data);
+          TEST_ASSERT_EQUAL_STRING("ab", A::B::node.getState()->persistent);
+          TEST_ASSERT_EQUAL(30, A::C::node.getState()->data);
+          TEST_ASSERT_EQUAL_STRING("ac", A::C::node.getState()->persistent);
+          TEST_ASSERT_EQUAL(40, B::A::node.getState()->data);
+          TEST_ASSERT_EQUAL_STRING("ba", B::A::node.getState()->persistent);
+          TEST_ASSERT_EQUAL(0, B::B::node.getState()->data);
+          TEST_ASSERT_EQUAL_STRING("bb", B::B::node.getState()->persistent);
+          TEST_ASSERT_EQUAL(0, B::C::node.getState()->data);
+          TEST_ASSERT_EQUAL_STRING("bc", B::C::node.getState()->persistent);
       });
 
       describe.describe("then dispatch incrementData A::A", [](Describe & describe) {
@@ -209,36 +209,36 @@ namespace BurpTreeTest {
 
               TEST_ASSERT_EQUAL(1, A::A::subscriber.count);
               TEST_ASSERT_EQUAL(A::A::subscriber.state, A::A::node.getState());
-              TEST_ASSERT_EQUAL(11, A::A::node.getState()->as<State>()->data);
-              TEST_ASSERT_EQUAL_STRING("aa", A::A::node.getState()->as<State>()->persistent);
+              TEST_ASSERT_EQUAL(11, A::A::node.getState()->data);
+              TEST_ASSERT_EQUAL_STRING("aa", A::A::node.getState()->persistent);
 
               TEST_ASSERT_EQUAL(0, A::B::subscriber.count);
               TEST_ASSERT_EQUAL(A::B::subscriber.state, A::B::node.getState());
-              TEST_ASSERT_EQUAL(20, A::B::node.getState()->as<State>()->data);
-              TEST_ASSERT_EQUAL_STRING("ab", A::B::node.getState()->as<State>()->persistent);
+              TEST_ASSERT_EQUAL(20, A::B::node.getState()->data);
+              TEST_ASSERT_EQUAL_STRING("ab", A::B::node.getState()->persistent);
 
               TEST_ASSERT_EQUAL(0, A::C::subscriber.count);
               TEST_ASSERT_EQUAL(A::C::subscriber.state, A::C::node.getState());
-              TEST_ASSERT_EQUAL(30, A::C::node.getState()->as<State>()->data);
-              TEST_ASSERT_EQUAL_STRING("ac", A::C::node.getState()->as<State>()->persistent);
+              TEST_ASSERT_EQUAL(30, A::C::node.getState()->data);
+              TEST_ASSERT_EQUAL_STRING("ac", A::C::node.getState()->persistent);
 
               TEST_ASSERT_EQUAL(0, B::subscriber.count);
               TEST_ASSERT_EQUAL(B::subscriber.state, B::node.getState());
 
               TEST_ASSERT_EQUAL(0, B::A::subscriber.count);
               TEST_ASSERT_EQUAL(B::A::subscriber.state, B::A::node.getState());
-              TEST_ASSERT_EQUAL(40, B::A::node.getState()->as<State>()->data);
-              TEST_ASSERT_EQUAL_STRING("ba", B::A::node.getState()->as<State>()->persistent);
+              TEST_ASSERT_EQUAL(40, B::A::node.getState()->data);
+              TEST_ASSERT_EQUAL_STRING("ba", B::A::node.getState()->persistent);
 
               TEST_ASSERT_EQUAL(0, B::B::subscriber.count);
               TEST_ASSERT_EQUAL(B::B::subscriber.state, B::B::node.getState());
-              TEST_ASSERT_EQUAL(0, B::B::node.getState()->as<State>()->data);
-              TEST_ASSERT_EQUAL_STRING("bb", B::B::node.getState()->as<State>()->persistent);
+              TEST_ASSERT_EQUAL(0, B::B::node.getState()->data);
+              TEST_ASSERT_EQUAL_STRING("bb", B::B::node.getState()->persistent);
 
               TEST_ASSERT_EQUAL(0, B::C::subscriber.count);
               TEST_ASSERT_EQUAL(B::C::subscriber.state, B::C::node.getState());
-              TEST_ASSERT_EQUAL(0, B::C::node.getState()->as<State>()->data);
-              TEST_ASSERT_EQUAL_STRING("bc", B::C::node.getState()->as<State>()->persistent);
+              TEST_ASSERT_EQUAL(0, B::C::node.getState()->data);
+              TEST_ASSERT_EQUAL_STRING("bc", B::C::node.getState()->persistent);
           });
 
           describe.describe("then dispatch setPersistent on B::B", [](Describe & describe) {
@@ -257,36 +257,36 @@ namespace BurpTreeTest {
 
                   TEST_ASSERT_EQUAL(1, A::A::subscriber.count);
                   TEST_ASSERT_EQUAL(A::A::subscriber.state, A::A::node.getState());
-                  TEST_ASSERT_EQUAL(11, A::A::node.getState()->as<State>()->data);
-                  TEST_ASSERT_EQUAL_STRING("aa", A::A::node.getState()->as<State>()->persistent);
+                  TEST_ASSERT_EQUAL(11, A::A::node.getState()->data);
+                  TEST_ASSERT_EQUAL_STRING("aa", A::A::node.getState()->persistent);
 
                   TEST_ASSERT_EQUAL(0, A::B::subscriber.count);
                   TEST_ASSERT_EQUAL(A::B::subscriber.state, A::B::node.getState());
-                  TEST_ASSERT_EQUAL(20, A::B::node.getState()->as<State>()->data);
-                  TEST_ASSERT_EQUAL_STRING("ab", A::B::node.getState()->as<State>()->persistent);
+                  TEST_ASSERT_EQUAL(20, A::B::node.getState()->data);
+                  TEST_ASSERT_EQUAL_STRING("ab", A::B::node.getState()->persistent);
 
                   TEST_ASSERT_EQUAL(0, A::C::subscriber.count);
                   TEST_ASSERT_EQUAL(A::C::subscriber.state, A::C::node.getState());
-                  TEST_ASSERT_EQUAL(30, A::C::node.getState()->as<State>()->data);
-                  TEST_ASSERT_EQUAL_STRING("ac", A::C::node.getState()->as<State>()->persistent);
+                  TEST_ASSERT_EQUAL(30, A::C::node.getState()->data);
+                  TEST_ASSERT_EQUAL_STRING("ac", A::C::node.getState()->persistent);
 
                   TEST_ASSERT_EQUAL(1, B::subscriber.count);
                   TEST_ASSERT_EQUAL(B::subscriber.state, B::node.getState());
 
                   TEST_ASSERT_EQUAL(0, B::A::subscriber.count);
                   TEST_ASSERT_EQUAL(B::A::subscriber.state, B::A::node.getState());
-                  TEST_ASSERT_EQUAL(40, B::A::node.getState()->as<State>()->data);
-                  TEST_ASSERT_EQUAL_STRING("ba", B::A::node.getState()->as<State>()->persistent);
+                  TEST_ASSERT_EQUAL(40, B::A::node.getState()->data);
+                  TEST_ASSERT_EQUAL_STRING("ba", B::A::node.getState()->persistent);
 
                   TEST_ASSERT_EQUAL(1, B::B::subscriber.count);
                   TEST_ASSERT_EQUAL(B::B::subscriber.state, B::B::node.getState());
-                  TEST_ASSERT_EQUAL(0, B::B::node.getState()->as<State>()->data);
-                  TEST_ASSERT_EQUAL_STRING("BB", B::B::node.getState()->as<State>()->persistent);
+                  TEST_ASSERT_EQUAL(0, B::B::node.getState()->data);
+                  TEST_ASSERT_EQUAL_STRING("BB", B::B::node.getState()->persistent);
 
                   TEST_ASSERT_EQUAL(0, B::C::subscriber.count);
                   TEST_ASSERT_EQUAL(B::C::subscriber.state, B::C::node.getState());
-                  TEST_ASSERT_EQUAL(0, B::C::node.getState()->as<State>()->data);
-                  TEST_ASSERT_EQUAL_STRING("bc", B::C::node.getState()->as<State>()->persistent);
+                  TEST_ASSERT_EQUAL(0, B::C::node.getState()->data);
+                  TEST_ASSERT_EQUAL_STRING("bc", B::C::node.getState()->persistent);
               });
 
               describe.describe("then dispatch deserialize on A::B", [](Describe & describe) {
@@ -307,36 +307,36 @@ namespace BurpTreeTest {
 
                       TEST_ASSERT_EQUAL(1, A::A::subscriber.count);
                       TEST_ASSERT_EQUAL(A::A::subscriber.state, A::A::node.getState());
-                      TEST_ASSERT_EQUAL(11, A::A::node.getState()->as<State>()->data);
-                      TEST_ASSERT_EQUAL_STRING("aa", A::A::node.getState()->as<State>()->persistent);
+                      TEST_ASSERT_EQUAL(11, A::A::node.getState()->data);
+                      TEST_ASSERT_EQUAL_STRING("aa", A::A::node.getState()->persistent);
 
                       TEST_ASSERT_EQUAL(1, A::B::subscriber.count);
                       TEST_ASSERT_EQUAL(A::B::subscriber.state, A::B::node.getState());
-                      TEST_ASSERT_EQUAL(25, A::B::node.getState()->as<State>()->data);
-                      TEST_ASSERT_EQUAL_STRING("ab", A::B::node.getState()->as<State>()->persistent);
+                      TEST_ASSERT_EQUAL(25, A::B::node.getState()->data);
+                      TEST_ASSERT_EQUAL_STRING("ab", A::B::node.getState()->persistent);
 
                       TEST_ASSERT_EQUAL(0, A::C::subscriber.count);
                       TEST_ASSERT_EQUAL(A::C::subscriber.state, A::C::node.getState());
-                      TEST_ASSERT_EQUAL(30, A::C::node.getState()->as<State>()->data);
-                      TEST_ASSERT_EQUAL_STRING("ac", A::C::node.getState()->as<State>()->persistent);
+                      TEST_ASSERT_EQUAL(30, A::C::node.getState()->data);
+                      TEST_ASSERT_EQUAL_STRING("ac", A::C::node.getState()->persistent);
 
                       TEST_ASSERT_EQUAL(1, B::subscriber.count);
                       TEST_ASSERT_EQUAL(B::subscriber.state, B::node.getState());
 
                       TEST_ASSERT_EQUAL(0, B::A::subscriber.count);
                       TEST_ASSERT_EQUAL(B::A::subscriber.state, B::A::node.getState());
-                      TEST_ASSERT_EQUAL(40, B::A::node.getState()->as<State>()->data);
-                      TEST_ASSERT_EQUAL_STRING("ba", B::A::node.getState()->as<State>()->persistent);
+                      TEST_ASSERT_EQUAL(40, B::A::node.getState()->data);
+                      TEST_ASSERT_EQUAL_STRING("ba", B::A::node.getState()->persistent);
 
                       TEST_ASSERT_EQUAL(1, B::B::subscriber.count);
                       TEST_ASSERT_EQUAL(B::B::subscriber.state, B::B::node.getState());
-                      TEST_ASSERT_EQUAL(0, B::B::node.getState()->as<State>()->data);
-                      TEST_ASSERT_EQUAL_STRING("BB", B::B::node.getState()->as<State>()->persistent);
+                      TEST_ASSERT_EQUAL(0, B::B::node.getState()->data);
+                      TEST_ASSERT_EQUAL_STRING("BB", B::B::node.getState()->persistent);
 
                       TEST_ASSERT_EQUAL(0, B::C::subscriber.count);
                       TEST_ASSERT_EQUAL(B::C::subscriber.state, B::C::node.getState());
-                      TEST_ASSERT_EQUAL(0, B::C::node.getState()->as<State>()->data);
-                      TEST_ASSERT_EQUAL_STRING("bc", B::C::node.getState()->as<State>()->persistent);
+                      TEST_ASSERT_EQUAL(0, B::C::node.getState()->data);
+                      TEST_ASSERT_EQUAL_STRING("bc", B::C::node.getState()->persistent);
                   });
 
                   describe.describe("then dispatch invalid deserialize on A::B", [](Describe & describe) {
@@ -358,36 +358,36 @@ namespace BurpTreeTest {
 
                           TEST_ASSERT_EQUAL(1, A::A::subscriber.count);
                           TEST_ASSERT_EQUAL(A::A::subscriber.state, A::A::node.getState());
-                          TEST_ASSERT_EQUAL(11, A::A::node.getState()->as<State>()->data);
-                          TEST_ASSERT_EQUAL_STRING("aa", A::A::node.getState()->as<State>()->persistent);
+                          TEST_ASSERT_EQUAL(11, A::A::node.getState()->data);
+                          TEST_ASSERT_EQUAL_STRING("aa", A::A::node.getState()->persistent);
 
                           TEST_ASSERT_EQUAL(1, A::B::subscriber.count);
                           TEST_ASSERT_EQUAL(A::B::subscriber.state, A::B::node.getState());
-                          TEST_ASSERT_EQUAL(25, A::B::node.getState()->as<State>()->data);
-                          TEST_ASSERT_EQUAL_STRING("ab", A::B::node.getState()->as<State>()->persistent);
+                          TEST_ASSERT_EQUAL(25, A::B::node.getState()->data);
+                          TEST_ASSERT_EQUAL_STRING("ab", A::B::node.getState()->persistent);
 
                           TEST_ASSERT_EQUAL(0, A::C::subscriber.count);
                           TEST_ASSERT_EQUAL(A::C::subscriber.state, A::C::node.getState());
-                          TEST_ASSERT_EQUAL(30, A::C::node.getState()->as<State>()->data);
-                          TEST_ASSERT_EQUAL_STRING("ac", A::C::node.getState()->as<State>()->persistent);
+                          TEST_ASSERT_EQUAL(30, A::C::node.getState()->data);
+                          TEST_ASSERT_EQUAL_STRING("ac", A::C::node.getState()->persistent);
 
                           TEST_ASSERT_EQUAL(1, B::subscriber.count);
                           TEST_ASSERT_EQUAL(B::subscriber.state, B::node.getState());
 
                           TEST_ASSERT_EQUAL(0, B::A::subscriber.count);
                           TEST_ASSERT_EQUAL(B::A::subscriber.state, B::A::node.getState());
-                          TEST_ASSERT_EQUAL(40, B::A::node.getState()->as<State>()->data);
-                          TEST_ASSERT_EQUAL_STRING("ba", B::A::node.getState()->as<State>()->persistent);
+                          TEST_ASSERT_EQUAL(40, B::A::node.getState()->data);
+                          TEST_ASSERT_EQUAL_STRING("ba", B::A::node.getState()->persistent);
 
                           TEST_ASSERT_EQUAL(1, B::B::subscriber.count);
                           TEST_ASSERT_EQUAL(B::B::subscriber.state, B::B::node.getState());
-                          TEST_ASSERT_EQUAL(0, B::B::node.getState()->as<State>()->data);
-                          TEST_ASSERT_EQUAL_STRING("BB", B::B::node.getState()->as<State>()->persistent);
+                          TEST_ASSERT_EQUAL(0, B::B::node.getState()->data);
+                          TEST_ASSERT_EQUAL_STRING("BB", B::B::node.getState()->persistent);
 
                           TEST_ASSERT_EQUAL(0, B::C::subscriber.count);
                           TEST_ASSERT_EQUAL(B::C::subscriber.state, B::C::node.getState());
-                          TEST_ASSERT_EQUAL(0, B::C::node.getState()->as<State>()->data);
-                          TEST_ASSERT_EQUAL_STRING("bc", B::C::node.getState()->as<State>()->persistent);
+                          TEST_ASSERT_EQUAL(0, B::C::node.getState()->data);
+                          TEST_ASSERT_EQUAL_STRING("bc", B::C::node.getState()->persistent);
                       });
 
                       describe.describe("then dispatch empty deserialize on A::B", [](Describe & describe) {
@@ -408,36 +408,36 @@ namespace BurpTreeTest {
 
                               TEST_ASSERT_EQUAL(1, A::A::subscriber.count);
                               TEST_ASSERT_EQUAL(A::A::subscriber.state, A::A::node.getState());
-                              TEST_ASSERT_EQUAL(11, A::A::node.getState()->as<State>()->data);
-                              TEST_ASSERT_EQUAL_STRING("aa", A::A::node.getState()->as<State>()->persistent);
+                              TEST_ASSERT_EQUAL(11, A::A::node.getState()->data);
+                              TEST_ASSERT_EQUAL_STRING("aa", A::A::node.getState()->persistent);
 
                               TEST_ASSERT_EQUAL(1, A::B::subscriber.count);
                               TEST_ASSERT_EQUAL(A::B::subscriber.state, A::B::node.getState());
-                              TEST_ASSERT_EQUAL(25, A::B::node.getState()->as<State>()->data);
-                              TEST_ASSERT_EQUAL_STRING("ab", A::B::node.getState()->as<State>()->persistent);
+                              TEST_ASSERT_EQUAL(25, A::B::node.getState()->data);
+                              TEST_ASSERT_EQUAL_STRING("ab", A::B::node.getState()->persistent);
 
                               TEST_ASSERT_EQUAL(0, A::C::subscriber.count);
                               TEST_ASSERT_EQUAL(A::C::subscriber.state, A::C::node.getState());
-                              TEST_ASSERT_EQUAL(30, A::C::node.getState()->as<State>()->data);
-                              TEST_ASSERT_EQUAL_STRING("ac", A::C::node.getState()->as<State>()->persistent);
+                              TEST_ASSERT_EQUAL(30, A::C::node.getState()->data);
+                              TEST_ASSERT_EQUAL_STRING("ac", A::C::node.getState()->persistent);
 
                               TEST_ASSERT_EQUAL(1, B::subscriber.count);
                               TEST_ASSERT_EQUAL(B::subscriber.state, B::node.getState());
 
                               TEST_ASSERT_EQUAL(0, B::A::subscriber.count);
                               TEST_ASSERT_EQUAL(B::A::subscriber.state, B::A::node.getState());
-                              TEST_ASSERT_EQUAL(40, B::A::node.getState()->as<State>()->data);
-                              TEST_ASSERT_EQUAL_STRING("ba", B::A::node.getState()->as<State>()->persistent);
+                              TEST_ASSERT_EQUAL(40, B::A::node.getState()->data);
+                              TEST_ASSERT_EQUAL_STRING("ba", B::A::node.getState()->persistent);
 
                               TEST_ASSERT_EQUAL(1, B::B::subscriber.count);
                               TEST_ASSERT_EQUAL(B::B::subscriber.state, B::B::node.getState());
-                              TEST_ASSERT_EQUAL(0, B::B::node.getState()->as<State>()->data);
-                              TEST_ASSERT_EQUAL_STRING("BB", B::B::node.getState()->as<State>()->persistent);
+                              TEST_ASSERT_EQUAL(0, B::B::node.getState()->data);
+                              TEST_ASSERT_EQUAL_STRING("BB", B::B::node.getState()->persistent);
 
                               TEST_ASSERT_EQUAL(0, B::C::subscriber.count);
                               TEST_ASSERT_EQUAL(B::C::subscriber.state, B::C::node.getState());
-                              TEST_ASSERT_EQUAL(0, B::C::node.getState()->as<State>()->data);
-                              TEST_ASSERT_EQUAL_STRING("bc", B::C::node.getState()->as<State>()->persistent);
+                              TEST_ASSERT_EQUAL(0, B::C::node.getState()->data);
+                              TEST_ASSERT_EQUAL_STRING("bc", B::C::node.getState()->persistent);
                           });
 
                           describe.describe("then serialize", [](Describe & describe) {

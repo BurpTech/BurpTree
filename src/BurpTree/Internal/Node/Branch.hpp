@@ -1,9 +1,9 @@
 #pragma once
 
-#include <array>
 #include "../State/Branch/Instance.hpp"
 #include "../State/Factory/Branch.hpp"
 #include "../Publisher.hpp"
+#include "Map.hpp"
 #include "Interface.hpp"
 
 namespace BurpTree {
@@ -15,103 +15,70 @@ namespace BurpTree {
 
         public:
 
-          using Node = Interface;
-
-          struct Entry {
-            const char * field;
-            Node * node;
-          };
-
-          using Map = std::array<const Entry, nodeCount>;
-          using BranchState = Internal::State::Branch::Instance<nodeCount>;
-          using Publisher = Internal::Publisher<subscriberCount>;
+          using Map = Node::Map<nodeCount>;
+          using Entry = Node::Entry;
+          using StateInterface = Internal::State::Interface;
+          using State = State::Branch::Instance<nodeCount>;
+          using Publisher = Internal::Publisher<State, subscriberCount>;
           using Subscribers = typename Publisher::Subscribers;
           using Factory = Internal::State::Factory::Branch<nodeCount>;
-          using Uid = State::Uid;
-          using Uids = std::array<Uid, nodeCount>;
-          using Index = typename BranchState::Index;
-          using States = typename BranchState::States;
-          using Fields = typename Factory::Fields;
-          using Nodes = std::array<Node *, nodeCount>;
+          using Index = typename State::Index;
+          using States = typename State::States;
           using Id = Node::Id;
 
           Branch(const Map & map, const Subscribers & subscribers) :
-            _lists(transposeMap(map)),
-            _factory(_lists.fields),
-            _publisher(subscribers)
+            _map(map),
+            _factory(_map),
+            _publisher(subscribers),
+            _notify(false)
           {}
 
-          const State * deserialize(const JsonObject & object) override {
-            States states;
-            for (Index index = 0; index < nodeCount; index++) {
-              auto state = _lists.nodes[index]->deserialize(
-                  object[_lists.fields[index]].template as<JsonObject>()
-              );
-              _uids[index] = state->getUid();
-              states.set(index, state);
-            }
-            return _factory.create(states);
+          const StateInterface * deserialize(const JsonObject & serialized) override {
+            _factory.deserialize(serialized);
+            const State * state = _factory.getState();
+            _publisher.setup(state);
+            return state;
           }
 
-          const State * dispatch(const Id id, const State * next) override {
+          const StateInterface * dispatch(const Id id) override {
+            const State * previous = _factory.getState();
             States states;
-            bool changed = false;
             for (Index index = 0; index < nodeCount; index++) {
-              auto state = _lists.nodes[index]->dispatch(id, next);
-              const Uid uid = state->getUid();
-              if (uid != _uids[index]) {
-                changed = true;
+              auto state = _map[index].node->dispatch(id);
+              if (state) {
+                _notify = true;
+                states.set(index, state);
+              } else {
+                states.set(index, previous->get(index));
               }
-              states.set(index, state);
-              _uids[index] = uid;
             }
-            if (changed) {
-              return _factory.create(states);
+            if (_notify) {
+              _factory.create(states);
+              return _factory.getState();
             }
-            return _publisher.getState();
+            return nullptr;
           }
 
-          const State * getState() const override {
-            return _publisher.getState();
+          const State * getState() const {
+            return _factory.getState();
           }
 
-          void setup(const State * initial) override {
-            const BranchState * branch = initial->as<BranchState>();
-            for (Index index = 0; index < nodeCount; index++) {
-              _lists.nodes[index]->setup(branch->get(index));
+          void notify() override {
+            if (_notify) {
+              _notify = false;
+              for (Index index = 0; index < nodeCount; index++) {
+                _map[index].node->notify();
+              }
+              _publisher.notify(_factory.getState());
             }
-            _publisher.setup(initial);
-          }
-
-          void onPublish(const State * next) override {
-            const BranchState * branch = next->as<BranchState>();
-            for (Index index = 0; index < nodeCount; index++) {
-              _lists.nodes[index]->onPublish(branch->get(index));
-            }
-            _publisher.publish(next);
           }
 
         private:
 
-          struct _Lists {
-            Fields fields;
-            Nodes nodes;
-          };
-
-          const _Lists _lists;
+          const Map _map;
           Factory _factory;
-          Uids _uids;
           Publisher _publisher;
-
-          static const _Lists transposeMap(const Map & map) {
-            _Lists lists;
-            for (Index index = 0; index < nodeCount; index++) {
-              const Entry entry = map[index];
-              lists.fields[index] = entry.field;
-              lists.nodes[index] = entry.node;
-            }
-            return lists;
-          }
+          bool _notify;
 
       };
 

@@ -1,38 +1,35 @@
 #pragma once
 
-#include <array>
-#include <cstddef>
-#include "Base.hpp"
+#include "../../Node/Map.hpp"
 #include "../List/Instance.hpp"
+#include "Interface.hpp"
 
 namespace BurpTree {
   namespace Internal {
     namespace State {
-        namespace Branch {
+      namespace Branch {
 
-        template <size_t length>
-        class Instance : public Base {
+        template <size_t nodeCount>
+        class Instance : public Interface {
 
           public:
 
-            using Index = List::Get::Index;
-            using States = List::Instance<length>;
-            using Fields = std::array<const char *, length>;
-            using Uid = State::Base::Uid;
+            using Index = List::Index;
+            using States = List::Instance<nodeCount>;
+            using Map = Node::Map<nodeCount>;
 
-            Instance(const Uid uid, const Fields & fields, const States & states) :
-              Base(uid),
+            Instance(const Map & map, const States & states) :
               _states(states),
-              _fields(fields)
+              _map(map)
             {}
 
-            const State::Base * get(const Index index) const override {
+            const State::Interface * get(const Index index) const override {
               return _states.get(index);
             }
 
             void serialize(const JsonObject & serialized) const override {
-              for (size_t index = 0; index < length; index++) {
-                auto field = _fields[index];
+              for (size_t index = 0; index < nodeCount; index++) {
+                auto field = _map[index].field;
                 _states.get(index)->serialize(serialized[field].template to<JsonObject>());
               }
             }
@@ -40,7 +37,7 @@ namespace BurpTree {
           private:
 
             const States _states;
-            const Fields & _fields;
+            const Map & _map;
 
         };
 

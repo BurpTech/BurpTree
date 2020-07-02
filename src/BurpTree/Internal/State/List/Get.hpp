@@ -1,7 +1,7 @@
 #pragma once
 
-#include <cstddef>
-#include "../Base.hpp"
+#include "Index.hpp"
+#include "../Interface.hpp"
 
 namespace BurpTree {
   namespace Internal {
@@ -12,9 +12,7 @@ namespace BurpTree {
 
           public:
 
-            using Index = size_t;
-
-            virtual const Base * get(const Index index) const = 0;
+            virtual const Interface * get(const Index index) const = 0;
 
         };
 

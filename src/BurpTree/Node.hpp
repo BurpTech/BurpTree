@@ -1,7 +1,9 @@
 #pragma once
 
-#include "Internal/Node/Interface.hpp"
+#include "Internal/Node/Id.hpp"
 
 namespace BurpTree {
-  using Node = Internal::Node::Interface;
+  namespace Node {
+    using namespace Internal::Node;
+  }
 }

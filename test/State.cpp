@@ -5,14 +5,13 @@ namespace BurpTreeTest {
 
   constexpr int defaultData = 0;
 
-  State::State(const Uid uid, const char * persistent, const int data) :
-    BurpTree::State(uid),
+  State::State(const char * persistent, const int data) :
     persistent(persistent),
     data(data)
   {}
 
-  State::State(const Uid uid, const char * persistent) :
-    State(uid, persistent, defaultData)
+  State::State(const char * persistent) :
+    State(persistent, defaultData)
   {}
 
   void State::serialize(const JsonObject & serialized) const {
@@ -23,37 +22,39 @@ namespace BurpTreeTest {
     _persistent = persistent;
   }
 
-  const BurpTree::State * Factory::deserialize(const JsonObject & serialized) {
+  void Factory::createDefault() {
+    create([&]() -> const State * {
+        return new(getAddress()) State(_persistent);
+    });
+  }
+
+  bool Factory::deserialize(const JsonObject & serialized) {
     return create([&]() -> const State * {
         const State * previous = getState();
         const char * persistent = previous ? previous->persistent : _persistent;
         if (!serialized.isNull()) {
           if (serialized[dataField].is<int>()) {
-            return new(getAddress()) State(getUid(), persistent, serialized[dataField].as<int>());
+            return new(getAddress()) State(persistent, serialized[dataField].as<int>());
           }
-          return fail(Status::invalidData);
+          return error(Status::invalidData);
         }
-        return fail(Status::noObject);
+        return error(Status::noObject);
     });
   }
 
-  const BurpTree::State * Factory::incrementData() {
+  bool Factory::incrementData() {
     return create([&]() -> const State * {
         const State * previous = getState();
-        return new(getAddress()) State(getUid(), previous->persistent, previous->data + 1);
+        return new(getAddress()) State(previous->persistent, previous->data + 1);
     });
   }
 
-  const BurpTree::State * Factory::setPersistent(const char * persistent) {
+  bool Factory::setPersistent(const char * persistent) {
     return create([&]() -> const State * {
         const State * previous = getState();
         _persistent = persistent;
-        return new(getAddress()) State(getUid(), _persistent, previous->data);
+        return new(getAddress()) State(_persistent, previous->data);
     });
-  }
-
-  const State * Factory::_default() {
-    return new(getAddress()) State(getUid(), _persistent);
   }
 
   #define C_STR_LABEL "BurpTreeTest::State"

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Internal/State/Base.hpp"
+#include "Internal/State/Interface.hpp"
 
 namespace BurpTree {
-  using State = Internal::State::Base;
+  using State = Internal::State::Interface;
 }

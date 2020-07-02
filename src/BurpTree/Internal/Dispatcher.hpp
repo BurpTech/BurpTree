@@ -1,9 +1,9 @@
 #pragma once
 
 #include <functional>
-#include "Root.hpp"
-#include "Node/Interface.hpp"
-#include "Status.hpp"
+#include "Root/Interface.hpp"
+#include "Node/Id.hpp"
+#include "Node/Leaf/Interface.hpp"
 
 namespace BurpTree {
   namespace Internal {
@@ -13,20 +13,22 @@ namespace BurpTree {
 
       public:
 
-        using Id = Internal::Node::Interface::Id;
+        using Root = Root::Interface;
+        using Id = Node::Id;
+        using Leaf = Node::Leaf::Interface<Factory>;
+        using Status = typename Factory::Status;
 
-        using f_create = std::function<const State::Base * (Factory & factory)>;
+        using f_create = std::function<const bool (Factory & factory)>;
 
-        Dispatcher(Root & root, Id id, Factory & factory) :
+        Dispatcher(Root & root, Leaf & leaf) :
           _root(root),
-          _id(id),
-          _factory(factory)
+          _factory(leaf.getFactory()),
+          _id(leaf.getId())
         {}
 
-        const Status & dispatch(f_create create) {
-          const State::Base * state = create(_factory);
-          if (state) {
-            return _root.dispatch(_id, state);
+        const Internal::Status & dispatch(f_create create) {
+          if (create(_factory)) {
+            return _root.dispatch(_id);
           }
           return _factory.getStatus();
         }
@@ -34,8 +36,8 @@ namespace BurpTree {
       private:
 
         Root & _root;
-        Id _id;
         Factory & _factory;
+        const Id _id;
 
     };
 

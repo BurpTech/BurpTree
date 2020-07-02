@@ -1,7 +1,8 @@
 #pragma once
 
-#include "Internal/Root.hpp"
+#include "Internal/Root/Instance.hpp"
 
 namespace BurpTree {
-  using Root = Internal::Root;
+  template <class Node>
+  using Root = Internal::Root::Instance<Node>;
 }

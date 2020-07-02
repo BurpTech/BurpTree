@@ -5,13 +5,14 @@
 
 namespace BurpTreeTest {
 
-  class Subscriber : public BurpTree::Subscriber {
+  template <class State>
+  class Subscriber : public BurpTree::Subscriber<State> {
 
     public:
 
       using f_cb = std::function<void()>;
 
-      const BurpTree::State * state;
+      const State * state;
       unsigned int count;
 
       Subscriber() :
@@ -20,11 +21,11 @@ namespace BurpTreeTest {
         _cb(nullptr)
       {}
 
-      void setup(const BurpTree::State * initial) override {
+      void setup(const State * initial) override {
         state = initial;
       }
 
-      void onPublish(const BurpTree::State * next) override {
+      void update(const State * next) override {
         count++;
         state = next;
         if (_cb) {

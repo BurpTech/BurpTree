@@ -3,5 +3,6 @@
 #include "Internal/Subscriber.hpp"
 
 namespace BurpTree {
-  using Subscriber = Internal::Subscriber;
+  template <class State>
+  using Subscriber = Internal::Subscriber<State>;
 }
