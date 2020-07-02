@@ -11,7 +11,7 @@ namespace BurpTreeTest {
   using Node1 = BurpTree::Branch<2, 1>;
   using Node2 = BurpTree::Branch<3, 1>;
   using Node3 = BurpTree::Leaf<Factory, 1>;
-  using Dispatcher = BurpTree::Dispatcher<Factory>;
+  using Dispatcher = BurpTree::Dispatcher<Node3>;
   using Root = BurpTree::Root<Node1>;
 
   namespace A {

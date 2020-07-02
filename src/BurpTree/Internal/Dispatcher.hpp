@@ -3,19 +3,18 @@
 #include <functional>
 #include "Root/Interface.hpp"
 #include "Node/Id.hpp"
-#include "Node/Leaf/Interface.hpp"
 
 namespace BurpTree {
   namespace Internal {
 
-    template <class Factory>
+    template <class Leaf>
     class Dispatcher {
 
       public:
 
         using Root = Root::Interface;
         using Id = Node::Id;
-        using Leaf = Node::Leaf::Interface<Factory>;
+        using Factory = typename Leaf::Factory;
         using Status = typename Factory::Status;
 
         using f_create = std::function<const bool (Factory & factory)>;
