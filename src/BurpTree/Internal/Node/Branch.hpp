@@ -4,48 +4,55 @@
 #include "../State/Factory/Branch/Instance.hpp"
 #include "../Publisher.hpp"
 #include "Map.hpp"
-#include "Interface.hpp"
+#include "Base.hpp"
+#include <cstddef>
 
 namespace BurpTree {
   namespace Internal {
     namespace Node {
 
+      template <size_t nodeCount>
+      class BranchFactoryOwner {
+
+        protected:
+
+          using Factory = State::Factory::Branch::Instance<nodeCount>;
+          using Map = Node::Map<nodeCount>;
+
+          BranchFactoryOwner(const Map & map) :
+            _factoryInstance(map)
+          {}
+
+          Factory _factoryInstance;
+
+      };
+
       template <size_t nodeCount, size_t subscriberCount>
-      class Branch : public Interface {
+      class Branch : BranchFactoryOwner<nodeCount>, public Base<State::Factory::Branch::Instance<nodeCount>, subscriberCount> {
 
         public:
 
-          using Map = Node::Map<nodeCount>;
-          using Entry = Node::Entry;
-          using StateInterface = Internal::State::Interface;
+          using StateInterface = State::Interface;
           using State = State::Branch<nodeCount>;
-          using Publisher = Internal::Publisher<State, subscriberCount>;
-          using Subscribers = typename Publisher::Subscribers;
-          using Factory = Internal::State::Factory::Branch::Instance<nodeCount>;
+          using BranchFactoryOwner = Node::BranchFactoryOwner<nodeCount>;
+          using Factory = typename BranchFactoryOwner::Factory;
+          using Base = Node::Base<Factory, subscriberCount>;
+          using Map = typename BranchFactoryOwner::Map;
+          using Entry = Node::Entry;
+          using Subscribers = typename Base::Subscribers;
           using Index = typename State::Index;
           using States = typename State::States;
           using Id = Node::Id;
 
           Branch(const Map & map, const Subscribers & subscribers) :
+            BranchFactoryOwner(map),
+            Base(this->_factoryInstance, subscribers),
             _map(map),
-            _factory(map),
-            _publisher(subscribers),
             _notify(false)
           {}
 
-          const StateInterface * setup(const JsonObject & serialized) override {
-            if (!_factory.deserialize(serialized)) {
-              if (!_factory.createDefault()) {
-                return nullptr;
-              }
-            }
-            auto state = _factory.getState();
-            _publisher.setup(state);
-            return state;
-          }
-
           const StateInterface * update(const Id changed) override {
-            const State * previous = _factory.getState();
+            const State * previous = this->_factoryInstance.getState();
             States states;
             for (Index index = 0; index < nodeCount; index++) {
               auto state = _map[index]->node->update(changed);
@@ -57,14 +64,10 @@ namespace BurpTree {
               }
             }
             if (_notify) {
-              _factory.update(states);
-              return _factory.getState();
+              this->_factoryInstance.update(states);
+              return this->_factoryInstance.getState();
             }
             return nullptr;
-          }
-
-          const State * getState() const {
-            return _factory.getState();
           }
 
           void notify() override {
@@ -73,15 +76,13 @@ namespace BurpTree {
               for (Index index = 0; index < nodeCount; index++) {
                 _map[index]->node->notify();
               }
-              _publisher.notify(_factory.getState());
+              this->_publisher.notify(this->_factoryInstance.getState());
             }
           }
 
         private:
 
           const Map & _map;
-          Factory _factory;
-          Publisher _publisher;
           bool _notify;
 
       };
