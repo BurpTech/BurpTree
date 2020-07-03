@@ -28,13 +28,13 @@ namespace BurpTree {
               {}
 
               bool update(const States & states) {
-                return Base::create([&]() -> const State * {
-                    return Base::ok(new(this->getAddress()) State(_map, states));
+                return this->create([&]() -> const State * {
+                    return this->ok(new(this->getAddress()) State(_map, states));
                 });
               }
 
               bool deserialize(const JsonObject & serialized) override {
-                return Base::create([&]() -> const State * {
+                return this->create([&]() -> const State * {
                     States states;
                     for (Index index = 0; index < nodeCount; index++) {
                       const Entry * entry = _map[index];
@@ -42,17 +42,17 @@ namespace BurpTree {
                           serialized[entry->field].template as<JsonObject>()
                       );
                       if (!state) {
-                        return Base::error(Status::setupFailed);
+                        return this->error(Status::setupFailed);
                       }
                       states.set(index, state);
                     }
-                    return Base::ok(new(this->getAddress()) State(_map, states));
+                    return this->ok(new(this->getAddress()) State(_map, states));
                 });
               }
 
               bool createDefault() override {
-                return Base::create([&]() -> const State * {
-                    return Base::error(Status::noDefault);
+                return this->create([&]() -> const State * {
+                    return this->error(Status::noDefault);
                 });
               }
 
