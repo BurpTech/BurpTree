@@ -14,9 +14,9 @@ namespace BurpTree {
 
           using Id = Node::Id;
 
-          virtual void deserialize(const JsonObject & object) = 0;
+          virtual bool setup(const JsonObject & serialized) = 0;
           virtual void loop() = 0;
-          virtual const Status & dispatch(const Id id) = 0;
+          virtual const Status & update(const Id changed) = 0;
 
       };
 

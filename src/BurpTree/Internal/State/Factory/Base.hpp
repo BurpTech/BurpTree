@@ -25,7 +25,7 @@ namespace BurpTree {
             }
 
             virtual bool deserialize(const JsonObject & serialized) = 0;
-            virtual void createDefault() = 0;
+            virtual bool createDefault() = 0;
 
           protected:
 
@@ -36,7 +36,6 @@ namespace BurpTree {
             }
 
             bool create(f_construct construct) {
-              _status.set(Status::Level::INFO, Status::ok);
               const State * state = construct();
               if (state) {
                 _current++;
@@ -63,6 +62,11 @@ namespace BurpTree {
 
             const State * info(typename Status::Code code, const State * state) {
               _status.set(Status::Level::INFO, code);
+              return state;
+            }
+
+            const State * ok(const State * state) {
+              _status.set(Status::Level::INFO, Status::ok);
               return state;
             }
 

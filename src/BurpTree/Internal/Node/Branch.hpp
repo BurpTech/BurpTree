@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../State/Branch.hpp"
-#include "../State/Factory/Branch.hpp"
+#include "../State/Factory/Branch/Instance.hpp"
 #include "../Publisher.hpp"
 #include "Map.hpp"
 #include "Interface.hpp"
@@ -21,7 +21,7 @@ namespace BurpTree {
           using State = State::Branch<nodeCount>;
           using Publisher = Internal::Publisher<State, subscriberCount>;
           using Subscribers = typename Publisher::Subscribers;
-          using Factory = Internal::State::Factory::Branch<nodeCount>;
+          using Factory = Internal::State::Factory::Branch::Instance<nodeCount>;
           using Index = typename State::Index;
           using States = typename State::States;
           using Id = Node::Id;
@@ -33,18 +33,22 @@ namespace BurpTree {
             _notify(false)
           {}
 
-          const StateInterface * deserialize(const JsonObject & serialized) override {
-            _factory.deserialize(serialized);
-            const State * state = _factory.getState();
+          const StateInterface * setup(const JsonObject & serialized) override {
+            if (!_factory.deserialize(serialized)) {
+              if (!_factory.createDefault()) {
+                return nullptr;
+              }
+            }
+            auto state = _factory.getState();
             _publisher.setup(state);
             return state;
           }
 
-          const StateInterface * dispatch(const Id id) override {
+          const StateInterface * update(const Id changed) override {
             const State * previous = _factory.getState();
             States states;
             for (Index index = 0; index < nodeCount; index++) {
-              auto state = _map[index]->node->dispatch(id);
+              auto state = _map[index]->node->update(changed);
               if (state) {
                 _notify = true;
                 states.set(index, state);
@@ -53,7 +57,7 @@ namespace BurpTree {
               }
             }
             if (_notify) {
-              _factory.create(states);
+              _factory.update(states);
               return _factory.getState();
             }
             return nullptr;

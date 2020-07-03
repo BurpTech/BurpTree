@@ -22,9 +22,9 @@ namespace BurpTreeTest {
     _persistent = persistent;
   }
 
-  void Factory::createDefault() {
-    create([&]() -> const State * {
-        return new(getAddress()) State(_persistent);
+  bool Factory::createDefault() {
+    return create([&]() -> const State * {
+        return ok(new(getAddress()) State(_persistent));
     });
   }
 
@@ -34,7 +34,7 @@ namespace BurpTreeTest {
         const char * persistent = previous ? previous->persistent : _persistent;
         if (!serialized.isNull()) {
           if (serialized[dataField].is<int>()) {
-            return new(getAddress()) State(persistent, serialized[dataField].as<int>());
+            return ok(new(getAddress()) State(persistent, serialized[dataField].as<int>()));
           }
           return error(Status::invalidData);
         }
@@ -45,7 +45,7 @@ namespace BurpTreeTest {
   bool Factory::incrementData() {
     return create([&]() -> const State * {
         const State * previous = getState();
-        return new(getAddress()) State(previous->persistent, previous->data + 1);
+        return ok(new(getAddress()) State(previous->persistent, previous->data + 1));
     });
   }
 
@@ -53,7 +53,7 @@ namespace BurpTreeTest {
     return create([&]() -> const State * {
         const State * previous = getState();
         _persistent = persistent;
-        return new(getAddress()) State(_persistent, previous->data);
+        return ok(new(getAddress()) State(_persistent, previous->data));
     });
   }
 

@@ -13,10 +13,10 @@ namespace BurpTree {
           using Level = Status::Level;
 
           enum : Status::Code {
-            noError,
-            dispatchDuringNotification,
-            dispatchDuringDeserialize,
-            dispatchDuringDispatch
+            ok,
+            updateDuringNotification,
+            updateDuringSetup,
+            updateDuringUpdate
           };
 
           const char * c_str() const override;

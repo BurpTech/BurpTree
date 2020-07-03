@@ -34,7 +34,7 @@ namespace BurpTreeTest {
       void setInitialPersistent(const char * persistent);
 
       bool deserialize(const JsonObject & serialized) override;
-      void createDefault() override;
+      bool createDefault() override;
 
       bool incrementData();
       bool setPersistent(const char * newPersistent);

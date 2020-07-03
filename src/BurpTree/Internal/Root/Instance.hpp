@@ -13,15 +13,16 @@ namespace BurpTree {
 
           Instance(Node & node) :
             _node(node),
-            _dispatching(false),
+            _updating(false),
             _notifying(false),
-            _deserializing(false)
+            _settingUp(false)
           {}
 
-          void deserialize(const JsonObject & object) override {
-            _deserializing = true;
-            _node.deserialize(object);
-            _deserializing = false;
+          bool setup(const JsonObject & serialized) override {
+            _settingUp = true;
+            bool result = _node.setup(serialized);
+            _settingUp = false;
+            return result;
           }
 
           void loop() override {
@@ -33,35 +34,36 @@ namespace BurpTree {
             _notifying = false;
           }
 
-          const Status & dispatch(const Id id) override {
-            if (_deserializing) {
+          const Status & update(const Id changed) override {
+            if (_settingUp) {
               // prevent dispatch during deserialization and report error
-              _status.set(Status::Level::ERROR, Status::dispatchDuringDeserialize);
+              _status.set(Status::Level::ERROR, Status::updateDuringSetup);
               return _status;
             }
-            if (_dispatching) {
+            if (_updating) {
               // prevent dispatch during reduce and report error
-              _status.set(Status::Level::ERROR, Status::dispatchDuringDispatch);
+              _status.set(Status::Level::ERROR, Status::updateDuringUpdate);
               return _status;
             }
-            _status.set(Status::Level::INFO, Status::noError);
             if (_notifying) {
               // don't prevent dispatch during notification but
               // report warning so that users can detect when it happens
-              _status.set(Status::Level::WARNING, Status::dispatchDuringNotification);
+              _status.set(Status::Level::WARNING, Status::updateDuringNotification);
+            } else {
+              _status.set(Status::Level::INFO, Status::ok);
             }
-            _dispatching = true;
-            _node.dispatch(id);
-            _dispatching = false;
+            _updating = true;
+            _node.update(changed);
+            _updating = false;
             return _status;
           }
 
         private:
 
           Node & _node;
-          bool _dispatching;
+          bool _updating;
           bool _notifying;
-          bool _deserializing;
+          bool _settingUp;
           Status _status;
 
       };

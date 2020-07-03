@@ -11,7 +11,7 @@ namespace BurpTreeTest {
   using Node1 = BurpTree::Branch<2, 1>;
   using Node2 = BurpTree::Branch<3, 1>;
   using Node3 = BurpTree::Leaf<Factory, 1>;
-  using Dispatcher = BurpTree::Dispatcher<Node3>;
+  using Updater = BurpTree::Updater<Node3>;
   using Root = BurpTree::Root<Node1>;
 
   namespace A {
@@ -120,25 +120,25 @@ namespace BurpTreeTest {
 
   namespace A {
     namespace A {
-      Dispatcher dispatcher(root, node);
+      Updater updater(root, node);
     }
     namespace B {
-      Dispatcher dispatcher(root, node);
+      Updater updater(root, node);
     }
     namespace C {
-      Dispatcher dispatcher(root, node);
+      Updater updater(root, node);
     }
   }
 
   namespace B {
     namespace A {
-      Dispatcher dispatcher(root, node);
+      Updater updater(root, node);
     }
     namespace B {
-      Dispatcher dispatcher(root, node);
+      Updater updater(root, node);
     }
     namespace C {
-      Dispatcher dispatcher(root, node);
+      Updater updater(root, node);
     }
   }
 
@@ -146,12 +146,12 @@ namespace BurpTreeTest {
 
       describe.setup([]() {
 
-          A::A::dispatcher.getFactory().setInitialPersistent("aa");
-          A::B::dispatcher.getFactory().setInitialPersistent("ab");
-          A::C::dispatcher.getFactory().setInitialPersistent("ac");
-          B::A::dispatcher.getFactory().setInitialPersistent("ba");
-          B::B::dispatcher.getFactory().setInitialPersistent("bb");
-          B::C::dispatcher.getFactory().setInitialPersistent("bc");
+          A::A::updater.getFactory().setInitialPersistent("aa");
+          A::B::updater.getFactory().setInitialPersistent("ab");
+          A::C::updater.getFactory().setInitialPersistent("ac");
+          B::A::updater.getFactory().setInitialPersistent("ba");
+          B::B::updater.getFactory().setInitialPersistent("bb");
+          B::C::updater.getFactory().setInitialPersistent("bc");
 
           StaticJsonDocument<512> doc;
           doc[A::field][A::A::field][dataField] = 10;
@@ -165,7 +165,7 @@ namespace BurpTreeTest {
           // on initial deserialization
           //doc[B::field][B::C::field][dataField] = 60;
 
-          root.deserialize(doc.as<JsonObject>());
+          root.setup(doc.as<JsonObject>());
 
       });
 
@@ -214,10 +214,10 @@ namespace BurpTreeTest {
           TEST_ASSERT_EQUAL_STRING("bc", B::C::node.getState()->persistent);
       });
 
-      describe.describe("then dispatch incrementData A::A", [](Describe & describe) {
+      describe.describe("then update with incrementData A::A", [](Describe & describe) {
           describe.before([](f_done & done) {
               A::A::subscriber.callbackOnce(done);
-              A::A::dispatcher.dispatch(&Factory::incrementData);
+              A::A::updater.update(&Factory::incrementData);
           });
 
           describe.it("should notify the correct subscribers with the correct state", []() {
@@ -261,11 +261,11 @@ namespace BurpTreeTest {
               TEST_ASSERT_EQUAL_STRING("bc", B::C::node.getState()->persistent);
           });
 
-          describe.describe("then dispatch setPersistent on B::B", [](Describe & describe) {
+          describe.describe("then update with setPersistent on B::B", [](Describe & describe) {
               describe.before([](f_done & done) {
                   B::B::subscriber.callbackOnce(done);
                   using namespace std::placeholders;
-                  B::B::dispatcher.dispatch(std::bind(&Factory::setPersistent, _1, "BB"));
+                  B::B::updater.update(std::bind(&Factory::setPersistent, _1, "BB"));
               });
 
               describe.it("should notify the correct subscribers with the correct state", []() {
@@ -309,13 +309,13 @@ namespace BurpTreeTest {
                   TEST_ASSERT_EQUAL_STRING("bc", B::C::node.getState()->persistent);
               });
 
-              describe.describe("then dispatch deserialize on A::B", [](Describe & describe) {
+              describe.describe("then update with deserialize on A::B", [](Describe & describe) {
                   describe.before([](f_done & done) {
                       A::B::subscriber.callbackOnce(done);
                       StaticJsonDocument<512> doc;
                       doc[dataField] = 25;
                       using namespace std::placeholders;
-                      A::B::dispatcher.dispatch(std::bind(&Factory::deserialize, _1, doc.as<JsonObject>()));
+                      A::B::updater.update(std::bind(&Factory::deserialize, _1, doc.as<JsonObject>()));
                   });
 
                   describe.it("should notify the correct subscribers with the correct state", []() {
@@ -359,12 +359,12 @@ namespace BurpTreeTest {
                       TEST_ASSERT_EQUAL_STRING("bc", B::C::node.getState()->persistent);
                   });
 
-                  describe.describe("then dispatch invalid deserialize on A::B", [](Describe & describe) {
+                  describe.describe("then update with invalid deserialize on A::B", [](Describe & describe) {
                       describe.it("should return an invalidData status", []() {
                           StaticJsonDocument<512> doc;
                           doc[dataField] = "hello";
                           using namespace std::placeholders;
-                          const BurpTree::Status status = A::B::dispatcher.dispatch(std::bind(&Factory::deserialize, _1, doc.as<JsonObject>()));
+                          const BurpTree::Status status = A::B::updater.update(std::bind(&Factory::deserialize, _1, doc.as<JsonObject>()));
                           TEST_ASSERT_EQUAL(Status::Level::ERROR, status.getLevel());
                           TEST_ASSERT_EQUAL(Status::invalidData, status.getCode());
                       });
@@ -410,11 +410,11 @@ namespace BurpTreeTest {
                           TEST_ASSERT_EQUAL_STRING("bc", B::C::node.getState()->persistent);
                       });
 
-                      describe.describe("then dispatch empty deserialize on A::B", [](Describe & describe) {
+                      describe.describe("then update with empty deserialize on A::B", [](Describe & describe) {
                           describe.it("should return a noObject status", []() {
                               StaticJsonDocument<512> doc;
                               using namespace std::placeholders;
-                              const BurpTree::Status status = A::B::dispatcher.dispatch(std::bind(&Factory::deserialize, _1, doc.as<JsonObject>()));
+                              const BurpTree::Status status = A::B::updater.update(std::bind(&Factory::deserialize, _1, doc.as<JsonObject>()));
                               TEST_ASSERT_EQUAL(Status::Level::ERROR, status.getLevel());
                               TEST_ASSERT_EQUAL(Status::noObject, status.getCode());
                           });

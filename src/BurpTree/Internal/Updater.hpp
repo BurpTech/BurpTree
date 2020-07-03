@@ -8,7 +8,7 @@ namespace BurpTree {
   namespace Internal {
 
     template <class Leaf>
-    class Dispatcher {
+    class Updater {
 
       public:
 
@@ -19,15 +19,15 @@ namespace BurpTree {
 
         using f_create = std::function<const bool (Factory & factory)>;
 
-        Dispatcher(Root & root, Leaf & leaf) :
+        Updater(Root & root, Leaf & leaf) :
           _root(root),
           _factory(leaf.getFactory()),
           _id(leaf.getId())
         {}
 
-        const Internal::Status & dispatch(f_create create) {
+        const Internal::Status & update(f_create create) {
           if (create(_factory)) {
-            return _root.dispatch(_id);
+            return _root.update(_id);
           }
           return _factory.getStatus();
         }

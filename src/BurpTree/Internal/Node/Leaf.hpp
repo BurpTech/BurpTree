@@ -34,17 +34,19 @@ namespace BurpTree {
             return _factory;
           }
 
-          const StateInterface * deserialize(const JsonObject & serialized) override {
+          const StateInterface * setup(const JsonObject & serialized) override {
             if (!_factory.deserialize(serialized)) {
-              _factory.createDefault();
+              if (!_factory.createDefault()) {
+                return nullptr;
+              }
             }
             auto state = _factory.getState();
             _publisher.setup(state);
             return state;
           }
 
-          const StateInterface * dispatch(const Id id) override {
-            if (id == _id) {
+          const StateInterface * update(const Id changed) override {
+            if (changed == _id) {
               _notify = true;
               return _factory.getState();
             }
