@@ -19,35 +19,44 @@ namespace BurpTreeTest {
     namespace A {
       Subscriber<State> subscriber;
       Factory factory;
-      Node3 node(NodeId::aa, factory, Node3::Subscribers({
+      const Node3::Subscribers subscribers = {
           &subscriber
-      }));
+      };
+      Node3 node(NodeId::aa, factory, subscribers);
+      const Node2::Entry entry = {field, &node};
     }
 
     namespace B {
       Subscriber<State> subscriber;
       Factory factory;
-      Node3 node(NodeId::ab, factory, Node3::Subscribers({
+      const Node3::Subscribers subscribers = {
           &subscriber
-      }));
+      };
+      Node3 node(NodeId::ab, factory, subscribers);
+      const Node2::Entry entry = {field, &node};
     }
 
     namespace C {
       Subscriber<State> subscriber;
       Factory factory;
-      Node3 node(NodeId::ac, factory, Node3::Subscribers({
+      const Node3::Subscribers subscribers = {
           &subscriber
-      }));
+      };
+      Node3 node(NodeId::ac, factory, subscribers);
+      const Node2::Entry entry = {field, &node};
     }
 
+    const Node2::Map map = {
+        &A::entry,
+        &B::entry,
+        &C::entry
+    };
     Subscriber<Node2::State> subscriber;
-    Node2 node(Node2::Map({
-        Node2::Entry({A::field, &A::node}),
-        Node2::Entry({B::field, &B::node}),
-        Node2::Entry({C::field, &C::node}),
-    }), Node2::Subscribers({
+    const Node2::Subscribers subscribers = {
         &subscriber
-    }));
+    };
+    Node2 node(map, subscribers);
+    const Node1::Entry entry = {field, &node};
 
   }
 
@@ -56,45 +65,56 @@ namespace BurpTreeTest {
     namespace A {
       Subscriber<State> subscriber;
       Factory factory;
-      Node3 node(NodeId::ba, factory, Node3::Subscribers({
+      const Node3::Subscribers subscribers = {
           &subscriber
-      }));
+      };
+      Node3 node(NodeId::ba, factory, subscribers);
+      const Node2::Entry entry = {field, &node};
     }
 
     namespace B {
       Subscriber<State> subscriber;
       Factory factory;
-      Node3 node(NodeId::bb, factory, Node3::Subscribers({
+      const Node3::Subscribers subscribers = {
           &subscriber
-      }));
+      };
+      Node3 node(NodeId::bb, factory, subscribers);
+      const Node2::Entry entry = {field, &node};
     }
 
     namespace C {
       Subscriber<State> subscriber;
       Factory factory;
-      Node3 node(NodeId::bc, factory, Node3::Subscribers({
+      const Node3::Subscribers subscribers = {
           &subscriber
-      }));
+      };
+      Node3 node(NodeId::bc, factory, subscribers);
+      const Node2::Entry entry = {field, &node};
     }
 
+    const Node2::Map map = {
+        &A::entry,
+        &B::entry,
+        &C::entry
+    };
     Subscriber<Node2::State> subscriber;
-    Node2 node(Node2::Map({
-      Node2::Entry({A::field, &A::node}),
-      Node2::Entry({B::field, &B::node}),
-      Node2::Entry({C::field, &C::node}),
-    }), Node2::Subscribers({
+    const Node2::Subscribers subscribers = {
         &subscriber
-    }));
+    };
+    Node2 node(map, subscribers);
+    const Node1::Entry entry = {field, &node};
 
   }
 
+  const Node1::Map map = {
+      &A::entry,
+      &B::entry
+  };
   Subscriber<Node1::State> subscriber;
-  Node1 node(Node1::Map({
-      Node1::Entry({A::field, &A::node}),
-      Node1::Entry({B::field, &B::node})
-  }), Node1::Subscribers({
+  const Node1::Subscribers subscribers = {
       &subscriber
-  }));
+  };
+  Node1 node(map, subscribers);
 
   Root root(node);
 
@@ -126,12 +146,12 @@ namespace BurpTreeTest {
 
       describe.setup([]() {
 
-          A::A::factory.setInitialPersistent("aa");
-          A::B::factory.setInitialPersistent("ab");
-          A::C::factory.setInitialPersistent("ac");
-          B::A::factory.setInitialPersistent("ba");
-          B::B::factory.setInitialPersistent("bb");
-          B::C::factory.setInitialPersistent("bc");
+          A::A::dispatcher.getFactory().setInitialPersistent("aa");
+          A::B::dispatcher.getFactory().setInitialPersistent("ab");
+          A::C::dispatcher.getFactory().setInitialPersistent("ac");
+          B::A::dispatcher.getFactory().setInitialPersistent("ba");
+          B::B::dispatcher.getFactory().setInitialPersistent("bb");
+          B::C::dispatcher.getFactory().setInitialPersistent("bc");
 
           StaticJsonDocument<512> doc;
           doc[A::field][A::A::field][dataField] = 10;

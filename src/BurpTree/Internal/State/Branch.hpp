@@ -28,7 +28,7 @@ namespace BurpTree {
 
           void serialize(const JsonObject & serialized) const override {
             for (size_t index = 0; index < nodeCount; index++) {
-              auto field = _map[index].field;
+              auto field = _map[index]->field;
               _states.get(index)->serialize(serialized[field].template to<JsonObject>());
             }
           }

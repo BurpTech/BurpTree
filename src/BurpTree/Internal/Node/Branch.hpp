@@ -28,7 +28,7 @@ namespace BurpTree {
 
           Branch(const Map & map, const Subscribers & subscribers) :
             _map(map),
-            _factory(_map),
+            _factory(map),
             _publisher(subscribers),
             _notify(false)
           {}
@@ -44,7 +44,7 @@ namespace BurpTree {
             const State * previous = _factory.getState();
             States states;
             for (Index index = 0; index < nodeCount; index++) {
-              auto state = _map[index].node->dispatch(id);
+              auto state = _map[index]->node->dispatch(id);
               if (state) {
                 _notify = true;
                 states.set(index, state);
@@ -67,7 +67,7 @@ namespace BurpTree {
             if (_notify) {
               _notify = false;
               for (Index index = 0; index < nodeCount; index++) {
-                _map[index].node->notify();
+                _map[index]->node->notify();
               }
               _publisher.notify(_factory.getState());
             }
@@ -75,7 +75,7 @@ namespace BurpTree {
 
         private:
 
-          const Map _map;
+          const Map & _map;
           Factory _factory;
           Publisher _publisher;
           bool _notify;

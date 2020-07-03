@@ -35,9 +35,9 @@ namespace BurpTree {
             bool deserialize(const JsonObject & serialized) override {
               States states;
               for (Index index = 0; index < nodeCount; index++) {
-                const Entry & entry = _map[index];
-                auto state = entry.node->deserialize(
-                    serialized[entry.field].template as<JsonObject>()
+                const Entry * entry = _map[index];
+                auto state = entry->node->deserialize(
+                    serialized[entry->field].template as<JsonObject>()
                 );
                 states.set(index, state);
               }

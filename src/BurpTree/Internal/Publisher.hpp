@@ -13,7 +13,7 @@ namespace BurpTree {
 
         using Subscribers = std::array<Subscriber<State> *, subscriberCount>;
 
-        Publisher(const Subscribers subscribers) :
+        Publisher(const Subscribers & subscribers) :
             _subscribers(subscribers)
         {}
 
@@ -35,7 +35,7 @@ namespace BurpTree {
 
       private:
 
-        const Subscribers _subscribers;
+        const Subscribers & _subscribers;
 
     };
 

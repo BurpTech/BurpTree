@@ -13,7 +13,7 @@ namespace BurpTree {
       };
 
       template <size_t nodeCount>
-      using Map = std::array<const Entry, nodeCount>;
+      using Map = std::array<const Entry *, nodeCount>;
 
     }
   }

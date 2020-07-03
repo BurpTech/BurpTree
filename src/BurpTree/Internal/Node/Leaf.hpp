@@ -19,7 +19,7 @@ namespace BurpTree {
           using Subscribers = typename Publisher::Subscribers;
           using Id = Node::Id;
 
-          Leaf(const Id id, Factory & factory, const Subscribers subscribers) :
+          Leaf(const Id id, Factory & factory, const Subscribers & subscribers) :
             _id(id),
             _factory(factory),
             _publisher(subscribers),
