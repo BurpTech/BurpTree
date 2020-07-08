@@ -58,8 +58,8 @@ namespace BurpTreeTest {
   }
 
   #define C_STR_LABEL "BurpTreeTest::State"
-  #define C_STR_CASE(CODE) BURP_TREE_C_STR_CASE(C_STR_LABEL, CODE)
-  #define C_STR_DEFAULT BURP_TREE_C_STR_DEFAULT(C_STR_LABEL)
+  #define C_STR_CASE(CODE) BURP_STATUS_C_STR_CASE(C_STR_LABEL, CODE)
+  #define C_STR_DEFAULT BURP_STATUS_C_STR_DEFAULT(C_STR_LABEL)
   const char * Status::c_str() const {
     switch (getCode()) {
       C_STR_CASE(ok);

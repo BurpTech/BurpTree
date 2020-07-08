@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../../Status.hpp"
+#include <BurpStatus.hpp>
 
 namespace BurpTree {
   namespace Internal {
@@ -8,7 +8,7 @@ namespace BurpTree {
       namespace Factory {
         namespace Branch {
 
-          class Status : public Internal::Status {
+          class Status : public BurpStatus::Status {
 
             public: 
 

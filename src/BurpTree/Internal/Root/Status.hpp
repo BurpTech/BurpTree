@@ -1,12 +1,12 @@
 #pragma once
 
-#include "../Status.hpp"
+#include <BurpStatus.hpp>
 
 namespace BurpTree {
   namespace Internal {
     namespace Root {
 
-      class Status : public Internal::Status {
+      class Status : public BurpStatus::Status {
 
         public: 
 

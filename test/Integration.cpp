@@ -174,27 +174,27 @@ namespace BurpTreeTest {
       });
 
       describe.it("should set the correct statuses on the factories", []() {
-          const BurpTree::Status statusAA = A::A::factory.getStatus();
+          const BurpStatus::Status statusAA = A::A::factory.getStatus();
           TEST_ASSERT_EQUAL(Status::Level::INFO, statusAA.getLevel());
           TEST_ASSERT_EQUAL(Status::ok, statusAA.getCode());
 
-          const BurpTree::Status statusAB = A::B::factory.getStatus();
+          const BurpStatus::Status statusAB = A::B::factory.getStatus();
           TEST_ASSERT_EQUAL(Status::Level::INFO, statusAB.getLevel());
           TEST_ASSERT_EQUAL(Status::ok, statusAB.getCode());
 
-          const BurpTree::Status statusAC = A::C::factory.getStatus();
+          const BurpStatus::Status statusAC = A::C::factory.getStatus();
           TEST_ASSERT_EQUAL(Status::Level::INFO, statusAC.getLevel());
           TEST_ASSERT_EQUAL(Status::ok, statusAC.getCode());
 
-          const BurpTree::Status statusBA = B::A::factory.getStatus();
+          const BurpStatus::Status statusBA = B::A::factory.getStatus();
           TEST_ASSERT_EQUAL(Status::Level::INFO, statusBA.getLevel());
           TEST_ASSERT_EQUAL(Status::ok, statusBA.getCode());
 
-          const BurpTree::Status statusBB = B::B::factory.getStatus();
+          const BurpStatus::Status statusBB = B::B::factory.getStatus();
           TEST_ASSERT_EQUAL(Status::Level::INFO, statusBB.getLevel());
           TEST_ASSERT_EQUAL(Status::ok, statusBB.getCode());
 
-          const BurpTree::Status statusBC = B::C::factory.getStatus();
+          const BurpStatus::Status statusBC = B::C::factory.getStatus();
           TEST_ASSERT_EQUAL(Status::Level::INFO, statusBC.getLevel());
           TEST_ASSERT_EQUAL(Status::ok, statusBC.getCode());
       });
@@ -364,7 +364,7 @@ namespace BurpTreeTest {
                           StaticJsonDocument<512> doc;
                           doc[dataField] = "hello";
                           using namespace std::placeholders;
-                          const BurpTree::Status status = A::B::updater.update(std::bind(&Factory::deserialize, _1, doc.as<JsonObject>()));
+                          const BurpStatus::Status status = A::B::updater.update(std::bind(&Factory::deserialize, _1, doc.as<JsonObject>()));
                           TEST_ASSERT_EQUAL(Status::Level::ERROR, status.getLevel());
                           TEST_ASSERT_EQUAL(Status::invalidData, status.getCode());
                       });
@@ -414,7 +414,7 @@ namespace BurpTreeTest {
                           describe.it("should return a noObject status", []() {
                               StaticJsonDocument<512> doc;
                               using namespace std::placeholders;
-                              const BurpTree::Status status = A::B::updater.update(std::bind(&Factory::deserialize, _1, doc.as<JsonObject>()));
+                              const BurpStatus::Status status = A::B::updater.update(std::bind(&Factory::deserialize, _1, doc.as<JsonObject>()));
                               TEST_ASSERT_EQUAL(Status::Level::ERROR, status.getLevel());
                               TEST_ASSERT_EQUAL(Status::noObject, status.getCode());
                           });

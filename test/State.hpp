@@ -17,9 +17,9 @@ namespace BurpTreeTest {
 
   };
 
-  class Status : public BurpTree::Status {
+  class Status : public BurpStatus::Status {
     public:
-      enum : BurpTree::Status::Code {
+      enum : BurpStatus::Status::Code {
         ok,
         invalidData,
         noObject

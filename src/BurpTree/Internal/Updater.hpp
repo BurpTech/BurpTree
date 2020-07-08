@@ -25,7 +25,7 @@ namespace BurpTree {
           _id(leaf.getId())
         {}
 
-        const Internal::Status & update(f_create create) {
+        const BurpStatus::Status & update(f_create create) {
           if (create(_factory)) {
             return _root.update(_id);
           }
