@@ -1,4 +1,4 @@
-#ifndef NATIVE
+#ifndef BURP_NATIVE
 #include <Arduino.h>
 #endif
 
@@ -43,7 +43,7 @@ void loop() {
     runner.loop();
     if (runner.isFinished()) {
       // BurpUnity::Usage::printUsage(memory, runner);
-      // BurpUnity::Usage::printUsageDefines(memory, runner);
+      // BurpUnity::Usage::printUsageDefines(memory, runner, 1);
       status = UNITY_END();
       running = false;
     }
