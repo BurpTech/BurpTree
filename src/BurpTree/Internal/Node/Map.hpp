@@ -1,7 +1,7 @@
 #pragma once
 
 #include <array>
-#include "Interface.hpp"
+#include "Interface2.hpp"
 
 namespace BurpTree {
   namespace Internal {
@@ -9,7 +9,7 @@ namespace BurpTree {
 
       struct Entry {
         const char * field;
-        Interface * node;
+        Interface2 * node;
       };
 
       template <size_t nodeCount>

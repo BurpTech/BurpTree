@@ -1,14 +1,14 @@
 #pragma once
 
 #include "../Publisher.hpp"
-#include "Interface.hpp"
+#include "Interface2.hpp"
 
 namespace BurpTree {
   namespace Internal {
     namespace Node {
 
       template <class _Factory, size_t subscriberCount>
-      class Base : public Interface {
+      class Base : public Interface<typename _Factory::State> {
 
         public:
 
@@ -27,7 +27,7 @@ namespace BurpTree {
             return _factory;
           }
 
-          const State * getState() const {
+          const State * getState() const override {
             return _factory.getState();
           }
 

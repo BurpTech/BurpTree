@@ -1,20 +1,17 @@
 #pragma once
 
-#include <ArduinoJson.h>
-#include "../State/Interface.hpp"
-#include "Id.hpp"
+#include "Interface2.hpp"
 
 namespace BurpTree {
   namespace Internal {
     namespace Node {
 
-      class Interface {
+      template <class State>
+      class Interface : public Interface2 {
 
         public:
 
-          virtual const State::Interface * setup(const JsonObject & object) = 0;
-          virtual const State::Interface * update(const Id changed) = 0;
-          virtual void notify() = 0;
+          virtual const State * getState() const = 0;
 
       };
 
