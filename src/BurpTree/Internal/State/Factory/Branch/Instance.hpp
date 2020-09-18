@@ -33,13 +33,13 @@ namespace BurpTree {
                 });
               }
 
-              bool deserialize(const JsonObject & serialized) override {
+              bool deserialize(const JsonVariant & serialized) override {
                 return this->create([&]() -> const State * {
                     States states;
                     for (Index index = 0; index < nodeCount; index++) {
                       const Entry * entry = _map[index];
                       auto state = entry->node->setup(
-                          serialized[entry->field].template as<JsonObject>()
+                          serialized[entry->field].template as<JsonVariant>()
                       );
                       if (!state) {
                         return this->error(Status::setupFailed);

@@ -14,7 +14,7 @@ namespace BurpTreeTest {
     State(persistent, defaultData)
   {}
 
-  void State::serialize(const JsonObject & serialized) const {
+  void State::serialize(const JsonVariant & serialized) const {
     serialized[dataField] = data;
   }
 
@@ -28,7 +28,7 @@ namespace BurpTreeTest {
     });
   }
 
-  bool Factory::deserialize(const JsonObject & serialized) {
+  bool Factory::deserialize(const JsonVariant & serialized) {
     return create([&]() -> const State * {
         const State * previous = getState();
         const char * persistent = previous ? previous->persistent : _persistent;

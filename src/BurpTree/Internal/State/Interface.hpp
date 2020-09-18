@@ -10,7 +10,7 @@ namespace BurpTree {
 
         public:
 
-          virtual void serialize(const JsonObject & serialized) const = 0;
+          virtual void serialize(const JsonVariant & serialized) const = 0;
 
           template <class Derived>
           const Derived * as() const {

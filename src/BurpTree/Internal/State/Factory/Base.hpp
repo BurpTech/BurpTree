@@ -24,7 +24,7 @@ namespace BurpTree {
               return _status;
             }
 
-            virtual bool deserialize(const JsonObject & serialized) = 0;
+            virtual bool deserialize(const JsonVariant & serialized) = 0;
             virtual bool createDefault() = 0;
 
           protected:

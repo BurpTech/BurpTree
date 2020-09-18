@@ -31,7 +31,7 @@ namespace BurpTree {
             return _factory.getState();
           }
 
-          const StateInterface * setup(const JsonObject & serialized) override {
+          const StateInterface * setup(const JsonVariant & serialized) override {
             if (!_factory.deserialize(serialized)) {
               if (!_factory.createDefault()) {
                 return nullptr;

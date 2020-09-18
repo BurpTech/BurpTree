@@ -18,7 +18,7 @@ namespace BurpTree {
             _settingUp(false)
           {}
 
-          bool setup(const JsonObject & serialized) override {
+          bool setup(const JsonVariant & serialized) override {
             _settingUp = true;
             bool result = _node.setup(serialized);
             _settingUp = false;

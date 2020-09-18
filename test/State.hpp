@@ -13,7 +13,7 @@ namespace BurpTreeTest {
 
       State(const char * persistent);
       State(const char * persistent, const int data);
-      void serialize(const JsonObject & serialized) const override;
+      void serialize(const JsonVariant & serialized) const override;
 
   };
 
@@ -33,7 +33,7 @@ namespace BurpTreeTest {
 
       void setInitialPersistent(const char * persistent);
 
-      bool deserialize(const JsonObject & serialized) override;
+      bool deserialize(const JsonVariant & serialized) override;
       bool createDefault() override;
 
       bool incrementData();
