@@ -14,8 +14,8 @@ namespace BurpTreeTest {
     State(persistent, defaultData)
   {}
 
-  void State::serialize(const JsonVariant & serialized) const {
-    serialized[dataField] = data;
+  bool State::serialize(const JsonVariant & serialized) const {
+    return serialized[dataField].set(data);
   }
 
   void Factory::setInitialPersistent(const char * persistent) {

@@ -26,11 +26,14 @@ namespace BurpTree {
             return _states.get(index);
           }
 
-          void serialize(const JsonVariant & serialized) const override {
+          bool serialize(const JsonVariant & serialized) const override {
+            bool ret = true;
             for (size_t index = 0; index < nodeCount; index++) {
               auto field = _map[index]->field;
-              _states.get(index)->serialize(serialized[field].template to<JsonVariant>());
+              auto success = _states.get(index)->serialize(serialized[field].template to<JsonVariant>());
+              ret = ret && success;
             }
+            return ret;
           }
 
         private:

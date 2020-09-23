@@ -13,7 +13,7 @@ namespace BurpTreeTest {
 
       State(const char * persistent);
       State(const char * persistent, const int data);
-      void serialize(const JsonVariant & serialized) const override;
+      bool serialize(const JsonVariant & serialized) const override;
 
   };
 
